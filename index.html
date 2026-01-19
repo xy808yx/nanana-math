@@ -79,12 +79,44 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             min-height: 100%;
             min-height: -webkit-fill-available;
             padding: 15px;
             padding-top: max(15px, env(safe-area-inset-top));
             padding-bottom: max(15px, env(safe-area-inset-bottom));
+            overflow-y: auto;
+        }
+
+        /* Desktop adjustments */
+        @media (min-width: 500px) and (min-height: 700px) {
+            body {
+                align-items: center;
+            }
+        }
+
+        /* Compact layout for shorter viewports */
+        @media (max-height: 750px) {
+            .practice-container { padding: 15px; }
+            .tier-progress { padding: 10px; margin-bottom: 10px; }
+            .pomodoro-section { padding: 8px 15px; margin-bottom: 10px; }
+            .problem-area { padding: 10px; }
+            .numpad { gap: 6px; margin-top: 10px; }
+            .numpad button { padding: 12px; font-size: 1.5rem; }
+            .audio-controls { margin-bottom: 8px; }
+            .problem { font-size: 2.2rem; margin-bottom: 10px; }
+            .answer-box { font-size: 2rem; padding: 8px 20px; margin-bottom: 8px; }
+        }
+
+        @media (max-height: 650px) {
+            .practice-container { padding: 10px; }
+            .tier-progress { padding: 8px; margin-bottom: 8px; }
+            .pomodoro-section { padding: 6px 12px; margin-bottom: 8px; }
+            .numpad button { padding: 10px; font-size: 1.3rem; }
+            .problem { font-size: 1.8rem; margin-bottom: 8px; }
+            .answer-box { font-size: 1.6rem; padding: 6px 15px; }
+            .audio-controls { gap: 6px; margin-bottom: 6px; }
+            .audio-btn { width: 36px; height: 36px; }
         }
 
         /* Screens with smooth transitions */
@@ -6094,17 +6126,6 @@
             }
             showDashboard();
         }
-
-        // ============================================
-        // KEYBOARD SUPPORT
-        // ============================================
-        document.addEventListener('keydown', function(e) {
-            if (!document.getElementById('practiceScreen').classList.contains('active')) return;
-
-            if (e.key >= '0' && e.key <= '9') numPress(e.key);
-            else if (e.key === 'Backspace') { e.preventDefault(); clearInput(); }
-            else if (e.key === 'Enter') checkAnswer();
-        });
 
         // ============================================
         // ACHIEVEMENTS

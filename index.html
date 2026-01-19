@@ -1028,6 +1028,96 @@
                 name: 'Compare to 100',
                 facts: generateComparisonFacts(100),
                 requiredMastery: 0.9
+            },
+            // Skip Counting
+            {
+                id: 'skip2',
+                name: 'Count by 2s',
+                facts: generateSkipCountingFacts(2),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'skip5',
+                name: 'Count by 5s',
+                facts: generateSkipCountingFacts(5),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'skip10',
+                name: 'Count by 10s',
+                facts: generateSkipCountingFacts(10),
+                requiredMastery: 0.9
+            },
+            // Number Bonds
+            {
+                id: 'bonds10',
+                name: 'Bonds to 10',
+                facts: generateNumberBondsFacts(10),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'bonds20',
+                name: 'Bonds to 20',
+                facts: generateNumberBondsFacts(20),
+                requiredMastery: 0.9
+            },
+            // Even/Odd
+            {
+                id: 'evenodd',
+                name: 'Even or Odd',
+                facts: generateEvenOddFacts(),
+                requiredMastery: 0.9
+            },
+            // Missing Multiplication
+            {
+                id: 'missing_mult2',
+                name: 'Missing × 2',
+                facts: generateMissingMultiplicationFacts(2),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'missing_mult5',
+                name: 'Missing × 5',
+                facts: generateMissingMultiplicationFacts(5),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'missing_mult10',
+                name: 'Missing × 10',
+                facts: generateMissingMultiplicationFacts(10),
+                requiredMastery: 0.9
+            },
+            // More Division
+            {
+                id: 'div6',
+                name: 'Divide by 6',
+                facts: generateDivisionFacts(6),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'div7',
+                name: 'Divide by 7',
+                facts: generateDivisionFacts(7),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'div8',
+                name: 'Divide by 8',
+                facts: generateDivisionFacts(8),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'div9',
+                name: 'Divide by 9',
+                facts: generateDivisionFacts(9),
+                requiredMastery: 0.9
+            },
+            // Thirds
+            {
+                id: 'fractions_third',
+                name: 'Fractions: Thirds',
+                facts: generateFractionFacts('third'),
+                requiredMastery: 0.9
             }
         ];
 
@@ -1229,6 +1319,82 @@
                         display: `¼ of ${num} = ?`
                     });
                 }
+            } else if (type === 'third') {
+                // "Third of 9 = ?" → 3
+                for (let num = 3; num <= 30; num += 3) {
+                    facts.push({
+                        a: num,
+                        op: 'third',
+                        answer: num / 3,
+                        display: `⅓ of ${num} = ?`
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generateSkipCountingFacts(skip) {
+            const facts = [];
+            // "What comes next: 5, 10, 15, ?" → 20
+            for (let start = skip; start <= skip * 8; start += skip) {
+                const seq = [start, start + skip, start + skip * 2];
+                const answer = start + skip * 3;
+                facts.push({
+                    a: seq,
+                    op: 'skip',
+                    answer: answer,
+                    display: `${seq.join(', ')}, ?`,
+                    skip: skip
+                });
+            }
+            return facts;
+        }
+
+        function generateNumberBondsFacts(target) {
+            const facts = [];
+            // "What pairs with 3 to make 10?" → 7
+            for (let a = 1; a < target; a++) {
+                const b = target - a;
+                facts.push({
+                    a: a,
+                    b: b,
+                    op: 'bond',
+                    answer: b,
+                    display: `${a} + ? = ${target}`,
+                    target: target
+                });
+            }
+            return facts;
+        }
+
+        function generateEvenOddFacts() {
+            const facts = [];
+            // "Is 7 even or odd?" - answer: 1 for odd, 0 for even
+            for (let num = 1; num <= 20; num++) {
+                facts.push({
+                    a: num,
+                    op: 'evenodd',
+                    answer: num % 2, // 0 = even, 1 = odd
+                    display: `${num}: even or odd?`,
+                    isOdd: num % 2 === 1
+                });
+            }
+            return facts;
+        }
+
+        function generateMissingMultiplicationFacts(multiplier) {
+            const facts = [];
+            // "3 × ? = 12" → 4
+            for (let a = 1; a <= 10; a++) {
+                const product = a * multiplier;
+                facts.push({
+                    a: multiplier,
+                    b: a,
+                    op: '×?',
+                    answer: a,
+                    display: `${multiplier} × ? = ${product}`,
+                    product: product
+                });
             }
             return facts;
         }
@@ -1339,6 +1505,16 @@
                 text = `What is half of ${fact.a}?`;
             } else if (fact.op === 'quarter') {
                 text = `What is one quarter of ${fact.a}?`;
+            } else if (fact.op === 'third') {
+                text = `What is one third of ${fact.a}?`;
+            } else if (fact.op === 'skip') {
+                text = `${fact.a.join(', ')}... what comes next?`;
+            } else if (fact.op === 'bond') {
+                text = `${fact.a} plus what equals ${fact.target}?`;
+            } else if (fact.op === 'evenodd') {
+                text = `Is ${fact.a} even or odd? Press 0 for even, 1 for odd.`;
+            } else if (fact.op === '×?') {
+                text = `${fact.a} times what equals ${fact.product}?`;
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
@@ -1347,12 +1523,18 @@
             speechSynthesis.speak(utterance);
         }
 
-        function speakFeedback(correct, answer) {
+        function speakFeedback(correct, answer, fact) {
             if (!speakEnabled || !('speechSynthesis' in window)) return;
 
             speechSynthesis.cancel();
 
-            const text = correct ? 'Correct!' : `The answer is ${answer}`;
+            let text = correct ? 'Correct!' : `The answer is ${answer}`;
+
+            // Special feedback for even/odd
+            if (!correct && fact && fact.op === 'evenodd') {
+                text = fact.isOdd ? `${fact.a} is odd` : `${fact.a} is even`;
+            }
+
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.rate = 0.9;
             utterance.pitch = 1.1;
@@ -1466,6 +1648,37 @@
                 html += `</div>`;
                 html += `<div class="dots-equals">=</div>`;
                 html += `<div class="dots-result">?</div>`;
+            }
+            else if (fact.op === 'third') {
+                // Show a bar divided in thirds with one part shaded
+                html = `<div style="display:flex;gap:4px;">`;
+                html += `<div style="width:35px;height:35px;background:var(--success);border-radius:4px;"></div>`;
+                for (let i = 0; i < 2; i++) {
+                    html += `<div style="width:35px;height:35px;background:rgba(255,255,255,0.1);border:2px solid var(--success);border-radius:4px;"></div>`;
+                }
+                html += `</div>`;
+                html += `<div class="dots-equals">=</div>`;
+                html += `<div class="dots-result">?</div>`;
+            }
+            // Number bonds: show dots for both parts
+            else if (fact.op === 'bond' && fact.target <= 12) {
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.a; i++) html += '<div class="dot"></div>';
+                html += '</div>';
+                html += '<div class="dots-operator">+</div>';
+                html += '<div class="dots-result">?</div>';
+                html += '<div class="dots-equals">=</div>';
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.target; i++) html += '<div class="dot" style="opacity:0.5;"></div>';
+                html += '</div>';
+            }
+            // Even/Odd: show dots to help visualize pairs
+            else if (fact.op === 'evenodd' && fact.a <= 12) {
+                html = '<div class="dot-group" style="max-width:150px;">';
+                for (let i = 0; i < fact.a; i++) {
+                    html += '<div class="dot"></div>';
+                }
+                html += '</div>';
             }
 
             container.innerHTML = html;
@@ -1697,8 +1910,20 @@
             } else if (currentFact.op === 'build') {
                 hintEl.textContent = 'Build the number';
                 hintEl.style.display = 'block';
-            } else if (currentFact.op === 'half' || currentFact.op === 'quarter') {
+            } else if (currentFact.op === 'half' || currentFact.op === 'quarter' || currentFact.op === 'third') {
                 hintEl.textContent = 'Find the fraction';
+                hintEl.style.display = 'block';
+            } else if (currentFact.op === 'skip') {
+                hintEl.textContent = 'What comes next?';
+                hintEl.style.display = 'block';
+            } else if (currentFact.op === 'bond') {
+                hintEl.textContent = 'Find the pair';
+                hintEl.style.display = 'block';
+            } else if (currentFact.op === 'evenodd') {
+                hintEl.textContent = '0 = even, 1 = odd';
+                hintEl.style.display = 'block';
+            } else if (currentFact.op === '×?') {
+                hintEl.textContent = 'Find the missing number';
                 hintEl.style.display = 'block';
             } else {
                 hintEl.style.display = 'none';
@@ -1829,7 +2054,7 @@
             document.getElementById('feedback').className = 'feedback correct';
 
             playSound('correct');
-            speakFeedback(true);
+            speakFeedback(true, null, currentFact);
 
             // Check for mastery (5 correct with < 20% error rate)
             const errorRate = progress.wrong / (progress.correct + progress.wrong);
@@ -1861,13 +2086,20 @@
             }
 
             document.getElementById('answerBox').classList.add('wrong');
+
+            // Special display for even/odd
+            let answerText = currentFact.answer;
+            if (currentFact.op === 'evenodd') {
+                answerText = currentFact.isOdd ? 'odd (1)' : 'even (0)';
+            }
+
             document.getElementById('feedback').innerHTML = `
-                <span class="correct-answer">The answer is ${currentFact.answer}</span>
+                <span class="correct-answer">The answer is ${answerText}</span>
             `;
             document.getElementById('feedback').className = 'feedback wrong';
 
             playSound('wrong');
-            speakFeedback(false, currentFact.answer);
+            speakFeedback(false, currentFact.answer, currentFact);
         }
 
         function checkTierAdvancement() {

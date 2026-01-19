@@ -97,28 +97,36 @@
             }
         }
 
-        /* Compact layout for shorter viewports */
-        @media (max-height: 750px) {
-            .practice-container { padding: 15px; }
-            .tier-progress { padding: 10px; margin-bottom: 10px; }
-            .pomodoro-section { padding: 8px 15px; margin-bottom: 10px; }
-            .problem-area { padding: 10px; }
-            .numpad { gap: 6px; margin-top: 10px; }
-            .numpad button { padding: 12px; font-size: 1.5rem; }
-            .audio-controls { margin-bottom: 8px; }
-            .problem { font-size: 2.2rem; margin-bottom: 10px; }
-            .answer-box { font-size: 2rem; padding: 8px 20px; margin-bottom: 8px; }
+        /* Compact layout - always compact on mobile */
+        @media (max-height: 850px) {
+            .practice-container { padding: 12px; }
+            .tier-progress { padding: 8px 12px; margin-bottom: 8px; }
+            .pomodoro-section { padding: 6px 10px; margin-bottom: 8px; }
+            .problem-area { padding: 8px; }
+            .numpad { gap: 6px; margin-top: 8px; }
+            .numpad button { padding: 12px; font-size: 1.4rem; }
+            .problem { font-size: 2rem; margin-bottom: 8px; }
+            .answer-box { font-size: 1.8rem; padding: 8px 20px; min-height: 50px; }
+            .feedback { min-height: 30px; margin-top: 8px; font-size: 1rem; }
         }
 
-        @media (max-height: 650px) {
+        @media (max-height: 700px) {
             .practice-container { padding: 10px; }
-            .tier-progress { padding: 8px; margin-bottom: 8px; }
-            .pomodoro-section { padding: 6px 12px; margin-bottom: 8px; }
+            .tier-progress { padding: 6px 10px; margin-bottom: 6px; }
+            .pomodoro-section { padding: 5px 8px; margin-bottom: 6px; }
             .numpad button { padding: 10px; font-size: 1.3rem; }
-            .problem { font-size: 1.8rem; margin-bottom: 8px; }
-            .answer-box { font-size: 1.6rem; padding: 6px 15px; }
-            .audio-controls { gap: 6px; margin-bottom: 6px; }
-            .audio-btn { width: 36px; height: 36px; }
+            .problem { font-size: 1.8rem; margin-bottom: 6px; }
+            .answer-box { font-size: 1.6rem; padding: 6px 15px; min-height: 45px; }
+            .feedback { min-height: 25px; margin-top: 6px; font-size: 0.9rem; }
+            .practice-header { margin-bottom: 10px; padding-bottom: 8px; }
+        }
+
+        @media (max-height: 600px) {
+            .practice-header { margin-bottom: 6px; padding-bottom: 6px; }
+            .tier-progress { display: none; }
+            .numpad button { padding: 8px; font-size: 1.2rem; }
+            .problem { font-size: 1.6rem; }
+            .answer-box { font-size: 1.4rem; padding: 5px 12px; min-height: 40px; }
         }
 
         /* Screens with smooth transitions */
@@ -291,8 +299,8 @@
         /* Practice Screen */
         .practice-container {
             background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
-            border-radius: 24px;
-            padding: 20px;
+            border-radius: 20px;
+            padding: 14px;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
@@ -301,8 +309,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
             border-bottom: 1px solid rgba(255,255,255,0.06);
         }
         .player-info {
@@ -349,36 +357,36 @@
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
         }
-        .header-sound-btn {
+        .header-btn {
             background: rgba(255,255,255,0.08);
             border: none;
             width: 32px;
             height: 32px;
-            border-radius: 10px;
-            font-size: 1rem;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
-            opacity: 0.6;
+            opacity: 0.5;
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .header-sound-btn.active {
+        .header-btn.active {
             opacity: 1;
             background: rgba(255, 215, 61, 0.15);
         }
-        .header-sound-btn:hover {
+        .header-btn:hover {
             background: rgba(255,255,255,0.12);
+            opacity: 0.8;
         }
 
         /* Progress Section */
         .tier-progress {
             background: rgba(0,0,0,0.15);
-            border-radius: 14px;
-            padding: 12px 14px;
-            margin-bottom: 12px;
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
         }
         .tier-label {
             display: flex;
@@ -402,66 +410,51 @@
             transition: width 0.5s ease;
         }
         .tier-preview {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 8px;
-            font-size: 0.7rem;
-            opacity: 0.6;
-        }
-        .tier-preview-label {
-            color: var(--text-dim);
-        }
-        .tier-preview-name {
-            color: var(--accent);
-            font-weight: 500;
+            display: none; /* Hide to save space */
         }
 
         /* Pomodoro Timer */
         .pomodoro-section {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: center;
-            padding: 10px 12px;
-            background: rgba(255, 215, 61, 0.08);
-            border: 1px solid rgba(255, 215, 61, 0.12);
-            border-radius: 14px;
-            margin-bottom: 12px;
+            padding: 8px 12px;
+            background: rgba(255, 215, 61, 0.06);
+            border: 1px solid rgba(255, 215, 61, 0.1);
+            border-radius: 12px;
+            margin-bottom: 10px;
         }
         .pomodoro-timer {
             display: flex;
-            flex-direction: column;
             align-items: center;
+            gap: 6px;
         }
         .pomodoro-time {
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             font-weight: 700;
             color: var(--primary);
             font-variant-numeric: tabular-nums;
         }
         .pomodoro-time.warning { color: var(--accent); }
         .pomodoro-time.danger { color: var(--error); animation: pulse 1s infinite; }
-        .pomodoro-label {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-        }
         .mastery-tracker {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 4px;
         }
         .mastery-progress {
-            font-size: 1.5rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: var(--success);
         }
         .streak-display {
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding: 0 15px;
+            gap: 4px;
         }
         .streak-icon {
-            font-size: 1.2rem;
             opacity: 0.5;
             transition: all 0.3s;
         }
@@ -470,22 +463,13 @@
             animation: streak-glow 0.5s ease;
         }
         .streak-count {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: var(--accent);
         }
         @keyframes streak-glow {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.3); }
-        }
-        .session-counter {
-            font-size: 0.9rem;
-            color: var(--text-dim);
-            padding: 0 15px;
-        }
-        .session-counter span {
-            font-weight: 700;
-            color: var(--text);
         }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -572,35 +556,10 @@
             border: 2px solid var(--text-dim);
         }
 
-        /* Audio Controls */
-        .audio-controls {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        .audio-btn {
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: var(--text);
-            font-size: 1.3rem;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            cursor: pointer;
-            opacity: 0.5;
-            transition: all 0.2s;
-        }
-        .audio-btn.active {
-            opacity: 1;
-            border-color: var(--primary);
-            background: rgba(255, 215, 61, 0.2);
-        }
-
         /* Problem Area */
         .problem-area {
             text-align: center;
-            padding: 20px;
+            padding: 10px;
         }
 
         /* Counting Dots */
@@ -608,9 +567,9 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
-            min-height: 50px;
-            margin-bottom: 15px;
+            gap: 12px;
+            min-height: 40px;
+            margin-bottom: 8px;
             flex-wrap: wrap;
         }
         .dot-group {
@@ -746,9 +705,9 @@
         }
 
         .problem {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             letter-spacing: 4px;
             animation: problem-appear 0.3s ease-out;
         }
@@ -799,44 +758,16 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Difficulty indicator */
-        .difficulty-indicator {
-            display: flex;
-            gap: 4px;
-            justify-content: center;
-            margin-bottom: 8px;
-        }
-        .difficulty-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.2);
-            transition: background 0.3s ease;
-        }
-        .difficulty-indicator[data-level="1"] .difficulty-dot:nth-child(1) {
-            background: var(--success);
-            box-shadow: 0 0 5px var(--success);
-        }
-        .difficulty-indicator[data-level="2"] .difficulty-dot:nth-child(1),
-        .difficulty-indicator[data-level="2"] .difficulty-dot:nth-child(2) {
-            background: var(--primary);
-            box-shadow: 0 0 5px var(--primary);
-        }
-        .difficulty-indicator[data-level="3"] .difficulty-dot {
-            background: var(--accent);
-            box-shadow: 0 0 5px var(--accent);
-        }
-
         .answer-box {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 600;
             background: rgba(255,255,255,0.05);
             border: 2px solid rgba(255,255,255,0.2);
-            border-radius: 15px;
-            padding: 15px 30px;
-            min-width: 120px;
+            border-radius: 12px;
+            padding: 10px 24px;
+            min-width: 100px;
             display: inline-block;
-            min-height: 70px;
+            min-height: 50px;
             transition: border-color 0.15s ease, transform 0.1s ease;
         }
         .answer-box.typing-pulse {
@@ -865,12 +796,12 @@
         }
 
         .feedback {
-            min-height: 50px;
+            min-height: 35px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
-            margin-top: 15px;
+            font-size: 1rem;
+            margin-top: 8px;
         }
         .feedback.correct { color: var(--success); }
         .feedback.wrong { color: var(--error); }
@@ -899,17 +830,17 @@
         .numpad {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-top: 12px;
+            gap: 6px;
+            margin-top: 8px;
         }
         .numpad button {
             background: rgba(255,255,255,0.06);
             border: 1px solid rgba(255,255,255,0.08);
             color: var(--text);
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             font-weight: 600;
-            padding: 16px;
-            border-radius: 14px;
+            padding: 14px;
+            border-radius: 12px;
             cursor: pointer;
             transition: all 0.12s ease;
             -webkit-tap-highlight-color: transparent;
@@ -2012,6 +1943,18 @@
                 <rect x="13" y="9" width="2" height="2" fill="#ff6b6b"/>
             </symbol>
 
+            <!-- Speak/voice icon (16x16) - speech bubble -->
+            <symbol id="icon-speak" viewBox="0 0 16 16">
+                <rect x="2" y="2" width="12" height="2" fill="#fff"/>
+                <rect x="1" y="4" width="2" height="6" fill="#fff"/>
+                <rect x="13" y="4" width="2" height="6" fill="#fff"/>
+                <rect x="2" y="10" width="12" height="2" fill="#fff"/>
+                <rect x="3" y="12" width="2" height="2" fill="#fff"/>
+                <rect x="1" y="14" width="2" height="2" fill="#fff"/>
+                <rect x="5" y="5" width="2" height="2" fill="#4ade80"/>
+                <rect x="9" y="5" width="2" height="2" fill="#4ade80"/>
+            </symbol>
+
             <!-- Trophy icon (16x16) -->
             <symbol id="icon-trophy" viewBox="0 0 16 16">
                 <rect x="4" y="2" width="8" height="2" fill="#ffd93d"/>
@@ -2274,8 +2217,10 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="header-sound-btn active" id="headerSoundBtn" onclick="toggleSound()" title="Toggle sound" aria-label="Toggle sound"><svg class="pixel-icon-sm"><use href="#icon-sound-on"/></svg></button>
-                    <button class="back-btn" onclick="endPracticeSession()" title="End session" aria-label="End session"><svg class="pixel-icon-sm"><use href="#icon-close"/></svg></button>
+                    <button class="header-btn active" id="soundBtn" onclick="toggleSound()" title="Sound" aria-label="Toggle sound"><svg class="pixel-icon-sm"><use href="#icon-sound-on"/></svg></button>
+                    <button class="header-btn active" id="speakBtn" onclick="toggleSpeak()" title="Voice" aria-label="Toggle voice"><svg class="pixel-icon-sm"><use href="#icon-speak"/></svg></button>
+                    <button class="header-btn active" id="dotsBtn" onclick="toggleDots()" title="Dots" aria-label="Toggle dots"><svg class="pixel-icon-sm"><use href="#icon-eye"/></svg></button>
+                    <button class="back-btn" onclick="endPracticeSession()" title="End" aria-label="End session"><svg class="pixel-icon-sm"><use href="#icon-close"/></svg></button>
                 </div>
             </div>
 
@@ -2295,18 +2240,15 @@
 
             <div class="pomodoro-section" id="pomodoroSection">
                 <div class="pomodoro-timer">
+                    <svg class="pixel-icon-sm"><use href="#icon-timer"/></svg>
                     <span class="pomodoro-time" id="pomodoroTime">25:00</span>
-                    <span class="pomodoro-label">remaining</span>
                 </div>
                 <div class="streak-display" id="streakDisplay">
                     <span class="streak-icon"><svg class="pixel-icon-sm"><use href="#icon-fire"/></svg></span>
                     <span class="streak-count" id="currentStreak">0</span>
                 </div>
                 <div class="mastery-tracker">
-                    <span class="mastery-progress" id="masteryProgress">0</span>/<span id="masteryGoalDisplay">5</span> <svg class="pixel-icon-sm"><use href="#icon-star"/></svg> mastered
-                </div>
-                <div class="session-counter">
-                    <span id="sessionCount">0</span> solved
+                    <span class="mastery-progress" id="masteryProgress">0</span>/<span id="masteryGoalDisplay">5</span> <svg class="pixel-icon-sm"><use href="#icon-star"/></svg>
                 </div>
             </div>
 
@@ -2321,12 +2263,6 @@
                 </div>
             </div>
 
-            <div class="audio-controls" role="group" aria-label="Audio and visual settings">
-                <button class="audio-btn active" id="soundBtn" onclick="toggleSound()" title="Sound effects" aria-label="Toggle sound effects"><svg class="pixel-icon"><use href="#icon-sound-on"/></svg></button>
-                <button class="audio-btn active" id="speakBtn" onclick="toggleSpeak()" title="Read aloud" aria-label="Toggle read aloud"><svg class="pixel-icon"><use href="#icon-sound-on"/></svg></button>
-                <button class="audio-btn active" id="dotsBtn" onclick="toggleDots()" title="Show counting dots" aria-label="Toggle counting dots"><svg class="pixel-icon"><use href="#icon-eye"/></svg></button>
-            </div>
-
             <div class="problem-area">
                 <div class="timer-bar" id="timerBar" style="display:none;">
                     <div class="timer-fill" id="timerFill" style="width:100%"></div>
@@ -2334,20 +2270,9 @@
                 <div class="dots-container" id="dotsContainer"></div>
                 <div class="number-line-container" id="numberLineContainer" style="display:none;"></div>
                 <div class="clock-container" id="clockContainer" style="display:none;"></div>
-                <div class="problem-hint" id="problemHint" style="display:none;font-size:0.9rem;color:var(--text-dim);margin-bottom:5px;"></div>
-                <div class="difficulty-indicator" id="difficultyIndicator" style="display:none;">
-                    <span class="difficulty-dot"></span>
-                    <span class="difficulty-dot"></span>
-                    <span class="difficulty-dot"></span>
-                </div>
                 <div class="problem" id="problem">3 + 2</div>
                 <div class="answer-box" id="answerBox">|</div>
                 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
-                <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()" aria-label="Get a hint"><svg class="pixel-icon-sm"><use href="#icon-hint"/></svg> Need a hint?</button>
-                <div class="hint-text" id="hintText" style="display:none;"></div>
-                <button class="explain-btn" id="explainBtn" onclick="showExplanation()" aria-label="Show step by step solution"><svg class="pixel-icon-sm"><use href="#icon-review"/></svg> Explain</button>
-                <div class="explanation-text" id="explanationText" style="display:none;"></div>
-                <button class="skip-btn" id="skipBtn" onclick="skipProblem()" aria-label="Skip this problem"><svg class="pixel-icon-sm"><use href="#icon-lightning"/></svg> Too hard? Skip</button>
             </div>
 
             <div class="numpad" role="group" aria-label="Number pad">
@@ -2730,91 +2655,6 @@
             font-size: 0.75rem;
             font-weight: 600;
             margin-left: 10px;
-        }
-
-        /* Hint Button */
-        .hint-btn {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            color: var(--text-dim);
-            font-size: 0.85rem;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .hint-btn:hover { background: rgba(255,255,255,0.2); }
-        .hint-text {
-            font-size: 0.9rem;
-            color: var(--accent);
-            margin-top: 8px;
-            font-style: italic;
-        }
-        .explain-btn {
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.15);
-            padding: 6px 14px;
-            border-radius: 15px;
-            color: var(--text-dim);
-            font-size: 0.8rem;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.2s;
-        }
-        .explain-btn:hover {
-            background: rgba(255,255,255,0.15);
-            border-color: var(--accent);
-        }
-        .explanation-text {
-            font-size: 0.85rem;
-            color: var(--text);
-            margin-top: 10px;
-            padding: 12px;
-            background: rgba(255,107,157,0.1);
-            border-radius: 10px;
-            border: 1px solid rgba(255,107,157,0.3);
-            text-align: left;
-            line-height: 1.6;
-        }
-        .explanation-step {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            margin-bottom: 6px;
-        }
-        .explanation-step:last-child {
-            margin-bottom: 0;
-            color: var(--success);
-            font-weight: 600;
-        }
-        .step-num {
-            background: var(--accent);
-            color: #000;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            font-weight: 700;
-            flex-shrink: 0;
-        }
-        .skip-btn {
-            background: transparent;
-            border: 1px solid rgba(255,255,255,0.2);
-            padding: 6px 12px;
-            border-radius: 15px;
-            color: var(--text-dim);
-            font-size: 0.75rem;
-            cursor: pointer;
-            margin-top: 15px;
-            opacity: 0.7;
-            transition: all 0.2s;
-        }
-        .skip-btn:hover {
-            background: rgba(255,255,255,0.1);
-            opacity: 1;
         }
 
         /* Shake animation for wrong answers */
@@ -4067,18 +3907,11 @@
         function toggleSound() {
             soundEnabled = !soundEnabled;
             const soundBtn = document.getElementById('soundBtn');
-            const headerBtn = document.getElementById('headerSoundBtn');
-            const iconHTML = soundEnabled
-                ? '<svg class="pixel-icon-sm"><use href="#icon-sound-on"/></svg>'
-                : '<svg class="pixel-icon-sm"><use href="#icon-sound-off"/></svg>';
-
             if (soundBtn) {
                 soundBtn.classList.toggle('active', soundEnabled);
-                soundBtn.innerHTML = iconHTML.replace('pixel-icon-sm', 'pixel-icon');
-            }
-            if (headerBtn) {
-                headerBtn.classList.toggle('active', soundEnabled);
-                headerBtn.innerHTML = iconHTML;
+                soundBtn.innerHTML = soundEnabled
+                    ? '<svg class="pixel-icon-sm"><use href="#icon-sound-on"/></svg>'
+                    : '<svg class="pixel-icon-sm"><use href="#icon-sound-off"/></svg>';
             }
             if (soundEnabled) playSound('tap');
         }
@@ -4526,43 +4359,13 @@
         let currentHint = '';
 
         function showHint() {
-            if (!currentFact || !currentHint) return;
-
-            const hintText = document.getElementById('hintText');
-            hintText.textContent = currentHint;
-            hintText.style.display = 'block';
-            document.getElementById('hintBtn').style.display = 'none';
-
-            // Speak the hint
-            if (speakEnabled) {
-                const utterance = new SpeechSynthesisUtterance(currentHint);
-                utterance.rate = speechRate;
-                speechSynthesis.speak(utterance);
-            }
+            // Hint UI removed for cleaner interface
+            return;
         }
 
         function showExplanation() {
-            if (!currentFact) return;
-
-            const explanationEl = document.getElementById('explanationText');
-            const explainBtn = document.getElementById('explainBtn');
-
-            // Hide the button after clicking
-            explainBtn.style.display = 'none';
-
-            // Generate step-by-step explanation
-            const steps = getExplanationSteps(currentFact);
-
-            let html = '';
-            steps.forEach((step, i) => {
-                html += `<div class="explanation-step">
-                    <span class="step-num">${i + 1}</span>
-                    <span>${step}</span>
-                </div>`;
-            });
-
-            explanationEl.innerHTML = html;
-            explanationEl.style.display = 'block';
+            // Explanation UI removed for cleaner interface
+            return;
         }
 
         function getExplanationSteps(fact) {
@@ -4669,10 +4472,7 @@
         }
 
         function hideHint() {
-            document.getElementById('hintBtn').style.display = 'none';
-            document.getElementById('hintText').style.display = 'none';
-            document.getElementById('explanationText').style.display = 'none';
-            document.getElementById('explainBtn').style.display = 'inline-block';
+            // Hint/explanation UI removed for cleaner interface
             currentHint = '';
         }
 
@@ -5538,18 +5338,9 @@
                 'order': 'Find the middle number'
             };
 
-            if (hints[currentFact.op]) {
-                hintEl.textContent = hints[currentFact.op];
-                hintEl.style.display = 'block';
-            } else {
-                // Show strategy tips occasionally (20% of the time)
-                const strategyTip = getStrategyTip(currentFact);
-                if (strategyTip && Math.random() < 0.2) {
-                    hintEl.innerHTML = `<span class="strategy-tip"><svg class="pixel-icon-sm" style="vertical-align:middle;margin-right:4px;"><use href="#icon-hint"/></svg>${strategyTip}</span>`;
-                    hintEl.style.display = 'block';
-                } else {
-                    hintEl.style.display = 'none';
-                }
+            // Problem hint UI removed for cleaner interface
+            if (hintEl) {
+                hintEl.style.display = 'none';
             }
 
             // Audio/Visual aids
@@ -5562,8 +5353,8 @@
 
         function updateDifficultyIndicator(fact) {
             const indicator = document.getElementById('difficultyIndicator');
-            if (!fact) {
-                indicator.style.display = 'none';
+            if (!indicator || !fact) {
+                if (indicator) indicator.style.display = 'none';
                 return;
             }
 
@@ -5894,11 +5685,8 @@
             playSound('wrong');
             speakFeedback(false, currentFact.answer, currentFact);
 
-            // Show hint button for next attempt
+            // Store hint for reference (UI removed for cleaner interface)
             currentHint = getHintForFact(currentFact);
-            if (currentHint) {
-                document.getElementById('hintBtn').style.display = 'inline-block';
-            }
         }
 
         // ============================================
@@ -6479,10 +6267,9 @@
             // Hide previous hint
             hideHint();
 
+            // Problem hint UI removed for cleaner interface
             const hintEl = document.getElementById('problemHint');
-            hintEl.textContent = 'Review: ' + (currentProfile.factProgress[factDisplay] ?
-                `${currentProfile.factProgress[factDisplay].wrong} errors` : '');
-            hintEl.style.display = 'block';
+            if (hintEl) hintEl.style.display = 'none';
 
             renderDots(currentFact);
             speakProblem(currentFact);

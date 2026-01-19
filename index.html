@@ -443,6 +443,71 @@
             min-width: 30px;
         }
 
+        /* Number Line Visual */
+        .number-line-container {
+            margin: 10px 0;
+            padding: 15px 5px;
+        }
+        .number-line {
+            position: relative;
+            height: 60px;
+            margin: 0 auto;
+            max-width: 320px;
+        }
+        .number-line-track {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 2px;
+        }
+        .number-line-tick {
+            position: absolute;
+            bottom: 15px;
+            width: 2px;
+            height: 12px;
+            background: rgba(255,255,255,0.5);
+            transform: translateX(-50%);
+        }
+        .number-line-label {
+            position: absolute;
+            bottom: 0;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            transform: translateX(-50%);
+        }
+        .number-line-marker {
+            position: absolute;
+            bottom: 25px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+        .number-line-hop {
+            position: absolute;
+            bottom: 35px;
+            height: 20px;
+            border: 2px solid var(--accent);
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            opacity: 0.8;
+        }
+        .number-line-hop-label {
+            position: absolute;
+            top: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.65rem;
+            color: var(--accent);
+            white-space: nowrap;
+        }
+
         .problem {
             font-size: 3rem;
             font-weight: 700;
@@ -1067,6 +1132,7 @@
                     <div class="timer-fill" id="timerFill" style="width:100%"></div>
                 </div>
                 <div class="dots-container" id="dotsContainer"></div>
+                <div class="number-line-container" id="numberLineContainer" style="display:none;"></div>
                 <div class="clock-container" id="clockContainer" style="display:none;"></div>
                 <div class="problem-hint" id="problemHint" style="display:none;font-size:0.9rem;color:var(--text-dim);margin-bottom:5px;"></div>
                 <div class="problem" id="problem">3 + 2</div>
@@ -3082,12 +3148,85 @@
             document.getElementById('clockContainer').style.display = 'none';
 
             container.innerHTML = html;
+
+            // Also render number line for addition/subtraction
+            renderNumberLine(fact);
         }
 
         function toggleDots() {
             dotsEnabled = !dotsEnabled;
             document.getElementById('dotsBtn').classList.toggle('active', dotsEnabled);
             if (currentFact) renderDots(currentFact);
+        }
+
+        // ============================================
+        // NUMBER LINE VISUAL
+        // ============================================
+        function renderNumberLine(fact) {
+            const container = document.getElementById('numberLineContainer');
+
+            // Only show number line for basic addition/subtraction with small numbers
+            const isAddition = fact.op === '+';
+            const isSubtraction = fact.op === '-' || fact.op === '−';
+
+            if (!dotsEnabled || (!isAddition && !isSubtraction)) {
+                container.style.display = 'none';
+                return;
+            }
+
+            // Skip for large numbers
+            const maxNum = isAddition ? fact.a + fact.b : fact.a;
+            if (maxNum > 15 || fact.b > 10) {
+                container.style.display = 'none';
+                return;
+            }
+
+            const start = isAddition ? fact.a : fact.a;
+            const hops = fact.b;
+            const direction = isAddition ? 1 : -1;
+
+            // Calculate number line range
+            const lineStart = 0;
+            const lineEnd = Math.max(maxNum + 2, 12);
+            const tickCount = lineEnd - lineStart + 1;
+
+            let html = '<div class="number-line">';
+            html += '<div class="number-line-track"></div>';
+
+            // Add ticks and labels
+            for (let i = lineStart; i <= lineEnd; i++) {
+                const percent = ((i - lineStart) / (lineEnd - lineStart)) * 100;
+                html += `<div class="number-line-tick" style="left: ${percent}%"></div>`;
+                // Only label every other number if space is tight
+                if (i % (lineEnd > 12 ? 2 : 1) === 0 || i === start || i === start + hops * direction) {
+                    html += `<div class="number-line-label" style="left: ${percent}%">${i}</div>`;
+                }
+            }
+
+            // Add starting marker
+            const startPercent = ((start - lineStart) / (lineEnd - lineStart)) * 100;
+            html += `<div class="number-line-marker" style="left: ${startPercent}%"></div>`;
+
+            // Add hops as arcs
+            for (let i = 0; i < hops; i++) {
+                const hopStart = start + i * direction;
+                const hopEnd = hopStart + direction;
+                const hopStartPercent = ((hopStart - lineStart) / (lineEnd - lineStart)) * 100;
+                const hopEndPercent = ((hopEnd - lineStart) / (lineEnd - lineStart)) * 100;
+                const hopLeft = Math.min(hopStartPercent, hopEndPercent);
+                const hopWidth = Math.abs(hopEndPercent - hopStartPercent);
+
+                html += `<div class="number-line-hop" style="left: ${hopLeft}%; width: ${hopWidth}%;">`;
+                if (i === 0) {
+                    html += `<div class="number-line-hop-label">${isAddition ? '+' : '−'}${hops}</div>`;
+                }
+                html += '</div>';
+            }
+
+            html += '</div>';
+
+            container.innerHTML = html;
+            container.style.display = 'block';
         }
 
         // ============================================

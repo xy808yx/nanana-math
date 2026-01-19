@@ -180,6 +180,29 @@
             cursor: pointer;
             padding: 5px;
         }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header-sound-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            opacity: 0.6;
+        }
+        .header-sound-btn.active {
+            opacity: 1;
+            background: rgba(255,255,255,0.2);
+        }
+        .header-sound-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
 
         /* Progress Section */
         .tier-progress {
@@ -1170,7 +1193,10 @@
                         <div class="player-tier" id="currentTier">Addition to 5</div>
                     </div>
                 </div>
-                <button class="back-btn" onclick="endPracticeSession()" title="End session" aria-label="End session">✕</button>
+                <div class="header-actions">
+                    <button class="header-sound-btn active" id="headerSoundBtn" onclick="toggleSound()" title="Toggle sound" aria-label="Toggle sound">🔊</button>
+                    <button class="back-btn" onclick="endPracticeSession()" title="End session" aria-label="End session">✕</button>
+                </div>
             </div>
 
             <div class="tier-progress">
@@ -2964,6 +2990,12 @@
         function toggleSound() {
             soundEnabled = !soundEnabled;
             document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
+            // Update header button too
+            const headerBtn = document.getElementById('headerSoundBtn');
+            if (headerBtn) {
+                headerBtn.classList.toggle('active', soundEnabled);
+                headerBtn.textContent = soundEnabled ? '🔊' : '🔇';
+            }
             if (soundEnabled) playSound('tap');
         }
 

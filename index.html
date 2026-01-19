@@ -434,6 +434,32 @@
             margin-bottom: 20px;
             letter-spacing: 4px;
         }
+
+        /* Word problem formatting */
+        .word-problem {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            font-size: 1rem;
+            letter-spacing: normal;
+        }
+        .word-emoji {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+        .word-line {
+            font-size: 1.15rem;
+            color: var(--text);
+            font-weight: 500;
+        }
+        .word-question {
+            font-size: 1.2rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
         .answer-box {
             font-size: 2.5rem;
             font-weight: 600;
@@ -2291,18 +2317,28 @@
             const facts = [];
             const names = ['Sam', 'Mia', 'Ben', 'Ava', 'Leo', 'Zoe'];
             const items = ['apple', 'cookie', 'star', 'ball', 'book', 'toy'];
+            const itemEmojis = { 'apple': '🍎', 'cookie': '🍪', 'star': '⭐', 'ball': '⚽', 'book': '📚', 'toy': '🧸' };
 
             if (type === 'add') {
                 for (let a = 1; a <= 5; a++) {
                     for (let b = 1; b <= 5; b++) {
                         const name = names[(a + b) % names.length];
                         const item = items[(a * b) % items.length];
+                        const emoji = itemEmojis[item];
+                        const plural = (n) => n === 1 ? item : item + 's';
                         facts.push({
                             a, b,
                             op: 'wordadd',
                             answer: a + b,
-                            display: `${name}: ${a} ${item}s + ${b} more = ?`,
-                            story: `${name} has ${a} ${item}${a > 1 ? 's' : ''}. Gets ${b} more.`
+                            display: `WORD`,
+                            isWordProblem: true,
+                            wordProblemParts: {
+                                emoji: emoji,
+                                line1: `${name} has ${a} ${plural(a)}.`,
+                                line2: `Gets ${b} more.`,
+                                question: 'How many total?'
+                            },
+                            story: `${name} has ${a} ${plural(a)}. Gets ${b} more.`
                         });
                     }
                 }
@@ -2311,12 +2347,21 @@
                     for (let b = 1; b < a; b++) {
                         const name = names[(a + b) % names.length];
                         const item = items[(a * b) % items.length];
+                        const emoji = itemEmojis[item];
+                        const plural = (n) => n === 1 ? item : item + 's';
                         facts.push({
                             a, b,
                             op: 'wordsub',
                             answer: a - b,
-                            display: `${name}: ${a} ${item}s − ${b} = ?`,
-                            story: `${name} has ${a} ${item}${a > 1 ? 's' : ''}. Gives away ${b}.`
+                            display: `WORD`,
+                            isWordProblem: true,
+                            wordProblemParts: {
+                                emoji: emoji,
+                                line1: `${name} has ${a} ${plural(a)}.`,
+                                line2: `Gives away ${b}.`,
+                                question: 'How many left?'
+                            },
+                            story: `${name} has ${a} ${plural(a)}. Gives away ${b}.`
                         });
                     }
                 }
@@ -3686,7 +3731,22 @@
             const tier = getCurrentTier(currentProfile);
             currentFact = selectSmartFact(tier);
 
-            document.getElementById('problem').textContent = currentFact.display;
+            // Display word problems with better formatting
+            const problemEl = document.getElementById('problem');
+            if (currentFact.isWordProblem && currentFact.wordProblemParts) {
+                const parts = currentFact.wordProblemParts;
+                problemEl.innerHTML = `
+                    <div class="word-problem">
+                        <div class="word-emoji">${parts.emoji}</div>
+                        <div class="word-line">${parts.line1}</div>
+                        <div class="word-line">${parts.line2}</div>
+                        <div class="word-question">${parts.question}</div>
+                    </div>
+                `;
+            } else {
+                problemEl.textContent = currentFact.display;
+            }
+
             currentInput = '';
             updateAnswerDisplay();
             document.getElementById('feedback').textContent = '';

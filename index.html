@@ -25,6 +25,37 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* Pixel Art Rendering */
+        .pixel-icon, .pixel-avatar {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            -webkit-font-smoothing: none;
+        }
+        .pixel-avatar {
+            width: 64px;
+            height: 64px;
+        }
+        .pixel-avatar-sm {
+            width: 48px;
+            height: 48px;
+        }
+        .pixel-avatar-lg {
+            width: 80px;
+            height: 80px;
+        }
+        .pixel-icon {
+            width: 24px;
+            height: 24px;
+        }
+        .pixel-icon-sm {
+            width: 16px;
+            height: 16px;
+        }
+        .pixel-icon-lg {
+            width: 32px;
+            height: 32px;
+        }
+
         /* Focus visible styles for keyboard navigation */
         *:focus { outline: none; }
         *:focus-visible {
@@ -92,6 +123,77 @@
             color: var(--text-dim);
             font-size: 1rem;
             margin-bottom: 20px;
+        }
+
+        /* Setup Screen */
+        .setup-container {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 30px 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .setup-section {
+            margin-top: 25px;
+        }
+        .setup-label {
+            font-size: 1rem;
+            color: var(--text-dim);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            justify-items: center;
+        }
+        .avatar-grid .avatar-option {
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 3px solid transparent;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .avatar-grid .avatar-option svg {
+            width: 48px;
+            height: 48px;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        .avatar-grid .avatar-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+        .avatar-grid .avatar-option.selected {
+            border-color: var(--primary);
+            background: rgba(255, 215, 61, 0.2);
+            box-shadow: 0 0 20px rgba(255, 215, 61, 0.3);
+        }
+        .setup-btn {
+            width: 100%;
+            margin-top: 30px;
+            padding: 18px;
+            border-radius: 20px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #000;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .setup-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(255, 215, 61, 0.4);
+        }
+        .setup-btn:active {
+            transform: scale(0.98);
         }
 
         .profiles-grid {
@@ -168,7 +270,19 @@
             align-items: center;
             gap: 12px;
         }
-        .player-avatar { font-size: 2rem; }
+        .player-avatar {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .player-avatar svg {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
         .player-name { font-weight: 600; font-size: 1.1rem; }
         .player-tier { font-size: 0.8rem; color: var(--primary); }
 
@@ -1225,8 +1339,18 @@
             margin-bottom: 25px;
         }
         .dashboard-avatar {
-            font-size: 4rem;
+            width: 80px;
+            height: 80px;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dashboard-avatar svg {
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
         .dashboard-name {
             font-size: 1.8rem;
@@ -1562,20 +1686,344 @@
 </head>
 <body>
 
-    <!-- Profile Selection Screen -->
-    <div class="screen active" id="profileScreen">
-        <div class="app-title">Nanana Math</div>
-        <div class="app-subtitle">Build strong math foundations</div>
-        <div class="profiles-grid" id="profilesGrid"></div>
+    <!-- SVG Sprite Sheet for Pixel Art -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+        <defs>
+            <!-- Avatar: Fox (32x32) - cute orange fox with big eyes -->
+            <symbol id="avatar-fox" viewBox="0 0 32 32">
+                <rect x="10" y="4" width="4" height="4" fill="#ff6b35"/>
+                <rect x="18" y="4" width="4" height="4" fill="#ff6b35"/>
+                <rect x="8" y="8" width="6" height="4" fill="#ff6b35"/>
+                <rect x="18" y="8" width="6" height="4" fill="#ff6b35"/>
+                <rect x="6" y="12" width="20" height="12" fill="#ff8c42"/>
+                <rect x="8" y="12" width="16" height="8" fill="#ffd93d"/>
+                <rect x="10" y="14" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="18" y="14" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="11" y="15" width="2" height="2" fill="#fff"/>
+                <rect x="19" y="15" width="2" height="2" fill="#fff"/>
+                <rect x="14" y="18" width="4" height="2" fill="#1a1a2e"/>
+                <rect x="12" y="22" width="8" height="2" fill="#ff6b35"/>
+                <rect x="15" y="20" width="2" height="2" fill="#ff6b9d"/>
+            </symbol>
+
+            <!-- Avatar: Panda (32x32) - round panda with pink cheeks -->
+            <symbol id="avatar-panda" viewBox="0 0 32 32">
+                <rect x="8" y="6" width="16" height="16" fill="#ffffff"/>
+                <rect x="6" y="8" width="4" height="6" fill="#1a1a2e"/>
+                <rect x="22" y="8" width="4" height="6" fill="#1a1a2e"/>
+                <rect x="10" y="12" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="18" y="12" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="11" y="13" width="2" height="2" fill="#fff"/>
+                <rect x="19" y="13" width="2" height="2" fill="#fff"/>
+                <rect x="14" y="16" width="4" height="2" fill="#1a1a2e"/>
+                <rect x="8" y="14" width="2" height="2" fill="#ffb3c1"/>
+                <rect x="22" y="14" width="2" height="2" fill="#ffb3c1"/>
+                <rect x="12" y="20" width="8" height="2" fill="#1a1a2e"/>
+            </symbol>
+
+            <!-- Avatar: Cat (32x32) - kawaii cat with whiskers -->
+            <symbol id="avatar-cat" viewBox="0 0 32 32">
+                <rect x="8" y="4" width="4" height="6" fill="#a8a8a8"/>
+                <rect x="20" y="4" width="4" height="6" fill="#a8a8a8"/>
+                <rect x="6" y="10" width="20" height="14" fill="#d4d4d4"/>
+                <rect x="10" y="12" width="4" height="4" fill="#4ade80"/>
+                <rect x="18" y="12" width="4" height="4" fill="#4ade80"/>
+                <rect x="11" y="13" width="2" height="2" fill="#1a1a2e"/>
+                <rect x="19" y="13" width="2" height="2" fill="#1a1a2e"/>
+                <rect x="14" y="16" width="4" height="2" fill="#ffb3c1"/>
+                <rect x="4" y="14" width="4" height="1" fill="#a8a8a8"/>
+                <rect x="24" y="14" width="4" height="1" fill="#a8a8a8"/>
+                <rect x="4" y="16" width="4" height="1" fill="#a8a8a8"/>
+                <rect x="24" y="16" width="4" height="1" fill="#a8a8a8"/>
+            </symbol>
+
+            <!-- Avatar: Dog (32x32) - happy puppy -->
+            <symbol id="avatar-dog" viewBox="0 0 32 32">
+                <rect x="6" y="6" width="6" height="8" fill="#8b5a2b"/>
+                <rect x="20" y="6" width="6" height="8" fill="#8b5a2b"/>
+                <rect x="8" y="10" width="16" height="14" fill="#d4a574"/>
+                <rect x="12" y="14" width="8" height="8" fill="#f5deb3"/>
+                <rect x="10" y="12" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="18" y="12" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="11" y="13" width="2" height="2" fill="#fff"/>
+                <rect x="19" y="13" width="2" height="2" fill="#fff"/>
+                <rect x="14" y="16" width="4" height="3" fill="#1a1a2e"/>
+                <rect x="13" y="20" width="6" height="2" fill="#ff6b6b"/>
+            </symbol>
+
+            <!-- Avatar: Bunny (32x32) - fluffy bunny with long ears -->
+            <symbol id="avatar-bunny" viewBox="0 0 32 32">
+                <rect x="10" y="2" width="4" height="10" fill="#fff"/>
+                <rect x="18" y="2" width="4" height="10" fill="#fff"/>
+                <rect x="11" y="4" width="2" height="6" fill="#ffb3c1"/>
+                <rect x="19" y="4" width="2" height="6" fill="#ffb3c1"/>
+                <rect x="8" y="10" width="16" height="14" fill="#fff"/>
+                <rect x="10" y="14" width="4" height="4" fill="#ff6b9d"/>
+                <rect x="18" y="14" width="4" height="4" fill="#ff6b9d"/>
+                <rect x="11" y="15" width="2" height="2" fill="#1a1a2e"/>
+                <rect x="19" y="15" width="2" height="2" fill="#1a1a2e"/>
+                <rect x="14" y="18" width="4" height="2" fill="#ffb3c1"/>
+                <rect x="6" y="16" width="2" height="2" fill="#ffb3c1"/>
+                <rect x="24" y="16" width="2" height="2" fill="#ffb3c1"/>
+            </symbol>
+
+            <!-- Avatar: Bear (32x32) - cute bear cub -->
+            <symbol id="avatar-bear" viewBox="0 0 32 32">
+                <rect x="6" y="6" width="6" height="6" fill="#8b4513"/>
+                <rect x="20" y="6" width="6" height="6" fill="#8b4513"/>
+                <rect x="8" y="8" width="2" height="2" fill="#d4a574"/>
+                <rect x="22" y="8" width="2" height="2" fill="#d4a574"/>
+                <rect x="8" y="10" width="16" height="14" fill="#cd853f"/>
+                <rect x="12" y="16" width="8" height="6" fill="#deb887"/>
+                <rect x="10" y="12" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="18" y="12" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="11" y="13" width="2" height="2" fill="#fff"/>
+                <rect x="19" y="13" width="2" height="2" fill="#fff"/>
+                <rect x="14" y="18" width="4" height="2" fill="#1a1a2e"/>
+            </symbol>
+
+            <!-- Avatar: Penguin (32x32) - adorable penguin -->
+            <symbol id="avatar-penguin" viewBox="0 0 32 32">
+                <rect x="8" y="6" width="16" height="18" fill="#1a1a2e"/>
+                <rect x="10" y="8" width="12" height="12" fill="#fff"/>
+                <rect x="10" y="12" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="18" y="12" width="4" height="4" fill="#1a1a2e"/>
+                <rect x="11" y="13" width="2" height="2" fill="#fff"/>
+                <rect x="19" y="13" width="2" height="2" fill="#fff"/>
+                <rect x="13" y="16" width="6" height="3" fill="#ff8c42"/>
+                <rect x="6" y="14" width="4" height="6" fill="#1a1a2e"/>
+                <rect x="22" y="14" width="4" height="6" fill="#1a1a2e"/>
+                <rect x="10" y="22" width="4" height="2" fill="#ff8c42"/>
+                <rect x="18" y="22" width="4" height="2" fill="#ff8c42"/>
+            </symbol>
+
+            <!-- Avatar: Owl (32x32) - wise owl with big eyes -->
+            <symbol id="avatar-owl" viewBox="0 0 32 32">
+                <rect x="6" y="4" width="6" height="6" fill="#8b4513"/>
+                <rect x="20" y="4" width="6" height="6" fill="#8b4513"/>
+                <rect x="8" y="8" width="16" height="16" fill="#d4a574"/>
+                <rect x="8" y="10" width="6" height="6" fill="#ffd93d"/>
+                <rect x="18" y="10" width="6" height="6" fill="#ffd93d"/>
+                <rect x="10" y="12" width="2" height="2" fill="#1a1a2e"/>
+                <rect x="20" y="12" width="2" height="2" fill="#1a1a2e"/>
+                <rect x="14" y="16" width="4" height="3" fill="#ff8c42"/>
+                <rect x="12" y="20" width="8" height="2" fill="#deb887"/>
+                <rect x="10" y="22" width="2" height="2" fill="#8b4513"/>
+                <rect x="20" y="22" width="2" height="2" fill="#8b4513"/>
+            </symbol>
+
+            <!-- UI Icons -->
+            <!-- Star icon (16x16) -->
+            <symbol id="icon-star" viewBox="0 0 16 16">
+                <rect x="7" y="1" width="2" height="2" fill="#ffd93d"/>
+                <rect x="6" y="3" width="4" height="2" fill="#ffd93d"/>
+                <rect x="1" y="5" width="14" height="2" fill="#ffd93d"/>
+                <rect x="2" y="7" width="12" height="2" fill="#ffd93d"/>
+                <rect x="3" y="9" width="10" height="2" fill="#ffd93d"/>
+                <rect x="4" y="11" width="3" height="2" fill="#ffd93d"/>
+                <rect x="9" y="11" width="3" height="2" fill="#ffd93d"/>
+                <rect x="3" y="13" width="3" height="2" fill="#ffd93d"/>
+                <rect x="10" y="13" width="3" height="2" fill="#ffd93d"/>
+            </symbol>
+
+            <!-- Fire/Streak icon (16x16) -->
+            <symbol id="icon-fire" viewBox="0 0 16 16">
+                <rect x="7" y="1" width="2" height="2" fill="#ff6b35"/>
+                <rect x="6" y="3" width="4" height="2" fill="#ff8c42"/>
+                <rect x="5" y="5" width="6" height="2" fill="#ff8c42"/>
+                <rect x="4" y="7" width="8" height="2" fill="#ffd93d"/>
+                <rect x="3" y="9" width="10" height="2" fill="#ffd93d"/>
+                <rect x="4" y="11" width="8" height="2" fill="#ff6b35"/>
+                <rect x="5" y="13" width="6" height="2" fill="#ff6b35"/>
+            </symbol>
+
+            <!-- Check mark icon (16x16) -->
+            <symbol id="icon-check" viewBox="0 0 16 16">
+                <rect x="12" y="2" width="2" height="2" fill="#4ade80"/>
+                <rect x="11" y="4" width="2" height="2" fill="#4ade80"/>
+                <rect x="10" y="6" width="2" height="2" fill="#4ade80"/>
+                <rect x="9" y="8" width="2" height="2" fill="#4ade80"/>
+                <rect x="8" y="10" width="2" height="2" fill="#4ade80"/>
+                <rect x="2" y="8" width="2" height="2" fill="#4ade80"/>
+                <rect x="4" y="10" width="2" height="2" fill="#4ade80"/>
+                <rect x="6" y="12" width="2" height="2" fill="#4ade80"/>
+            </symbol>
+
+            <!-- X/Close icon (16x16) -->
+            <symbol id="icon-close" viewBox="0 0 16 16">
+                <rect x="2" y="2" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="4" y="4" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="6" y="6" width="4" height="4" fill="#ff6b6b"/>
+                <rect x="10" y="4" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="12" y="2" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="10" y="10" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="12" y="12" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="2" y="12" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="4" y="10" width="2" height="2" fill="#ff6b6b"/>
+            </symbol>
+
+            <!-- Sound on icon (16x16) -->
+            <symbol id="icon-sound-on" viewBox="0 0 16 16">
+                <rect x="2" y="5" width="3" height="6" fill="#fff"/>
+                <rect x="5" y="4" width="2" height="8" fill="#fff"/>
+                <rect x="7" y="3" width="2" height="10" fill="#fff"/>
+                <rect x="11" y="4" width="2" height="2" fill="#4ade80"/>
+                <rect x="13" y="6" width="2" height="4" fill="#4ade80"/>
+                <rect x="11" y="10" width="2" height="2" fill="#4ade80"/>
+            </symbol>
+
+            <!-- Sound off icon (16x16) -->
+            <symbol id="icon-sound-off" viewBox="0 0 16 16">
+                <rect x="2" y="5" width="3" height="6" fill="#666"/>
+                <rect x="5" y="4" width="2" height="8" fill="#666"/>
+                <rect x="7" y="3" width="2" height="10" fill="#666"/>
+                <rect x="11" y="5" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="13" y="7" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="11" y="9" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="13" y="5" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="11" y="7" width="2" height="2" fill="#ff6b6b"/>
+                <rect x="13" y="9" width="2" height="2" fill="#ff6b6b"/>
+            </symbol>
+
+            <!-- Trophy icon (16x16) -->
+            <symbol id="icon-trophy" viewBox="0 0 16 16">
+                <rect x="4" y="2" width="8" height="2" fill="#ffd93d"/>
+                <rect x="3" y="4" width="10" height="4" fill="#ffd93d"/>
+                <rect x="1" y="4" width="2" height="4" fill="#ffd93d"/>
+                <rect x="13" y="4" width="2" height="4" fill="#ffd93d"/>
+                <rect x="5" y="8" width="6" height="2" fill="#ffd93d"/>
+                <rect x="6" y="10" width="4" height="2" fill="#cd853f"/>
+                <rect x="4" y="12" width="8" height="2" fill="#cd853f"/>
+            </symbol>
+
+            <!-- Book/Practice icon (16x16) -->
+            <symbol id="icon-book" viewBox="0 0 16 16">
+                <rect x="2" y="2" width="12" height="12" fill="#60a5fa"/>
+                <rect x="7" y="2" width="2" height="12" fill="#1e40af"/>
+                <rect x="3" y="4" width="3" height="1" fill="#fff"/>
+                <rect x="3" y="6" width="3" height="1" fill="#fff"/>
+                <rect x="10" y="4" width="3" height="1" fill="#fff"/>
+                <rect x="10" y="6" width="3" height="1" fill="#fff"/>
+                <rect x="10" y="8" width="3" height="1" fill="#fff"/>
+            </symbol>
+
+            <!-- Lightning/Quick icon (16x16) -->
+            <symbol id="icon-lightning" viewBox="0 0 16 16">
+                <rect x="8" y="1" width="2" height="2" fill="#ffd93d"/>
+                <rect x="7" y="3" width="3" height="2" fill="#ffd93d"/>
+                <rect x="6" y="5" width="4" height="2" fill="#ffd93d"/>
+                <rect x="5" y="7" width="6" height="2" fill="#ffd93d"/>
+                <rect x="7" y="9" width="4" height="2" fill="#ffd93d"/>
+                <rect x="8" y="11" width="3" height="2" fill="#ffd93d"/>
+                <rect x="9" y="13" width="2" height="2" fill="#ffd93d"/>
+            </symbol>
+
+            <!-- Timer/Clock icon (16x16) -->
+            <symbol id="icon-timer" viewBox="0 0 16 16">
+                <rect x="5" y="1" width="6" height="2" fill="#fff"/>
+                <rect x="3" y="3" width="10" height="2" fill="#fff"/>
+                <rect x="2" y="5" width="12" height="8" fill="#fff"/>
+                <rect x="3" y="13" width="10" height="2" fill="#fff"/>
+                <rect x="7" y="6" width="2" height="4" fill="#ff6b9d"/>
+                <rect x="8" y="8" width="3" height="2" fill="#ff6b9d"/>
+            </symbol>
+
+            <!-- Settings/Gear icon (16x16) -->
+            <symbol id="icon-settings" viewBox="0 0 16 16">
+                <rect x="6" y="1" width="4" height="2" fill="#a8a8a8"/>
+                <rect x="6" y="13" width="4" height="2" fill="#a8a8a8"/>
+                <rect x="1" y="6" width="2" height="4" fill="#a8a8a8"/>
+                <rect x="13" y="6" width="2" height="4" fill="#a8a8a8"/>
+                <rect x="4" y="4" width="8" height="8" fill="#d4d4d4"/>
+                <rect x="6" y="6" width="4" height="4" fill="#1a1a2e"/>
+            </symbol>
+
+            <!-- Chart/Stats icon (16x16) -->
+            <symbol id="icon-chart" viewBox="0 0 16 16">
+                <rect x="2" y="10" width="3" height="4" fill="#4ade80"/>
+                <rect x="6" y="6" width="3" height="8" fill="#60a5fa"/>
+                <rect x="10" y="3" width="3" height="11" fill="#ff6b9d"/>
+            </symbol>
+
+            <!-- Review/Pencil icon (16x16) -->
+            <symbol id="icon-review" viewBox="0 0 16 16">
+                <rect x="11" y="1" width="2" height="2" fill="#ffd93d"/>
+                <rect x="10" y="3" width="2" height="2" fill="#ffd93d"/>
+                <rect x="9" y="5" width="2" height="2" fill="#ff8c42"/>
+                <rect x="8" y="7" width="2" height="2" fill="#ff8c42"/>
+                <rect x="7" y="9" width="2" height="2" fill="#ff8c42"/>
+                <rect x="6" y="11" width="2" height="2" fill="#ff8c42"/>
+                <rect x="4" y="12" width="3" height="2" fill="#ffb3c1"/>
+                <rect x="2" y="13" width="3" height="2" fill="#ffb3c1"/>
+            </symbol>
+
+            <!-- Heart icon (16x16) -->
+            <symbol id="icon-heart" viewBox="0 0 16 16">
+                <rect x="2" y="4" width="4" height="4" fill="#ff6b9d"/>
+                <rect x="10" y="4" width="4" height="4" fill="#ff6b9d"/>
+                <rect x="4" y="2" width="4" height="4" fill="#ff6b9d"/>
+                <rect x="8" y="2" width="4" height="4" fill="#ff6b9d"/>
+                <rect x="2" y="6" width="12" height="4" fill="#ff6b9d"/>
+                <rect x="4" y="10" width="8" height="2" fill="#ff6b9d"/>
+                <rect x="6" y="12" width="4" height="2" fill="#ff6b9d"/>
+            </symbol>
+
+            <!-- Sparkle icon (16x16) -->
+            <symbol id="icon-sparkle" viewBox="0 0 16 16">
+                <rect x="7" y="1" width="2" height="3" fill="#ffd93d"/>
+                <rect x="7" y="12" width="2" height="3" fill="#ffd93d"/>
+                <rect x="1" y="7" width="3" height="2" fill="#ffd93d"/>
+                <rect x="12" y="7" width="3" height="2" fill="#ffd93d"/>
+                <rect x="6" y="6" width="4" height="4" fill="#fff"/>
+                <rect x="3" y="3" width="2" height="2" fill="#60a5fa"/>
+                <rect x="11" y="3" width="2" height="2" fill="#60a5fa"/>
+                <rect x="3" y="11" width="2" height="2" fill="#60a5fa"/>
+                <rect x="11" y="11" width="2" height="2" fill="#60a5fa"/>
+            </symbol>
+
+            <!-- Eye/Visibility icon (16x16) -->
+            <symbol id="icon-eye" viewBox="0 0 16 16">
+                <rect x="4" y="5" width="8" height="6" fill="#fff"/>
+                <rect x="2" y="6" width="2" height="4" fill="#fff"/>
+                <rect x="12" y="6" width="2" height="4" fill="#fff"/>
+                <rect x="6" y="6" width="4" height="4" fill="#60a5fa"/>
+                <rect x="7" y="7" width="2" height="2" fill="#1a1a2e"/>
+            </symbol>
+
+            <!-- Lightbulb/Hint icon (16x16) -->
+            <symbol id="icon-hint" viewBox="0 0 16 16">
+                <rect x="5" y="2" width="6" height="2" fill="#ffd93d"/>
+                <rect x="4" y="4" width="8" height="4" fill="#ffd93d"/>
+                <rect x="5" y="8" width="6" height="2" fill="#ffd93d"/>
+                <rect x="6" y="10" width="4" height="2" fill="#a8a8a8"/>
+                <rect x="6" y="12" width="4" height="2" fill="#666"/>
+            </symbol>
+        </defs>
+    </svg>
+
+    <!-- First-time Setup Screen -->
+    <div class="screen" id="setupScreen">
+        <div class="setup-container">
+            <div class="app-title">Nanana Math</div>
+            <div class="app-subtitle">Build strong math foundations</div>
+
+            <div class="setup-section">
+                <div class="setup-label">What's your name?</div>
+                <input type="text" id="setupNameInput" class="name-input" placeholder="Enter your name" maxlength="12" autocomplete="off">
+            </div>
+
+            <div class="setup-section">
+                <div class="setup-label">Pick your character</div>
+                <div class="avatar-grid" id="avatarGrid"></div>
+            </div>
+
+            <button class="setup-btn" onclick="completeSetup()">Let's Go!</button>
+        </div>
     </div>
 
     <!-- Player Dashboard Screen -->
     <div class="screen" id="dashboardScreen">
         <div class="dashboard-container">
-            <div class="dashboard-header">
-                <button class="dashboard-back" onclick="showProfiles()" aria-label="Back to profiles">←</button>
-                <div style="width:40px"></div>
-            </div>
 
             <div class="dashboard-player">
                 <div class="dashboard-avatar" id="dashAvatar">🦊</div>
@@ -1606,14 +2054,14 @@
             </div>
 
             <div class="last-session" id="lastSession">
-                <div class="last-session-icon">📊</div>
+                <div class="last-session-icon"><svg class="pixel-icon-sm"><use href="#icon-chart"/></svg></div>
                 <div class="last-session-text">
                     Last session: <span class="last-session-time" id="lastSessionTime">-</span>
                 </div>
             </div>
 
             <div class="focus-fact" id="focusFact">
-                <div class="focus-fact-label">⭐ Focus Fact</div>
+                <div class="focus-fact-label"><svg class="pixel-icon-sm"><use href="#icon-star"/></svg> Focus Fact</div>
                 <div class="focus-fact-problem" id="focusFactProblem">3 + 2 = 5</div>
                 <div class="focus-fact-hint" id="focusFactHint">Practice this one today!</div>
             </div>
@@ -1635,7 +2083,7 @@
 
             <div class="dashboard-actions">
                 <button class="dash-action primary" onclick="startPracticeFromDashboard()">
-                    <div class="dash-action-icon">📚</div>
+                    <div class="dash-action-icon"><svg class="pixel-icon-lg"><use href="#icon-book"/></svg></div>
                     <div class="dash-action-content">
                         <div class="dash-action-title">Practice</div>
                         <div class="dash-action-desc">Continue learning at your pace</div>
@@ -1644,7 +2092,7 @@
                 </button>
 
                 <button class="dash-action quick" onclick="startQuickPractice()">
-                    <div class="dash-action-icon">⚡</div>
+                    <div class="dash-action-icon"><svg class="pixel-icon-lg"><use href="#icon-lightning"/></svg></div>
                     <div class="dash-action-content">
                         <div class="dash-action-title">Quick Practice</div>
                         <div class="dash-action-desc">Just 5 problems - perfect for a quick break</div>
@@ -1653,7 +2101,7 @@
                 </button>
 
                 <button class="dash-action" onclick="startTimedFromDashboard()">
-                    <div class="dash-action-icon">⏱️</div>
+                    <div class="dash-action-icon"><svg class="pixel-icon-lg"><use href="#icon-timer"/></svg></div>
                     <div class="dash-action-content">
                         <div class="dash-action-title">Timed Challenge<span class="timed-best" id="dashTimedBest" style="display:none;">Best: 0</span></div>
                         <div class="dash-action-desc">60 seconds - how many can you solve?</div>
@@ -1662,7 +2110,7 @@
                 </button>
 
                 <button class="dash-action" id="dashReviewBtn" onclick="startReviewFromDashboard()">
-                    <div class="dash-action-icon">🔄</div>
+                    <div class="dash-action-icon"><svg class="pixel-icon-lg"><use href="#icon-review"/></svg></div>
                     <div class="dash-action-content">
                         <div class="dash-action-title">Review Mode</div>
                         <div class="dash-action-desc" id="dashReviewDesc">Practice facts you find tricky</div>
@@ -1671,7 +2119,7 @@
                 </button>
 
                 <button class="dash-action" onclick="showAchievementsFromDashboard()">
-                    <div class="dash-action-icon">🏆</div>
+                    <div class="dash-action-icon"><svg class="pixel-icon-lg"><use href="#icon-trophy"/></svg></div>
                     <div class="dash-action-content">
                         <div class="dash-action-title">Achievements</div>
                         <div class="dash-action-desc" id="dashAchievementDesc">See your badges</div>
@@ -1681,8 +2129,8 @@
             </div>
 
             <div class="dashboard-footer">
-                <button class="dash-footer-btn" onclick="showParentViewFromDashboard()">📊 Progress Report</button>
-                <button class="dash-footer-btn" onclick="showSettingsFromDashboard()">⚙️ Settings</button>
+                <button class="dash-footer-btn" onclick="showParentViewFromDashboard()"><svg class="pixel-icon-sm"><use href="#icon-chart"/></svg> Progress Report</button>
+                <button class="dash-footer-btn" onclick="showSettingsFromDashboard()"><svg class="pixel-icon-sm"><use href="#icon-settings"/></svg> Settings</button>
             </div>
         </div>
     </div>
@@ -1699,8 +2147,8 @@
                     </div>
                 </div>
                 <div class="header-actions">
-                    <button class="header-sound-btn active" id="headerSoundBtn" onclick="toggleSound()" title="Toggle sound" aria-label="Toggle sound">🔊</button>
-                    <button class="back-btn" onclick="endPracticeSession()" title="End session" aria-label="End session">✕</button>
+                    <button class="header-sound-btn active" id="headerSoundBtn" onclick="toggleSound()" title="Toggle sound" aria-label="Toggle sound"><svg class="pixel-icon-sm"><use href="#icon-sound-on"/></svg></button>
+                    <button class="back-btn" onclick="endPracticeSession()" title="End session" aria-label="End session"><svg class="pixel-icon-sm"><use href="#icon-close"/></svg></button>
                 </div>
             </div>
 
@@ -1724,11 +2172,11 @@
                     <span class="pomodoro-label">remaining</span>
                 </div>
                 <div class="streak-display" id="streakDisplay">
-                    <span class="streak-icon">🔥</span>
+                    <span class="streak-icon"><svg class="pixel-icon-sm"><use href="#icon-fire"/></svg></span>
                     <span class="streak-count" id="currentStreak">0</span>
                 </div>
                 <div class="mastery-tracker">
-                    <span class="mastery-progress" id="masteryProgress">0</span>/<span id="masteryGoalDisplay">5</span> ⭐ mastered
+                    <span class="mastery-progress" id="masteryProgress">0</span>/<span id="masteryGoalDisplay">5</span> <svg class="pixel-icon-sm"><use href="#icon-star"/></svg> mastered
                 </div>
                 <div class="session-counter">
                     <span id="sessionCount">0</span> solved
@@ -1736,7 +2184,7 @@
             </div>
 
             <div class="quick-practice-progress" id="quickPracticeProgress">
-                <div class="quick-progress-title">⚡ Quick Practice</div>
+                <div class="quick-progress-title"><svg class="pixel-icon-sm"><use href="#icon-lightning"/></svg> Quick Practice</div>
                 <div class="quick-progress-dots" id="quickProgressDots">
                     <div class="quick-dot current"></div>
                     <div class="quick-dot"></div>
@@ -1747,9 +2195,9 @@
             </div>
 
             <div class="audio-controls" role="group" aria-label="Audio and visual settings">
-                <button class="audio-btn active" id="soundBtn" onclick="toggleSound()" title="Sound effects" aria-label="Toggle sound effects">🔊</button>
-                <button class="audio-btn active" id="speakBtn" onclick="toggleSpeak()" title="Read aloud" aria-label="Toggle read aloud">🗣️</button>
-                <button class="audio-btn active" id="dotsBtn" onclick="toggleDots()" title="Show counting dots" aria-label="Toggle counting dots">👁️</button>
+                <button class="audio-btn active" id="soundBtn" onclick="toggleSound()" title="Sound effects" aria-label="Toggle sound effects"><svg class="pixel-icon"><use href="#icon-sound-on"/></svg></button>
+                <button class="audio-btn active" id="speakBtn" onclick="toggleSpeak()" title="Read aloud" aria-label="Toggle read aloud"><svg class="pixel-icon"><use href="#icon-sound-on"/></svg></button>
+                <button class="audio-btn active" id="dotsBtn" onclick="toggleDots()" title="Show counting dots" aria-label="Toggle counting dots"><svg class="pixel-icon"><use href="#icon-eye"/></svg></button>
             </div>
 
             <div class="problem-area">
@@ -1768,9 +2216,9 @@
                 <div class="problem" id="problem">3 + 2</div>
                 <div class="answer-box" id="answerBox">|</div>
                 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
-                <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()" aria-label="Get a hint">💡 Need a hint?</button>
+                <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()" aria-label="Get a hint"><svg class="pixel-icon-sm"><use href="#icon-hint"/></svg> Need a hint?</button>
                 <div class="hint-text" id="hintText" style="display:none;"></div>
-                <button class="explain-btn" id="explainBtn" onclick="showExplanation()" aria-label="Show step by step solution">📝 Explain</button>
+                <button class="explain-btn" id="explainBtn" onclick="showExplanation()" aria-label="Show step by step solution"><svg class="pixel-icon-sm"><use href="#icon-review"/></svg> Explain</button>
                 <div class="explanation-text" id="explanationText" style="display:none;"></div>
                 <button class="skip-btn" id="skipBtn" onclick="skipProblem()" aria-label="Skip this problem">⏭️ Too hard? Skip</button>
             </div>
@@ -1839,23 +2287,9 @@
             <div class="parent-stats" id="parentStats"></div>
             <div class="parent-struggles" id="parentStruggles"></div>
             <button class="modal-btn confirm" onclick="closeParentView()" style="width:100%;margin-top:20px;" aria-label="Close progress report">Close</button>
-            <button class="delete-profile-btn" id="deleteProfileBtn" onclick="confirmDeleteProfile()" aria-label="Delete this profile">🗑️ Delete Profile</button>
+            <button class="delete-profile-btn" id="deleteProfileBtn" onclick="resetProgress()" aria-label="Reset all progress">🗑️ Reset Progress</button>
         </div>
     </div>
-
-    <!-- Add Profile Modal -->
-    <div class="modal" id="addProfileModal" role="dialog" aria-modal="true" aria-labelledby="addProfileModalTitle">
-        <div class="modal-content">
-            <div class="modal-title" id="addProfileModalTitle">New Player</div>
-            <div class="avatar-picker" id="avatarPicker"></div>
-            <input type="text" class="name-input" id="nameInput" placeholder="Enter name" maxlength="12" aria-label="Player name" autocomplete="off">
-            <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeAddProfile()" aria-label="Cancel creating new profile">Cancel</button>
-                <button class="modal-btn confirm" onclick="saveNewProfile()" aria-label="Create new profile">Create</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Tier Unlock Celebration -->
     <div class="tier-unlock" id="tierUnlock">
         <div class="tier-unlock-emoji">🎉</div>
@@ -3382,16 +3816,16 @@
         // ============================================
         // DATA STORAGE
         // ============================================
-        const AVATARS = ['🦊', '🐼', '🦁', '🐸', '🐱', '🐶', '🦄', '🐰'];
-        const UNLOCKABLE_AVATARS = [
-            { emoji: '🦋', name: 'Butterfly', requirement: 'Complete 5 tiers', check: p => (p.currentTierIndex || 0) >= 5 },
-            { emoji: '🐙', name: 'Octopus', requirement: 'Master 50 facts', check: p => countMasteredFacts(p) >= 50 },
-            { emoji: '🦖', name: 'Dinosaur', requirement: 'Answer 100 problems', check: p => (p.totalCorrect || 0) >= 100 },
-            { emoji: '🐲', name: 'Dragon', requirement: '7 day streak', check: p => calculateStreak(p) >= 7 },
-            { emoji: '🦅', name: 'Eagle', requirement: 'Complete 10 tiers', check: p => (p.currentTierIndex || 0) >= 10 },
-            { emoji: '🐬', name: 'Dolphin', requirement: 'Master 100 facts', check: p => countMasteredFacts(p) >= 100 },
-            { emoji: '🦜', name: 'Parrot', requirement: 'Complete 20 tiers', check: p => (p.currentTierIndex || 0) >= 20 },
-            { emoji: '🐝', name: 'Bee', requirement: 'Answer 1000 problems', check: p => (p.totalCorrect || 0) >= 1000 }
+        // Pixel art avatar definitions (IDs reference SVG symbols)
+        const AVATARS = [
+            { id: 'fox', name: 'Fox' },
+            { id: 'panda', name: 'Panda' },
+            { id: 'cat', name: 'Cat' },
+            { id: 'dog', name: 'Dog' },
+            { id: 'bunny', name: 'Bunny' },
+            { id: 'bear', name: 'Bear' },
+            { id: 'penguin', name: 'Penguin' },
+            { id: 'owl', name: 'Owl' }
         ];
 
         const ACHIEVEMENTS = [
@@ -3411,12 +3845,12 @@
             { id: 'mastery200', name: 'Fact Expert', emoji: '🎓', desc: 'Master 200 facts', check: p => countMasteredFacts(p) >= 200 }
         ];
 
-        let profiles = [];
+        // Single player mode - no profiles array
         let currentProfile = null;
         let currentInput = '';
         let currentFact = null;
         let sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
-        let selectedAvatar = '🦊';
+        let selectedAvatar = 'fox'; // Now references pixel art avatar ID
         let reviewMode = false;
         let timedMode = false;
         let timedModeTimer = null;
@@ -3505,12 +3939,19 @@
 
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
-            // Update header button too
+            const soundBtn = document.getElementById('soundBtn');
             const headerBtn = document.getElementById('headerSoundBtn');
+            const iconHTML = soundEnabled
+                ? '<svg class="pixel-icon-sm"><use href="#icon-sound-on"/></svg>'
+                : '<svg class="pixel-icon-sm"><use href="#icon-sound-off"/></svg>';
+
+            if (soundBtn) {
+                soundBtn.classList.toggle('active', soundEnabled);
+                soundBtn.innerHTML = iconHTML.replace('pixel-icon-sm', 'pixel-icon');
+            }
             if (headerBtn) {
                 headerBtn.classList.toggle('active', soundEnabled);
-                headerBtn.textContent = soundEnabled ? '🔊' : '🔇';
+                headerBtn.innerHTML = iconHTML;
             }
             if (soundEnabled) playSound('tap');
         }
@@ -4129,7 +4570,7 @@
             sessionStats.correctStreak = 0;
             updateStreakDisplay();
 
-            saveProfiles();
+            savePlayer();
 
             // Move to next problem after brief pause
             setTimeout(() => {
@@ -4189,15 +4630,14 @@
         // ============================================
         // TIMED CHALLENGE MODE
         // ============================================
-        function startTimedMode(profileIndex) {
-            currentProfile = profiles[profileIndex];
+        function startTimedMode() {
             timedMode = true;
             timedModeScore = 0;
             timedModeTimeLeft = 60;
             sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
 
             // Update UI for timed mode
-            document.getElementById('currentAvatar').textContent = currentProfile.avatar;
+            document.getElementById('currentAvatar').innerHTML = getAvatarDisplay(currentProfile.avatar);
             document.getElementById('currentName').innerHTML = currentProfile.name + '<span class="timed-badge">⏱️ TIMED</span>';
             document.getElementById('currentTier').textContent = '60 second challenge!';
             document.getElementById('tierName').textContent = 'Timed Challenge';
@@ -4248,7 +4688,7 @@
             // Update best score
             if (!currentProfile.bestTimedScore || timedModeScore > currentProfile.bestTimedScore) {
                 currentProfile.bestTimedScore = timedModeScore;
-                saveProfiles();
+                savePlayer();
             }
 
             // Show results
@@ -4472,79 +4912,92 @@
         }
 
         // ============================================
-        // PROFILE MANAGEMENT
+        // PLAYER DATA MANAGEMENT (Single User)
         // ============================================
-        function loadProfiles() {
-            const saved = localStorage.getItem('nanana_profiles');
-            profiles = saved ? JSON.parse(saved) : [];
-            renderProfiles();
+        function loadPlayer() {
+            const saved = localStorage.getItem('nanana_player');
+            if (saved) {
+                currentProfile = JSON.parse(saved);
+                showDashboard();
+            } else {
+                // First time user - show setup
+                selectedAvatar = AVATARS[0].id;
+                renderAvatarGrid();
+                showScreen('setupScreen');
+            }
         }
 
-        function saveProfiles() {
-            localStorage.setItem('nanana_profiles', JSON.stringify(profiles));
+        function savePlayer() {
+            if (currentProfile) {
+                localStorage.setItem('nanana_player', JSON.stringify(currentProfile));
+            }
         }
 
-        function renderProfiles() {
-            const grid = document.getElementById('profilesGrid');
-            grid.innerHTML = '';
+        function createNewPlayer(name, avatarId) {
+            currentProfile = {
+                id: Date.now(),
+                name: name,
+                avatar: avatarId,
+                currentTierIndex: 0,
+                factProgress: {},
+                totalCorrect: 0,
+                totalSessions: 0,
+                dailyProgress: {},
+                bestTimedScore: 0,
+                bestStreak: 0,
+                achievements: []
+            };
+            savePlayer();
+            showDashboard();
+        }
 
-            profiles.forEach((profile, index) => {
-                const card = document.createElement('div');
-                card.className = 'profile-card';
-                card.onclick = (e) => {
-                    if (!e.target.classList.contains('parent-btn') && !e.target.classList.contains('profile-action-btn')) {
-                        selectProfile(index);
-                    }
-                };
+        function completeSetup() {
+            const nameInput = document.getElementById('setupNameInput');
+            const name = nameInput.value.trim().slice(0, 12);
+            if (!name) {
+                nameInput.focus();
+                return;
+            }
+            createNewPlayer(name, selectedAvatar);
+        }
 
-                const tier = getCurrentTier(profile);
-                const streak = calculateStreak(profile);
-                const streakHTML = streak > 0 ? `<div class="profile-streak">🔥 ${streak} day${streak > 1 ? 's' : ''}</div>` : '';
-                const achievementCount = (profile.achievements || []).length;
-                const hasStruggles = Object.values(profile.factProgress || {}).some(p => p.wrong > 0 && !p.mastered);
-                const masteredCount = countMasteredFacts(profile);
-                const totalCorrect = profile.totalCorrect || 0;
+        // Render SVG pixel art avatar
+        function renderPixelAvatar(avatarId, size = '') {
+            const sizeClass = size ? `pixel-avatar-${size}` : 'pixel-avatar';
+            return `<svg class="${sizeClass}"><use href="#avatar-${avatarId}"/></svg>`;
+        }
 
-                const bestTimed = profile.bestTimedScore ? `⏱️ ${profile.bestTimedScore}` : '⏱️';
+        function renderAvatarGrid() {
+            const grid = document.getElementById('avatarGrid');
+            grid.innerHTML = AVATARS.map(avatar => `
+                <div class="avatar-option ${avatar.id === selectedAvatar ? 'selected' : ''}"
+                     onclick="selectSetupAvatar('${avatar.id}')"
+                     title="${avatar.name}">
+                    <svg class="pixel-avatar-sm"><use href="#avatar-${avatar.id}"/></svg>
+                </div>
+            `).join('');
+        }
 
-                card.innerHTML = `
-                    <button class="parent-btn" onclick="event.stopPropagation(); showParentView(${index})" title="View progress">📊</button>
-                    <div class="profile-avatar">${profile.avatar}</div>
-                    <div class="profile-name">${profile.name}</div>
-                    <div class="profile-level">${tier ? tier.name : 'Starting'}</div>
-                    <div class="profile-quick-stats">
-                        <span>⭐ ${masteredCount}</span>
-                        <span>✓ ${totalCorrect}</span>
-                    </div>
-                    ${streakHTML}
-                    <div class="profile-actions">
-                        <button class="profile-action-btn" onclick="event.stopPropagation(); showAchievements(${index})">🏆 ${achievementCount}</button>
-                        <button class="profile-action-btn" onclick="event.stopPropagation(); startTimedMode(${index})" title="60 second challenge">${bestTimed}</button>
-                        ${hasStruggles ? `<button class="profile-action-btn" onclick="event.stopPropagation(); startReviewMode(${index})">📝 Review</button>` : ''}
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+        function selectSetupAvatar(avatarId) {
+            selectedAvatar = avatarId;
+            renderAvatarGrid();
+        }
 
-            // Settings button
-            const settingsCard = document.createElement('div');
-            settingsCard.className = 'profile-card add-new';
-            settingsCard.onclick = showSettings;
-            settingsCard.innerHTML = `
-                <div class="profile-avatar">⚙️</div>
-                <div class="profile-name">Settings</div>
-            `;
-            grid.appendChild(settingsCard);
+        // Get display representation for an avatar as SVG HTML
+        function getAvatarDisplay(avatarId, size = '') {
+            const sizeClass = size ? `pixel-avatar-${size}` : 'pixel-avatar';
+            return `<svg class="${sizeClass}"><use href="#avatar-${avatarId}"/></svg>`;
+        }
 
-            // Add new profile card
-            const addCard = document.createElement('div');
-            addCard.className = 'profile-card add-new';
-            addCard.onclick = showAddProfile;
-            addCard.innerHTML = `
-                <div class="profile-avatar">+</div>
-                <div class="profile-name">Add Player</div>
-            `;
-            grid.appendChild(addCard);
+        // Set avatar display in an element (uses innerHTML)
+        function setAvatarDisplay(element, avatarId, size = '') {
+            element.innerHTML = getAvatarDisplay(avatarId, size);
+        }
+
+        // Render SVG pixel art icon
+        function renderPixelIcon(iconId, size = '') {
+            const sizeClass = size ? `pixel-icon-${size}` : 'pixel-icon';
+            return `<svg class="${sizeClass}"><use href="#icon-${iconId}"/></svg>`;
         }
 
         // Calculate consecutive day streak
@@ -4578,104 +5031,6 @@
             return streak;
         }
 
-        function showAddProfile() {
-            selectedAvatar = AVATARS[0];
-            renderAvatarPicker();
-            document.getElementById('nameInput').value = '';
-            document.getElementById('addProfileModal').classList.add('active');
-        }
-
-        function closeAddProfile() {
-            document.getElementById('addProfileModal').classList.remove('active');
-        }
-
-        function renderAvatarPicker() {
-            const picker = document.getElementById('avatarPicker');
-            let html = '';
-
-            // Regular avatars (always available)
-            html += AVATARS.map(avatar => `
-                <div class="avatar-option ${avatar === selectedAvatar ? 'selected' : ''}"
-                     onclick="selectAvatar('${avatar}')">${avatar}</div>
-            `).join('');
-
-            // Unlockable avatars - check if unlocked based on any existing profile's progress
-            const bestProfile = profiles.reduce((best, p) => {
-                const score = (p.totalCorrect || 0) + (p.currentTierIndex || 0) * 10 + countMasteredFacts(p);
-                const bestScore = (best.totalCorrect || 0) + (best.currentTierIndex || 0) * 10 + countMasteredFacts(best);
-                return score > bestScore ? p : best;
-            }, profiles[0] || {});
-
-            html += UNLOCKABLE_AVATARS.map(ua => {
-                const unlocked = ua.check(bestProfile);
-                if (unlocked) {
-                    return `<div class="avatar-option ${ua.emoji === selectedAvatar ? 'selected' : ''}"
-                         onclick="selectAvatar('${ua.emoji}')" title="${ua.name}">${ua.emoji}</div>`;
-                } else {
-                    return `<div class="avatar-option locked" title="${ua.requirement}">🔒</div>`;
-                }
-            }).join('');
-
-            picker.innerHTML = html;
-        }
-
-        function selectAvatar(avatar) {
-            // Check if it's an unlockable avatar and if it's unlocked
-            const unlockable = UNLOCKABLE_AVATARS.find(ua => ua.emoji === avatar);
-            if (unlockable) {
-                const bestProfile = profiles.reduce((best, p) => {
-                    const score = (p.totalCorrect || 0) + (p.currentTierIndex || 0) * 10;
-                    const bestScore = (best.totalCorrect || 0) + (best.currentTierIndex || 0) * 10;
-                    return score > bestScore ? p : best;
-                }, profiles[0] || {});
-
-                if (!unlockable.check(bestProfile)) return; // Don't select locked avatar
-            }
-
-            selectedAvatar = avatar;
-            renderAvatarPicker();
-        }
-
-        function saveNewProfile() {
-            const name = document.getElementById('nameInput').value.trim();
-            if (!name) {
-                document.getElementById('nameInput').focus();
-                return;
-            }
-
-            const newProfile = {
-                id: Date.now(),
-                name: name,
-                avatar: selectedAvatar,
-                currentTierIndex: 0,
-                factProgress: {}, // { "3+2": { correct: 5, wrong: 1, lastSeen: timestamp, mastered: true } }
-                totalCorrect: 0,
-                totalSessions: 0,
-                dailyProgress: {} // { "2024-01-15": 12 }
-            };
-
-            profiles.push(newProfile);
-            saveProfiles();
-            closeAddProfile();
-            renderProfiles();
-        }
-
-        // ============================================
-        // PROFILE SELECTION & GAME START
-        // ============================================
-        let dashboardProfileIndex = null;
-
-        function selectProfile(index) {
-            currentProfile = profiles[index];
-            dashboardProfileIndex = index;
-            // Reset review mode
-            reviewMode = false;
-            if (currentProfile._reviewFacts) {
-                delete currentProfile._reviewFacts;
-            }
-            showDashboard();
-        }
-
         // Motivational messages
         const MOTIVATIONAL_MESSAGES = [
             "Practice makes progress!",
@@ -4701,7 +5056,7 @@
             const tier = getCurrentTier(profile);
 
             // Update player info
-            document.getElementById('dashAvatar').textContent = profile.avatar;
+            document.getElementById('dashAvatar').innerHTML = getAvatarDisplay(profile.avatar);
             document.getElementById('dashName').textContent = profile.name;
             document.getElementById('dashTier').textContent = tier.name;
 
@@ -4835,15 +5190,15 @@
         }
 
         function startReviewFromDashboard() {
-            startReviewMode(dashboardProfileIndex);
+            startReviewMode();
         }
 
         function showAchievementsFromDashboard() {
-            showAchievements(dashboardProfileIndex);
+            showAchievements();
         }
 
         function showParentViewFromDashboard() {
-            showParentView(dashboardProfileIndex);
+            showParentView();
         }
 
         function showSettingsFromDashboard() {
@@ -4866,7 +5221,7 @@
             }
 
             // Update UI
-            document.getElementById('currentAvatar').textContent = currentProfile.avatar;
+            document.getElementById('currentAvatar').innerHTML = getAvatarDisplay(currentProfile.avatar);
             document.getElementById('currentName').textContent = currentProfile.name;
 
             updateTierDisplay();
@@ -4923,7 +5278,7 @@
             }
 
             // Update UI
-            document.getElementById('currentAvatar').textContent = currentProfile.avatar;
+            document.getElementById('currentAvatar').innerHTML = getAvatarDisplay(currentProfile.avatar);
             document.getElementById('currentName').textContent = currentProfile.name;
 
             updateTierDisplay();
@@ -5249,7 +5604,7 @@
             // Timed mode: fast transitions, no daily tracking
             if (timedMode) {
                 if (isCorrect) timedModeScore++;
-                saveProfiles();
+                savePlayer();
                 // Immediate next problem in timed mode
                 setTimeout(generateProblem, isCorrect ? 300 : 800);
                 return;
@@ -5265,7 +5620,7 @@
                 setTimeout(() => showAchievementPopup(newAchievements[0]), 1600);
             }
 
-            saveProfiles();
+            savePlayer();
             if (!reviewMode) updateTierDisplay();
 
             // Check if quick practice is complete
@@ -5528,7 +5883,7 @@
 
             if (masteryRate >= tier.requiredMastery && currentProfile.currentTierIndex < TIERS.length - 1) {
                 currentProfile.currentTierIndex++;
-                saveProfiles();
+                savePlayer();
 
                 // Show celebration with confetti!
                 showConfetti();
@@ -5586,7 +5941,7 @@
             // Track last session time
             currentProfile.lastSessionTime = Date.now();
             currentProfile.totalSessions = (currentProfile.totalSessions || 0) + 1;
-            saveProfiles();
+            savePlayer();
 
             // Check if daily goal was just reached
             const today = new Date().toISOString().split('T')[0];
@@ -5594,7 +5949,7 @@
             const previousGoalReached = currentProfile.lastGoalReachedDate === today;
             if (todayProgress >= DAILY_GOAL && !previousGoalReached) {
                 currentProfile.lastGoalReachedDate = today;
-                saveProfiles();
+                savePlayer();
                 showConfetti();
                 playSound('mastered');
             }
@@ -5640,15 +5995,12 @@
         // ============================================
         // PARENT VIEW
         // ============================================
-        let viewingProfileIndex = null;
-
-        function showParentView(profileIndex) {
-            viewingProfileIndex = profileIndex;
-            const profile = profiles[profileIndex];
+        function showParentView() {
+            const profile = currentProfile;
             const tier = getCurrentTier(profile);
 
             // Player name
-            document.getElementById('parentPlayerName').innerHTML = `${profile.avatar} ${profile.name}`;
+            document.getElementById('parentPlayerName').innerHTML = `${getAvatarDisplay(profile.avatar)} ${profile.name}`;
 
             // Stats
             const totalProblems = Object.values(profile.dailyProgress || {}).reduce((a, b) => a + b, 0);
@@ -5709,28 +6061,22 @@
 
         function closeParentView() {
             document.getElementById('parentModal').classList.remove('active');
-            viewingProfileIndex = null;
         }
 
-        function confirmDeleteProfile() {
-            if (viewingProfileIndex === null) return;
-            const profile = profiles[viewingProfileIndex];
-
+        function resetProgress() {
             const confirmed = window.confirm(
-                `Are you sure you want to delete ${profile.name}'s profile?\n\n` +
-                `This will permanently delete all progress and cannot be undone.`
+                `Are you sure you want to reset all progress?\n\n` +
+                `This will permanently delete all learning data and cannot be undone.`
             );
 
             if (confirmed) {
-                deleteProfile(viewingProfileIndex);
+                localStorage.removeItem('nanana_player');
+                currentProfile = null;
+                selectedAvatar = AVATARS[0].id;
+                renderAvatarGrid();
+                closeParentView();
+                showScreen('setupScreen');
             }
-        }
-
-        function deleteProfile(index) {
-            profiles.splice(index, 1);
-            saveProfiles();
-            closeParentView();
-            renderProfiles();
         }
 
         // ============================================
@@ -5741,13 +6087,12 @@
             document.getElementById(screenId).classList.add('active');
         }
 
-        function showProfiles() {
+        function goToDashboard() {
             reviewMode = false;
             if (currentProfile && currentProfile._reviewFacts) {
                 delete currentProfile._reviewFacts;
             }
-            renderProfiles();
-            showScreen('profileScreen');
+            showDashboard();
         }
 
         // ============================================
@@ -5764,8 +6109,8 @@
         // ============================================
         // ACHIEVEMENTS
         // ============================================
-        function showAchievements(profileIndex) {
-            const profile = profiles[profileIndex];
+        function showAchievements() {
+            const profile = currentProfile;
             if (!profile.achievements) profile.achievements = [];
 
             const list = document.getElementById('achievementsList');
@@ -5947,8 +6292,7 @@
         // ============================================
         // REVIEW MODE
         // ============================================
-        function startReviewMode(profileIndex) {
-            currentProfile = profiles[profileIndex];
+        function startReviewMode() {
             reviewMode = true;
 
             // Collect all struggling facts from all tiers
@@ -5970,7 +6314,7 @@
 
             sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
 
-            document.getElementById('currentAvatar').textContent = currentProfile.avatar;
+            document.getElementById('currentAvatar').innerHTML = getAvatarDisplay(currentProfile.avatar);
             document.getElementById('currentName').innerHTML = currentProfile.name + '<span class="review-badge">REVIEW</span>';
             document.getElementById('currentTier').textContent = `${struggles.length} facts to review`;
             document.getElementById('tierName').textContent = 'Review Mode';
@@ -6070,7 +6414,8 @@
             }
         });
 
-        loadProfiles();
+        // Initialize the app
+        loadPlayer();
     </script>
 </body>
 </html>

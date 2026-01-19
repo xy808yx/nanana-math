@@ -453,6 +453,132 @@
             transform: scale(0.97);
         }
 
+        /* Session buttons */
+        .session-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .continue-btn {
+            background: var(--success);
+            color: #000;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            padding: 18px 50px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .continue-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* Day Streak */
+        .streak-display {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            background: rgba(255, 107, 107, 0.15);
+            border-radius: 25px;
+        }
+        .streak-fire { font-size: 1.5rem; }
+        .streak-count {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #ff6b6b;
+        }
+        .streak-label {
+            font-size: 1rem;
+            color: var(--text-dim);
+        }
+
+        /* Profile card streak */
+        .profile-streak {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #ff6b6b;
+        }
+
+        /* Parent View */
+        .parent-view {
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .parent-player {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .parent-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .parent-stat {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .parent-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .parent-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+        .parent-struggles {
+            background: rgba(255, 107, 107, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+        }
+        .parent-struggles-title {
+            color: var(--error);
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        .struggle-fact {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.9rem;
+        }
+        .struggle-fact:last-child { border-bottom: none; }
+        .struggle-rate { color: var(--error); font-weight: 600; }
+
+        /* Parent button on profile card */
+        .parent-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            cursor: pointer;
+            opacity: 0.4;
+            padding: 5px;
+        }
+        .parent-btn:hover { opacity: 1; }
+        .profile-card { position: relative; }
+
         /* Add Profile Modal */
         .modal {
             display: none;
@@ -652,6 +778,12 @@
             <div class="session-emoji">🌟</div>
             <div class="session-title">Great Practice!</div>
 
+            <div class="streak-display" id="streakDisplay">
+                <span class="streak-fire">🔥</span>
+                <span class="streak-count" id="streakCount">1</span>
+                <span class="streak-label">day streak!</span>
+            </div>
+
             <div class="session-stats">
                 <div class="stat-box">
                     <div class="stat-value" id="sessionCorrect">0</div>
@@ -673,7 +805,21 @@
                 <div class="practice-facts" id="practiceFacts"></div>
             </div>
 
-            <button class="done-btn" onclick="showProfiles()">Done</button>
+            <div class="session-buttons">
+                <button class="continue-btn" onclick="continuePractice()">Keep Going!</button>
+                <button class="done-btn" onclick="showProfiles()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Parent View Modal -->
+    <div class="modal" id="parentModal">
+        <div class="modal-content parent-view">
+            <div class="modal-title">📊 Progress Report</div>
+            <div class="parent-player" id="parentPlayerName"></div>
+            <div class="parent-stats" id="parentStats"></div>
+            <div class="parent-struggles" id="parentStruggles"></div>
+            <button class="modal-btn confirm" onclick="closeParentView()" style="width:100%;margin-top:20px;">Close</button>
         </div>
     </div>
 
@@ -994,16 +1140,22 @@
             profiles.forEach((profile, index) => {
                 const card = document.createElement('div');
                 card.className = 'profile-card';
-                card.onclick = () => selectProfile(index);
+                card.onclick = (e) => {
+                    if (!e.target.classList.contains('parent-btn')) {
+                        selectProfile(index);
+                    }
+                };
 
                 const tier = getCurrentTier(profile);
-                const mastered = getMasteredCount(profile, tier);
-                const total = tier ? tier.facts.length : 0;
+                const streak = calculateStreak(profile);
+                const streakHTML = streak > 0 ? `<div class="profile-streak">🔥 ${streak} day${streak > 1 ? 's' : ''}</div>` : '';
 
                 card.innerHTML = `
+                    <button class="parent-btn" onclick="event.stopPropagation(); showParentView(${index})" title="View progress">📊</button>
                     <div class="profile-avatar">${profile.avatar}</div>
                     <div class="profile-name">${profile.name}</div>
                     <div class="profile-level">${tier ? tier.name : 'Starting'}</div>
+                    ${streakHTML}
                 `;
                 grid.appendChild(card);
             });
@@ -1017,6 +1169,37 @@
                 <div class="profile-name">Add Player</div>
             `;
             grid.appendChild(addCard);
+        }
+
+        // Calculate consecutive day streak
+        function calculateStreak(profile) {
+            if (!profile.dailyProgress) return 0;
+
+            const dates = Object.keys(profile.dailyProgress).sort().reverse();
+            if (dates.length === 0) return 0;
+
+            const today = new Date().toISOString().split('T')[0];
+            const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+            // Must have practiced today or yesterday to have an active streak
+            if (dates[0] !== today && dates[0] !== yesterday) return 0;
+
+            let streak = 0;
+            let checkDate = new Date(dates[0]);
+
+            for (const dateStr of dates) {
+                const date = new Date(dateStr);
+                const expectedDate = new Date(checkDate);
+                expectedDate.setDate(expectedDate.getDate() - streak);
+
+                if (dateStr === expectedDate.toISOString().split('T')[0]) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+
+            return streak;
         }
 
         function showAddProfile() {
@@ -1341,6 +1524,11 @@
             document.getElementById('sessionCorrect').textContent = sessionStats.correct;
             document.getElementById('sessionAccuracy').textContent = accuracy + '%';
 
+            // Show streak
+            const streak = calculateStreak(currentProfile);
+            document.getElementById('streakCount').textContent = streak;
+            document.getElementById('streakDisplay').style.display = streak > 0 ? 'flex' : 'none';
+
             // Show mastered facts
             if (sessionStats.newlyMastered.length > 0) {
                 document.getElementById('masteredSection').style.display = 'block';
@@ -1360,6 +1548,84 @@
             }
 
             showScreen('sessionScreen');
+        }
+
+        function continuePractice() {
+            // Increase daily goal by 5 and continue
+            dailyGoal += 5;
+            showScreen('practiceScreen');
+            generateProblem();
+        }
+
+        // ============================================
+        // PARENT VIEW
+        // ============================================
+        function showParentView(profileIndex) {
+            const profile = profiles[profileIndex];
+            const tier = getCurrentTier(profile);
+
+            // Player name
+            document.getElementById('parentPlayerName').innerHTML = `${profile.avatar} ${profile.name}`;
+
+            // Stats
+            const totalProblems = Object.values(profile.dailyProgress || {}).reduce((a, b) => a + b, 0);
+            const masteredCount = getMasteredCount(profile, tier);
+            const totalFacts = tier.facts.length;
+            const streak = calculateStreak(profile);
+
+            document.getElementById('parentStats').innerHTML = `
+                <div class="parent-stat">
+                    <div class="parent-stat-value">${totalProblems}</div>
+                    <div class="parent-stat-label">Total Problems</div>
+                </div>
+                <div class="parent-stat">
+                    <div class="parent-stat-value">${masteredCount}/${totalFacts}</div>
+                    <div class="parent-stat-label">Facts Mastered</div>
+                </div>
+                <div class="parent-stat">
+                    <div class="parent-stat-value">${streak}</div>
+                    <div class="parent-stat-label">Day Streak</div>
+                </div>
+                <div class="parent-stat">
+                    <div class="parent-stat-value">${tier.name}</div>
+                    <div class="parent-stat-label">Current Level</div>
+                </div>
+            `;
+
+            // Find struggling facts (wrong > 0, sorted by error rate)
+            const struggles = [];
+            for (const [fact, progress] of Object.entries(profile.factProgress || {})) {
+                if (progress.wrong > 0) {
+                    const total = progress.correct + progress.wrong;
+                    const errorRate = Math.round((progress.wrong / total) * 100);
+                    struggles.push({ fact, errorRate, wrong: progress.wrong, correct: progress.correct });
+                }
+            }
+            struggles.sort((a, b) => b.errorRate - a.errorRate);
+
+            if (struggles.length > 0) {
+                document.getElementById('parentStruggles').innerHTML = `
+                    <div class="parent-struggles-title">⚠️ Needs Practice (${struggles.length} facts)</div>
+                    ${struggles.slice(0, 8).map(s => `
+                        <div class="struggle-fact">
+                            <span>${s.fact}</span>
+                            <span class="struggle-rate">${s.errorRate}% errors</span>
+                        </div>
+                    `).join('')}
+                    ${struggles.length > 8 ? `<div style="text-align:center;color:var(--text-dim);margin-top:10px;">+ ${struggles.length - 8} more</div>` : ''}
+                `;
+                document.getElementById('parentStruggles').style.display = 'block';
+            } else {
+                document.getElementById('parentStruggles').innerHTML = `
+                    <div style="text-align:center;color:var(--success);">✓ No struggling facts!</div>
+                `;
+            }
+
+            document.getElementById('parentModal').classList.add('active');
+        }
+
+        function closeParentView() {
+            document.getElementById('parentModal').classList.remove('active');
         }
 
         // ============================================

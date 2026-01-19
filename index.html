@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="Fun math practice for kids. Master addition, subtraction, multiplication, and more with Pomodoro-style focused sessions.">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Nanana Math">
@@ -174,33 +175,125 @@
             transition: width 0.5s ease;
         }
 
-        /* Daily Goal */
-        .daily-goal {
-            text-align: center;
-            padding: 15px;
+        /* Pomodoro Timer */
+        .pomodoro-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
             background: rgba(255, 215, 61, 0.1);
             border-radius: 12px;
             margin-bottom: 20px;
         }
-        .goal-label { font-size: 0.85rem; color: var(--text-dim); }
-        .goal-progress {
+        .pomodoro-timer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .pomodoro-time {
             font-size: 1.8rem;
             font-weight: 700;
             color: var(--primary);
-            margin: 5px 0;
+            font-variant-numeric: tabular-nums;
         }
-        .goal-bar {
-            height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 10px;
+        .pomodoro-time.warning { color: var(--accent); }
+        .pomodoro-time.danger { color: var(--error); animation: pulse 1s infinite; }
+        .pomodoro-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
         }
-        .goal-fill {
-            height: 100%;
+        .mastery-tracker {
+            font-size: 1.1rem;
+            color: var(--text);
+        }
+        .mastery-progress {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Break Screen */
+        .break-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            display: none;
+        }
+        .break-overlay.active { display: flex; }
+        .break-emoji { font-size: 4rem; margin-bottom: 20px; }
+        .break-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        .break-subtitle {
+            color: var(--text-dim);
+            margin-bottom: 30px;
+        }
+        .break-timer {
+            font-size: 4rem;
+            font-weight: 700;
+            color: var(--success);
+            margin-bottom: 30px;
+            font-variant-numeric: tabular-nums;
+        }
+        .break-stats {
+            background: var(--card-bg);
+            padding: 20px 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .break-stat-row {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+        .break-stat {
+            text-align: center;
+        }
+        .break-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .break-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        .break-buttons {
+            display: flex;
+            gap: 15px;
+        }
+        .break-btn {
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+        .break-btn.primary {
             background: var(--primary);
-            border-radius: 4px;
-            transition: width 0.3s;
+            color: #000;
+        }
+        .break-btn.secondary {
+            background: var(--card-bg);
+            color: var(--text);
+            border: 2px solid var(--text-dim);
         }
 
         /* Audio Controls */
@@ -628,6 +721,14 @@
             border-color: var(--primary);
             background: rgba(255, 215, 61, 0.2);
         }
+        .avatar-option.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+            filter: grayscale(100%);
+        }
+        .avatar-option.locked:hover {
+            transform: none;
+        }
 
         .name-input {
             width: 100%;
@@ -721,7 +822,7 @@
                         <div class="player-tier" id="currentTier">Addition to 5</div>
                     </div>
                 </div>
-                <button class="back-btn" onclick="showProfiles()">✕</button>
+                <button class="back-btn" onclick="endPracticeSession()">✕</button>
             </div>
 
             <div class="tier-progress">
@@ -734,11 +835,13 @@
                 </div>
             </div>
 
-            <div class="daily-goal">
-                <div class="goal-label">Today's Goal</div>
-                <div class="goal-progress"><span id="goalCurrent">0</span> / <span id="goalTarget">10</span></div>
-                <div class="goal-bar">
-                    <div class="goal-fill" id="goalFill" style="width: 0%"></div>
+            <div class="pomodoro-section" id="pomodoroSection">
+                <div class="pomodoro-timer">
+                    <span class="pomodoro-time" id="pomodoroTime">25:00</span>
+                    <span class="pomodoro-label">remaining</span>
+                </div>
+                <div class="mastery-tracker">
+                    <span class="mastery-progress" id="masteryProgress">0</span>/<span id="masteryGoalDisplay">5</span> ⭐ mastered
                 </div>
             </div>
 
@@ -749,11 +852,17 @@
             </div>
 
             <div class="problem-area">
+                <div class="timer-bar" id="timerBar" style="display:none;">
+                    <div class="timer-fill" id="timerFill" style="width:100%"></div>
+                </div>
                 <div class="dots-container" id="dotsContainer"></div>
+                <div class="clock-container" id="clockContainer" style="display:none;"></div>
                 <div class="problem-hint" id="problemHint" style="display:none;font-size:0.9rem;color:var(--text-dim);margin-bottom:5px;"></div>
                 <div class="problem" id="problem">3 + 2</div>
                 <div class="answer-box" id="answerBox">|</div>
                 <div class="feedback" id="feedback"></div>
+                <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()">💡 Need a hint?</button>
+                <div class="hint-text" id="hintText" style="display:none;"></div>
             </div>
 
             <div class="numpad">
@@ -782,7 +891,7 @@
             <div class="streak-display" id="streakDisplay">
                 <span class="streak-fire">🔥</span>
                 <span class="streak-count" id="streakCount">1</span>
-                <span class="streak-label">day streak!</span>
+                <span class="streak-label" id="streakLabel">day streak!</span>
             </div>
 
             <div class="session-stats">
@@ -792,7 +901,7 @@
                 </div>
                 <div class="stat-box">
                     <div class="stat-value" id="sessionAccuracy">0%</div>
-                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-label" id="sessionAccuracyLabel">Accuracy</div>
                 </div>
             </div>
 
@@ -807,8 +916,7 @@
             </div>
 
             <div class="session-buttons">
-                <button class="continue-btn" onclick="continuePractice()">Keep Going!</button>
-                <button class="done-btn" onclick="showProfiles()">Done</button>
+                <button class="done-btn" onclick="finishSession()">Done</button>
             </div>
         </div>
     </div>
@@ -866,12 +974,27 @@
         <div class="modal-content">
             <div class="modal-title">⚙️ Settings</div>
             <div style="margin-bottom:20px;">
-                <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Daily Goal</label>
-                <div style="display:flex;gap:10px;justify-content:center;">
-                    <button class="goal-option" onclick="setDailyGoal(5)">5</button>
-                    <button class="goal-option" onclick="setDailyGoal(10)">10</button>
-                    <button class="goal-option" onclick="setDailyGoal(15)">15</button>
-                    <button class="goal-option" onclick="setDailyGoal(20)">20</button>
+                <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Session Length</label>
+                <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="sessionLengthOptions">
+                    <button class="goal-option" onclick="setSessionLength(15)">15 min</button>
+                    <button class="goal-option" onclick="setSessionLength(20)">20 min</button>
+                    <button class="goal-option" onclick="setSessionLength(25)">25 min</button>
+                    <button class="goal-option" onclick="setSessionLength(30)">30 min</button>
+                </div>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Mastery Goal (facts per session)</label>
+                <div style="display:flex;gap:8px;justify-content:center;" id="masteryGoalOptions">
+                    <button class="goal-option" onclick="setMasteryGoal(3)">3</button>
+                    <button class="goal-option" onclick="setMasteryGoal(5)">5</button>
+                    <button class="goal-option" onclick="setMasteryGoal(10)">10</button>
+                </div>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Break Length</label>
+                <div style="display:flex;gap:8px;justify-content:center;" id="breakLengthOptions">
+                    <button class="goal-option" onclick="setBreakLength(5)">5 min</button>
+                    <button class="goal-option" onclick="setBreakLength(10)">10 min</button>
                 </div>
             </div>
             <div style="margin-bottom:20px;">
@@ -956,7 +1079,196 @@
         body.large-text .problem { font-size: 4rem; }
         body.large-text .answer-box { font-size: 3.5rem; }
         body.large-text .numpad button { font-size: 2.2rem; }
+
+        /* Analog Clock */
+        .clock-face {
+            width: 120px;
+            height: 120px;
+            border: 4px solid var(--primary);
+            border-radius: 50%;
+            position: relative;
+            background: rgba(0,0,0,0.3);
+            margin: 0 auto 15px;
+        }
+        .clock-center {
+            width: 10px;
+            height: 10px;
+            background: var(--primary);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+        }
+        .clock-hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            border-radius: 4px;
+        }
+        .clock-hand.hour {
+            width: 6px;
+            height: 30px;
+            background: var(--primary);
+            margin-left: -3px;
+        }
+        .clock-hand.minute {
+            width: 4px;
+            height: 45px;
+            background: var(--accent);
+            margin-left: -2px;
+        }
+        .clock-number {
+            position: absolute;
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--text-dim);
+        }
+
+        /* Coins */
+        .coin {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 0.6rem;
+            margin: 2px;
+        }
+        .coin.penny {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #b87333, #cd7f32);
+            color: #4a3000;
+        }
+        .coin.nickel {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #a8a8a8, #c0c0c0);
+            color: #333;
+        }
+        .coin.dime {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(135deg, #c0c0c0, #d4d4d4);
+            color: #333;
+        }
+        .coin.quarter {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+            color: #333;
+        }
+
+        /* Confetti */
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            overflow: hidden;
+        }
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+        }
+        @keyframes confetti-fall {
+            0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Timed Mode */
+        .timer-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        .timer-fill {
+            height: 100%;
+            background: var(--success);
+            transition: width 0.1s linear;
+        }
+        .timer-fill.warning { background: var(--primary); }
+        .timer-fill.danger { background: var(--error); }
+        .timed-badge {
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        /* Hint Button */
+        .hint-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .hint-btn:hover { background: rgba(255,255,255,0.2); }
+        .hint-text {
+            font-size: 0.9rem;
+            color: var(--accent);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* Shake animation for wrong answers */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .answer-box.wrong {
+            animation: shake 0.3s ease-in-out;
+        }
     </style>
+
+    <!-- Break Overlay -->
+    <div class="break-overlay" id="breakOverlay">
+        <div class="break-emoji">☕</div>
+        <div class="break-title">Break Time!</div>
+        <div class="break-subtitle">Great work! Take a breather.</div>
+        <div class="break-timer" id="breakTimer">5:00</div>
+        <div class="break-stats">
+            <div class="break-stat-row">
+                <div class="break-stat">
+                    <div class="break-stat-value" id="breakCorrect">0</div>
+                    <div class="break-stat-label">Correct</div>
+                </div>
+                <div class="break-stat">
+                    <div class="break-stat-value" id="breakMastered">0</div>
+                    <div class="break-stat-label">Mastered</div>
+                </div>
+                <div class="break-stat">
+                    <div class="break-stat-value" id="breakAccuracy">0%</div>
+                    <div class="break-stat-label">Accuracy</div>
+                </div>
+            </div>
+        </div>
+        <div class="break-buttons">
+            <button class="break-btn primary" onclick="startNextPomodoro()">Another Round</button>
+            <button class="break-btn secondary" onclick="finishPractice()">All Done</button>
+        </div>
+    </div>
+
+    <!-- Confetti Container -->
+    <div class="confetti-container" id="confettiContainer"></div>
 
     <script>
         // ============================================
@@ -1317,6 +1629,41 @@
                 id: 'patterns',
                 name: 'Number Patterns',
                 facts: generatePatternFacts(),
+                requiredMastery: 0.9
+            },
+            // Near Doubles Strategy
+            {
+                id: 'neardoubles',
+                name: 'Near Doubles',
+                facts: generateNearDoublesFacts(),
+                requiredMastery: 0.9
+            },
+            // Number Ordering
+            {
+                id: 'ordering',
+                name: 'Number Order',
+                facts: generateNumberOrderFacts(),
+                requiredMastery: 0.9
+            },
+            // Quarter Hours
+            {
+                id: 'clockquarter',
+                name: 'Time: Quarters',
+                facts: generateClockFacts('quarter'),
+                requiredMastery: 0.9
+            },
+            // Quarters
+            {
+                id: 'quarters',
+                name: 'Counting Quarters',
+                facts: generateCoinFacts('quarters'),
+                requiredMastery: 0.9
+            },
+            // Mixed Coins
+            {
+                id: 'mixedcoins',
+                name: 'Mixed Coins',
+                facts: generateCoinFacts('mixed'),
                 requiredMastery: 0.9
             }
         ];
@@ -1758,16 +2105,40 @@
                     });
                 }
             } else if (type === 'half') {
-                // "What time? [clock showing 3:30]" → 330 (we'll use hour * 100 + 30)
+                // "What time? [clock showing 3:30]" → answer is 30
                 for (let hour = 1; hour <= 12; hour++) {
                     facts.push({
                         a: hour,
                         b: 30,
                         op: 'clockhalf',
-                        answer: 30, // Just answer the minutes
+                        answer: 30,
                         display: `🕐 ${hour}:??`,
                         hour: hour,
                         minute: 30
+                    });
+                }
+            } else if (type === 'quarter') {
+                // Quarter past and quarter to
+                for (let hour = 1; hour <= 12; hour++) {
+                    // Quarter past (:15)
+                    facts.push({
+                        a: hour,
+                        b: 15,
+                        op: 'clockquarter',
+                        answer: 15,
+                        display: `🕐 ${hour}:??`,
+                        hour: hour,
+                        minute: 15
+                    });
+                    // Quarter to (:45)
+                    facts.push({
+                        a: hour,
+                        b: 45,
+                        op: 'clockquarter',
+                        answer: 45,
+                        display: `🕐 ${hour}:??`,
+                        hour: hour,
+                        minute: 45
                     });
                 }
             }
@@ -1783,9 +2154,10 @@
                         a: count,
                         op: 'coins',
                         answer: count,
-                        display: `${'🪙'.repeat(Math.min(count, 5))}${count > 5 ? '+' + (count-5) : ''} = ?¢`,
+                        display: `${count} pennies = ?¢`,
                         coinType: 'penny',
-                        coinValue: 1
+                        coinValue: 1,
+                        coinCount: count
                     });
                 }
                 // Count nickels
@@ -1796,7 +2168,8 @@
                         answer: count * 5,
                         display: `${count} nickel${count > 1 ? 's' : ''} = ?¢`,
                         coinType: 'nickel',
-                        coinValue: 5
+                        coinValue: 5,
+                        coinCount: count
                     });
                 }
                 // Count dimes
@@ -1807,9 +2180,47 @@
                         answer: count * 10,
                         display: `${count} dime${count > 1 ? 's' : ''} = ?¢`,
                         coinType: 'dime',
-                        coinValue: 10
+                        coinValue: 10,
+                        coinCount: count
                     });
                 }
+            } else if (type === 'quarters') {
+                // Count quarters
+                for (let count = 1; count <= 4; count++) {
+                    facts.push({
+                        a: count,
+                        op: 'coins',
+                        answer: count * 25,
+                        display: `${count} quarter${count > 1 ? 's' : ''} = ?¢`,
+                        coinType: 'quarter',
+                        coinValue: 25,
+                        coinCount: count
+                    });
+                }
+            } else if (type === 'mixed') {
+                // Mixed coins
+                const mixedProblems = [
+                    { coins: [{type: 'quarter', count: 1}, {type: 'dime', count: 1}], total: 35 },
+                    { coins: [{type: 'quarter', count: 1}, {type: 'nickel', count: 1}], total: 30 },
+                    { coins: [{type: 'dime', count: 2}, {type: 'nickel', count: 1}], total: 25 },
+                    { coins: [{type: 'quarter', count: 1}, {type: 'dime', count: 2}], total: 45 },
+                    { coins: [{type: 'quarter', count: 2}], total: 50 },
+                    { coins: [{type: 'dime', count: 3}, {type: 'nickel', count: 1}], total: 35 },
+                    { coins: [{type: 'quarter', count: 1}, {type: 'nickel', count: 2}], total: 35 },
+                    { coins: [{type: 'quarter', count: 2}, {type: 'dime', count: 1}], total: 60 },
+                    { coins: [{type: 'dime', count: 1}, {type: 'nickel', count: 3}], total: 25 },
+                    { coins: [{type: 'quarter', count: 1}, {type: 'dime', count: 1}, {type: 'nickel', count: 1}], total: 40 }
+                ];
+                mixedProblems.forEach((prob, i) => {
+                    const display = prob.coins.map(c => `${c.count} ${c.type}${c.count > 1 ? 's' : ''}`).join(' + ');
+                    facts.push({
+                        a: prob.coins,
+                        op: 'mixedcoins',
+                        answer: prob.total,
+                        display: `${display} = ?¢`,
+                        coins: prob.coins
+                    });
+                });
             }
             return facts;
         }
@@ -1873,11 +2284,68 @@
             return facts;
         }
 
+        function generateNearDoublesFacts() {
+            const facts = [];
+            // Near doubles: 6+7 = 6+6+1 = 13
+            for (let a = 1; a <= 9; a++) {
+                const b = a + 1;
+                facts.push({
+                    a, b,
+                    op: 'neardouble',
+                    answer: a + b,
+                    display: `${a} + ${b}`,
+                    double: a,
+                    hint: `${a}+${a}+1`
+                });
+                // Also b + a (reversed)
+                facts.push({
+                    a: b, b: a,
+                    op: 'neardouble',
+                    answer: a + b,
+                    display: `${b} + ${a}`,
+                    double: a,
+                    hint: `${a}+${a}+1`
+                });
+            }
+            return facts;
+        }
+
+        function generateNumberOrderFacts() {
+            const facts = [];
+            // Order 3 numbers from smallest to largest
+            // Answer is the middle number (to keep it simple with numpad)
+            for (let i = 0; i < 15; i++) {
+                const a = Math.floor(Math.random() * 20) + 1;
+                const b = a + Math.floor(Math.random() * 10) + 1;
+                const c = b + Math.floor(Math.random() * 10) + 1;
+                // Shuffle display order
+                const nums = [a, b, c].sort(() => Math.random() - 0.5);
+                facts.push({
+                    a: nums,
+                    op: 'order',
+                    answer: b, // Middle number
+                    display: `Order: ${nums.join(', ')}`,
+                    sorted: [a, b, c],
+                    hint: 'Which is in the middle?'
+                });
+            }
+            return facts;
+        }
+
         // ============================================
         // DATA STORAGE
         // ============================================
         const AVATARS = ['🦊', '🐼', '🦁', '🐸', '🐱', '🐶', '🦄', '🐰'];
-        const UNLOCKABLE_AVATARS = ['🦋', '🐙', '🦖', '🐲', '🦅', '🐬', '🦜', '🐝'];
+        const UNLOCKABLE_AVATARS = [
+            { emoji: '🦋', name: 'Butterfly', requirement: 'Complete 5 tiers', check: p => (p.currentTierIndex || 0) >= 5 },
+            { emoji: '🐙', name: 'Octopus', requirement: 'Master 50 facts', check: p => countMasteredFacts(p) >= 50 },
+            { emoji: '🦖', name: 'Dinosaur', requirement: 'Answer 100 problems', check: p => (p.totalCorrect || 0) >= 100 },
+            { emoji: '🐲', name: 'Dragon', requirement: '7 day streak', check: p => calculateStreak(p) >= 7 },
+            { emoji: '🦅', name: 'Eagle', requirement: 'Complete 10 tiers', check: p => (p.currentTierIndex || 0) >= 10 },
+            { emoji: '🐬', name: 'Dolphin', requirement: 'Master 100 facts', check: p => countMasteredFacts(p) >= 100 },
+            { emoji: '🦜', name: 'Parrot', requirement: 'Complete 20 tiers', check: p => (p.currentTierIndex || 0) >= 20 },
+            { emoji: '🐝', name: 'Bee', requirement: 'Answer 1000 problems', check: p => (p.totalCorrect || 0) >= 1000 }
+        ];
 
         const ACHIEVEMENTS = [
             { id: 'first10', name: 'Getting Started', emoji: '🌱', desc: 'Answer 10 problems', check: p => (p.totalCorrect || 0) >= 10 },
@@ -1901,9 +2369,21 @@
         let currentInput = '';
         let currentFact = null;
         let sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
-        let dailyGoal = 10;
         let selectedAvatar = '🦊';
         let reviewMode = false;
+        let timedMode = false;
+        let timedModeTimer = null;
+        let timedModeTimeLeft = 60; // seconds
+        let timedModeScore = 0;
+
+        // Pomodoro settings
+        let pomodoroLength = 25 * 60; // 25 minutes in seconds
+        let breakLength = 5 * 60; // 5 minutes in seconds
+        let masteryGoal = 5; // facts to master per session
+        let pomodoroTimeLeft = 0;
+        let pomodoroTimer = null;
+        let pomodoroActive = false;
+        let onBreak = false;
 
         // Audio/Visual settings
         let soundEnabled = true;
@@ -2053,6 +2533,15 @@
                 text = `How many sides does a ${fact.shapeName} have?`;
             } else if (fact.op === 'pattern') {
                 text = `${fact.a.join(', ')}... what comes next in the pattern?`;
+            } else if (fact.op === 'neardouble') {
+                text = `What is ${fact.a} plus ${fact.b}? Think: ${fact.double} plus ${fact.double} plus 1.`;
+            } else if (fact.op === 'order') {
+                text = `Put these in order: ${fact.a.join(', ')}. What is the middle number?`;
+            } else if (fact.op === 'clockquarter') {
+                text = `The hour is ${fact.hour}. What are the minutes?`;
+            } else if (fact.op === 'mixedcoins') {
+                const coinText = fact.coins.map(c => `${c.count} ${c.type}${c.count > 1 ? 's' : ''}`).join(' and ');
+                text = `How many cents is ${coinText}?`;
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
@@ -2224,6 +2713,74 @@
                 }
                 html += '</div>';
             }
+            // Clock: show visual analog clock face
+            else if (fact.op === 'clock' || fact.op === 'clockhalf' || fact.op === 'clockquarter') {
+                const clockContainer = document.getElementById('clockContainer');
+                const hourAngle = (fact.hour % 12) * 30 + (fact.minute / 60) * 30;
+                const minuteAngle = fact.minute * 6;
+
+                let clockHtml = '<div class="clock-face">';
+                clockHtml += '<div class="clock-center"></div>';
+                clockHtml += `<div class="clock-hand hour" style="transform: rotate(${hourAngle}deg);"></div>`;
+                clockHtml += `<div class="clock-hand minute" style="transform: rotate(${minuteAngle}deg);"></div>`;
+
+                // Add clock numbers
+                const numbers = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+                const radius = 45;
+                numbers.forEach((num, i) => {
+                    const angle = (i * 30 - 90) * Math.PI / 180;
+                    const x = 60 + radius * Math.cos(angle) - 8;
+                    const y = 60 + radius * Math.sin(angle) - 8;
+                    clockHtml += `<span class="clock-number" style="left:${x}px;top:${y}px;">${num}</span>`;
+                });
+
+                clockHtml += '</div>';
+                clockContainer.innerHTML = clockHtml;
+                clockContainer.style.display = 'block';
+                return; // Don't use dots container for clock
+            }
+            // Coins: show visual coin images
+            else if (fact.op === 'coins' && fact.coinType) {
+                html = '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">';
+                const coinValue = { penny: 1, nickel: 5, dime: 10, quarter: 25 };
+                const count = fact.answer / coinValue[fact.coinType];
+                for (let i = 0; i < count; i++) {
+                    html += `<div class="coin ${fact.coinType}">${coinValue[fact.coinType]}¢</div>`;
+                }
+                html += '</div>';
+            }
+            // Mixed coins: show different coin types
+            else if (fact.op === 'mixedcoins' && fact.coins) {
+                html = '<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:4px;">';
+                const coinValue = { penny: 1, nickel: 5, dime: 10, quarter: 25 };
+                fact.coins.forEach(coin => {
+                    for (let i = 0; i < coin.count; i++) {
+                        html += `<div class="coin ${coin.type}">${coinValue[coin.type]}¢</div>`;
+                    }
+                });
+                html += '</div>';
+            }
+            // Near doubles: show the doubles hint visually
+            else if (fact.op === 'neardouble') {
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.a; i++) html += '<div class="dot"></div>';
+                html += '</div>';
+                html += '<div class="dots-operator">+</div>';
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.b; i++) html += '<div class="dot second"></div>';
+                html += '</div>';
+            }
+            // Number ordering: show the three numbers
+            else if (fact.op === 'order' && fact.a) {
+                html = '<div style="display:flex;gap:15px;justify-content:center;">';
+                fact.a.forEach(num => {
+                    html += `<div style="width:40px;height:40px;background:var(--card-bg);border:2px solid var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-weight:bold;">${num}</div>`;
+                });
+                html += '</div>';
+            }
+
+            // Hide clock container for non-clock problems
+            document.getElementById('clockContainer').style.display = 'none';
 
             container.innerHTML = html;
         }
@@ -2232,6 +2789,328 @@
             dotsEnabled = !dotsEnabled;
             document.getElementById('dotsBtn').classList.toggle('active', dotsEnabled);
             if (currentFact) renderDots(currentFact);
+        }
+
+        // ============================================
+        // HINT SYSTEM
+        // ============================================
+        let currentHint = '';
+
+        function showHint() {
+            if (!currentFact || !currentHint) return;
+
+            const hintText = document.getElementById('hintText');
+            hintText.textContent = currentHint;
+            hintText.style.display = 'block';
+            document.getElementById('hintBtn').style.display = 'none';
+
+            // Speak the hint
+            if (speakEnabled) {
+                const utterance = new SpeechSynthesisUtterance(currentHint);
+                utterance.rate = 0.9;
+                speechSynthesis.speak(utterance);
+            }
+        }
+
+        function getHintForFact(fact) {
+            if (!fact) return '';
+
+            // Operation-specific hints
+            const hints = {
+                '+': `Count ${fact.a} then add ${fact.b} more`,
+                '-': `Start at ${fact.a} and take away ${fact.b}`,
+                '−': `Start at ${fact.a} and take away ${fact.b}`,
+                '×': `${fact.a} groups of ${fact.b}`,
+                '÷': `Share ${fact.a} into ${fact.b} equal groups`,
+                '+?': `What plus ${fact.a} equals ${fact.sum}?`,
+                '-?': `${fact.a} minus what equals ${fact.result}?`,
+                '×?': `${fact.a} times what equals ${fact.product}?`,
+                'compare': `Count each group. Which has more?`,
+                'tens': `The tens digit is on the left`,
+                'ones': `The ones digit is on the right`,
+                'bond': `What plus ${fact.a} equals ${fact.target}?`,
+                'evenodd': `Even numbers can be split into pairs`,
+                'skip': `Add ${fact.by} each time`,
+                'clock': `The short hand points to the hour`,
+                'clockhalf': `The long hand at 6 means 30 minutes`,
+                'clockquarter': `The long hand at 3 means 15, at 9 means 45`,
+                'coins': `Count by the coin value`,
+                'neardouble': `Double ${fact.double}, then add 1`,
+                'order': `Which number is in the middle when sorted?`,
+                'round10': `Look at the ones digit. 5 or more rounds up`,
+                'gtlt': `< means less than, > means greater than`,
+                'shapesides': `Count each straight edge`,
+                'pattern': `What repeats? Find the pattern`
+            };
+
+            return hints[fact.op] || `Think about it step by step`;
+        }
+
+        function hideHint() {
+            document.getElementById('hintBtn').style.display = 'none';
+            document.getElementById('hintText').style.display = 'none';
+            currentHint = '';
+        }
+
+        // ============================================
+        // CONFETTI CELEBRATION
+        // ============================================
+        function showConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#ffd93d', '#ff6b9d', '#6bcb77', '#4ecdc4', '#ff6b6b', '#a66cff'];
+
+            // Create 50 confetti pieces
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
+                confetti.style.animation = `confetti-fall ${2 + Math.random() * 2}s ease-out forwards`;
+
+                container.appendChild(confetti);
+            }
+
+            // Clean up after animation
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 4000);
+        }
+
+        // ============================================
+        // TIMED CHALLENGE MODE
+        // ============================================
+        function startTimedMode(profileIndex) {
+            currentProfile = profiles[profileIndex];
+            timedMode = true;
+            timedModeScore = 0;
+            timedModeTimeLeft = 60;
+            sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
+
+            // Update UI for timed mode
+            document.getElementById('currentAvatar').textContent = currentProfile.avatar;
+            document.getElementById('currentName').innerHTML = currentProfile.name + '<span class="timed-badge">⏱️ TIMED</span>';
+            document.getElementById('currentTier').textContent = '60 second challenge!';
+            document.getElementById('tierName').textContent = 'Timed Challenge';
+            document.querySelector('.tier-progress').style.display = 'none';
+            document.getElementById('pomodoroSection').style.display = 'none';
+            document.getElementById('timerBar').style.display = 'block';
+            document.getElementById('timerFill').style.width = '100%';
+            document.getElementById('timerFill').className = 'timer-fill';
+
+            showScreen('practiceScreen');
+
+            // Start timer
+            timedModeTimer = setInterval(updateTimedMode, 100);
+
+            // Generate first problem
+            generateProblem();
+        }
+
+        function updateTimedMode() {
+            timedModeTimeLeft -= 0.1;
+            const percentage = (timedModeTimeLeft / 60) * 100;
+            const timerFill = document.getElementById('timerFill');
+
+            timerFill.style.width = percentage + '%';
+
+            // Color changes
+            if (timedModeTimeLeft <= 10) {
+                timerFill.className = 'timer-fill danger';
+            } else if (timedModeTimeLeft <= 20) {
+                timerFill.className = 'timer-fill warning';
+            }
+
+            if (timedModeTimeLeft <= 0) {
+                endTimedMode();
+            }
+        }
+
+        function endTimedMode() {
+            clearInterval(timedModeTimer);
+            timedModeTimer = null;
+            timedMode = false;
+
+            document.getElementById('timerBar').style.display = 'none';
+            // Restore UI elements hidden during timed mode
+            document.querySelector('.tier-progress').style.display = 'block';
+            document.getElementById('pomodoroSection').style.display = 'flex';
+
+            // Update best score
+            if (!currentProfile.bestTimedScore || timedModeScore > currentProfile.bestTimedScore) {
+                currentProfile.bestTimedScore = timedModeScore;
+                saveProfiles();
+            }
+
+            // Show results
+            showTimedResults();
+        }
+
+        function showTimedResults() {
+            showConfetti();
+
+            const isPB = timedModeScore === currentProfile.bestTimedScore;
+
+            // Update session screen for timed mode display
+            document.getElementById('sessionCorrect').textContent = timedModeScore;
+            document.getElementById('sessionAccuracy').textContent = timedModeScore;
+            document.getElementById('sessionAccuracyLabel').textContent = 'Solved in 60s';
+
+            // Show streak or personal best
+            if (isPB && timedModeScore > 0) {
+                document.getElementById('streakDisplay').style.display = 'flex';
+                document.getElementById('streakCount').textContent = '🏆';
+                document.getElementById('streakLabel').textContent = 'New Best!';
+            } else {
+                document.getElementById('streakDisplay').style.display = 'flex';
+                document.getElementById('streakCount').textContent = currentProfile.bestTimedScore || 0;
+                document.getElementById('streakLabel').textContent = 'Best Score';
+            }
+
+            // Hide mastered/practice sections for timed mode
+            document.getElementById('masteredSection').style.display = 'none';
+            document.getElementById('practiceMoreSection').style.display = 'none';
+
+            showScreen('sessionScreen');
+        }
+
+        // ============================================
+        // POMODORO TIMER SYSTEM
+        // ============================================
+        function startPomodoro() {
+            pomodoroActive = true;
+            onBreak = false;
+            pomodoroTimeLeft = pomodoroLength;
+            sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
+
+            updatePomodoroDisplay();
+            document.getElementById('masteryProgress').textContent = '0';
+            document.getElementById('masteryGoalDisplay').textContent = masteryGoal;
+
+            // Start the timer
+            if (pomodoroTimer) clearInterval(pomodoroTimer);
+            pomodoroTimer = setInterval(updatePomodoro, 1000);
+        }
+
+        function updatePomodoro() {
+            if (!pomodoroActive || onBreak) return;
+
+            pomodoroTimeLeft--;
+            updatePomodoroDisplay();
+
+            // Check if time is up
+            if (pomodoroTimeLeft <= 0) {
+                triggerBreak('time');
+            }
+        }
+
+        function updatePomodoroDisplay() {
+            const minutes = Math.floor(pomodoroTimeLeft / 60);
+            const seconds = pomodoroTimeLeft % 60;
+            const timeStr = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            const timeEl = document.getElementById('pomodoroTime');
+            timeEl.textContent = timeStr;
+
+            // Color changes for urgency
+            timeEl.classList.remove('warning', 'danger');
+            if (pomodoroTimeLeft <= 60) {
+                timeEl.classList.add('danger');
+            } else if (pomodoroTimeLeft <= 300) {
+                timeEl.classList.add('warning');
+            }
+        }
+
+        function updateMasteryDisplay() {
+            document.getElementById('masteryProgress').textContent = sessionStats.newlyMastered.length;
+
+            // Check if mastery goal reached
+            if (sessionStats.newlyMastered.length >= masteryGoal) {
+                triggerBreak('mastery');
+            }
+        }
+
+        function triggerBreak(reason) {
+            pomodoroActive = false;
+            onBreak = true;
+
+            if (pomodoroTimer) {
+                clearInterval(pomodoroTimer);
+                pomodoroTimer = null;
+            }
+
+            // Show confetti for completing a session
+            showConfetti();
+            playSound('mastered');
+
+            // Update break screen stats
+            const total = sessionStats.correct + sessionStats.wrong;
+            const accuracy = total > 0 ? Math.round((sessionStats.correct / total) * 100) : 0;
+
+            document.getElementById('breakCorrect').textContent = sessionStats.correct;
+            document.getElementById('breakMastered').textContent = sessionStats.newlyMastered.length;
+            document.getElementById('breakAccuracy').textContent = accuracy + '%';
+
+            // Update subtitle based on reason
+            const subtitle = document.querySelector('.break-subtitle');
+            if (reason === 'mastery') {
+                subtitle.textContent = `Amazing! You mastered ${masteryGoal} facts!`;
+            } else {
+                subtitle.textContent = 'Great focus! Time for a breather.';
+            }
+
+            // Show break overlay and start break timer
+            document.getElementById('breakOverlay').classList.add('active');
+            startBreakTimer();
+        }
+
+        function startBreakTimer() {
+            let breakTimeLeft = breakLength;
+            updateBreakTimerDisplay(breakTimeLeft);
+
+            const breakTimer = setInterval(() => {
+                breakTimeLeft--;
+                updateBreakTimerDisplay(breakTimeLeft);
+
+                if (breakTimeLeft <= 0) {
+                    clearInterval(breakTimer);
+                    // Could auto-start next round or just wait for user
+                }
+            }, 1000);
+        }
+
+        function updateBreakTimerDisplay(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.getElementById('breakTimer').textContent = `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+
+        function startNextPomodoro() {
+            document.getElementById('breakOverlay').classList.remove('active');
+            onBreak = false;
+            startPomodoro();
+            generateProblem();
+        }
+
+        function finishPractice() {
+            document.getElementById('breakOverlay').classList.remove('active');
+            onBreak = false;
+            pomodoroActive = false;
+            if (pomodoroTimer) {
+                clearInterval(pomodoroTimer);
+                pomodoroTimer = null;
+            }
+            showProfiles();
+        }
+
+        function stopPomodoro() {
+            pomodoroActive = false;
+            if (pomodoroTimer) {
+                clearInterval(pomodoroTimer);
+                pomodoroTimer = null;
+            }
         }
 
         // ============================================
@@ -2266,6 +3145,8 @@
                 const achievementCount = (profile.achievements || []).length;
                 const hasStruggles = Object.values(profile.factProgress || {}).some(p => p.wrong > 0 && !p.mastered);
 
+                const bestTimed = profile.bestTimedScore ? `⏱️ ${profile.bestTimedScore}` : '⏱️';
+
                 card.innerHTML = `
                     <button class="parent-btn" onclick="event.stopPropagation(); showParentView(${index})" title="View progress">📊</button>
                     <div class="profile-avatar">${profile.avatar}</div>
@@ -2274,6 +3155,7 @@
                     ${streakHTML}
                     <div class="profile-actions">
                         <button class="profile-action-btn" onclick="event.stopPropagation(); showAchievements(${index})">🏆 ${achievementCount}</button>
+                        <button class="profile-action-btn" onclick="event.stopPropagation(); startTimedMode(${index})" title="60 second challenge">${bestTimed}</button>
                         ${hasStruggles ? `<button class="profile-action-btn" onclick="event.stopPropagation(); startReviewMode(${index})">📝 Review</button>` : ''}
                     </div>
                 `;
@@ -2345,13 +3227,47 @@
 
         function renderAvatarPicker() {
             const picker = document.getElementById('avatarPicker');
-            picker.innerHTML = AVATARS.map(avatar => `
+            let html = '';
+
+            // Regular avatars (always available)
+            html += AVATARS.map(avatar => `
                 <div class="avatar-option ${avatar === selectedAvatar ? 'selected' : ''}"
                      onclick="selectAvatar('${avatar}')">${avatar}</div>
             `).join('');
+
+            // Unlockable avatars - check if unlocked based on any existing profile's progress
+            const bestProfile = profiles.reduce((best, p) => {
+                const score = (p.totalCorrect || 0) + (p.currentTierIndex || 0) * 10 + countMasteredFacts(p);
+                const bestScore = (best.totalCorrect || 0) + (best.currentTierIndex || 0) * 10 + countMasteredFacts(best);
+                return score > bestScore ? p : best;
+            }, profiles[0] || {});
+
+            html += UNLOCKABLE_AVATARS.map(ua => {
+                const unlocked = ua.check(bestProfile);
+                if (unlocked) {
+                    return `<div class="avatar-option ${ua.emoji === selectedAvatar ? 'selected' : ''}"
+                         onclick="selectAvatar('${ua.emoji}')" title="${ua.name}">${ua.emoji}</div>`;
+                } else {
+                    return `<div class="avatar-option locked" title="${ua.requirement}">🔒</div>`;
+                }
+            }).join('');
+
+            picker.innerHTML = html;
         }
 
         function selectAvatar(avatar) {
+            // Check if it's an unlockable avatar and if it's unlocked
+            const unlockable = UNLOCKABLE_AVATARS.find(ua => ua.emoji === avatar);
+            if (unlockable) {
+                const bestProfile = profiles.reduce((best, p) => {
+                    const score = (p.totalCorrect || 0) + (p.currentTierIndex || 0) * 10;
+                    const bestScore = (best.totalCorrect || 0) + (best.currentTierIndex || 0) * 10;
+                    return score > bestScore ? p : best;
+                }, profiles[0] || {});
+
+                if (!unlockable.check(bestProfile)) return; // Don't select locked avatar
+            }
+
             selectedAvatar = avatar;
             renderAvatarPicker();
         }
@@ -2389,18 +3305,17 @@
         }
 
         function startPracticeSession() {
-            // Reset session stats
-            sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [] };
-
             // Update UI
             document.getElementById('currentAvatar').textContent = currentProfile.avatar;
             document.getElementById('currentName').textContent = currentProfile.name;
 
             updateTierDisplay();
-            updateDailyGoal();
 
             // Show practice screen
             showScreen('practiceScreen');
+
+            // Start Pomodoro timer
+            startPomodoro();
 
             // Generate first problem
             generateProblem();
@@ -2433,15 +3348,6 @@
             document.getElementById('tierFill').style.width = `${percent}%`;
         }
 
-        function updateDailyGoal() {
-            const today = new Date().toISOString().split('T')[0];
-            const todayProgress = currentProfile.dailyProgress[today] || 0;
-
-            document.getElementById('goalCurrent').textContent = todayProgress;
-            document.getElementById('goalTarget').textContent = dailyGoal;
-            document.getElementById('goalFill').style.width = `${Math.min(100, (todayProgress / dailyGoal) * 100)}%`;
-        }
-
         // ============================================
         // PROBLEM GENERATION - Smart Selection
         // ============================================
@@ -2455,6 +3361,9 @@
             document.getElementById('feedback').textContent = '';
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('answerBox').className = 'answer-box';
+
+            // Hide previous hint
+            hideHint();
 
             // Show hints for certain problem types
             const hintEl = document.getElementById('problemHint');
@@ -2480,9 +3389,13 @@
                 'wordsub': 'Subtract to find remainder',
                 'clock': 'What hour?',
                 'clockhalf': 'What minutes? (30)',
+                'clockquarter': 'What minutes? (15 or 45)',
                 'coins': 'Count the cents',
+                'mixedcoins': 'Add up all the coins',
                 'shapesides': 'Count the sides',
-                'pattern': 'Find the pattern'
+                'pattern': 'Find the pattern',
+                'neardouble': 'Double + 1',
+                'order': 'Find the middle number'
             };
 
             if (hints[currentFact.op]) {
@@ -2591,7 +3504,16 @@
                 handleWrongAnswer(progress, key);
             }
 
-            // Update daily progress
+            // Timed mode: fast transitions, no daily tracking
+            if (timedMode) {
+                if (isCorrect) timedModeScore++;
+                saveProfiles();
+                // Immediate next problem in timed mode
+                setTimeout(generateProblem, isCorrect ? 300 : 800);
+                return;
+            }
+
+            // Update daily progress (for streak tracking)
             const today = new Date().toISOString().split('T')[0];
             currentProfile.dailyProgress[today] = (currentProfile.dailyProgress[today] || 0) + 1;
 
@@ -2603,16 +3525,10 @@
 
             saveProfiles();
             if (!reviewMode) updateTierDisplay();
-            updateDailyGoal();
 
-            // Check if daily goal reached
-            if (currentProfile.dailyProgress[today] >= dailyGoal && !reviewMode) {
-                setTimeout(() => showSessionComplete(), 1500);
-            } else {
-                // Next problem after delay
-                const nextFn = reviewMode ? generateReviewProblem : generateProblem;
-                setTimeout(nextFn, isCorrect ? 800 : 2000);
-            }
+            // Continue with next problem
+            const nextFn = reviewMode ? generateReviewProblem : generateProblem;
+            setTimeout(nextFn, isCorrect ? 800 : 2000);
         }
 
         function handleCorrectAnswer(progress, key) {
@@ -2633,13 +3549,16 @@
             playSound('correct');
             speakFeedback(true, null, currentFact);
 
-            // Check for mastery (5 correct with < 20% error rate)
+            // Check for mastery (4 correct with < 30% error rate)
             const errorRate = progress.wrong / (progress.correct + progress.wrong);
-            if (!progress.mastered && progress.correct >= 5 && errorRate < 0.2) {
+            if (!progress.mastered && progress.correct >= 4 && errorRate < 0.3) {
                 progress.mastered = true;
                 sessionStats.newlyMastered.push(key);
                 document.getElementById('feedback').textContent = '⭐ Mastered!';
                 playSound('mastered');
+
+                // Update mastery display and check if goal reached
+                if (pomodoroActive) updateMasteryDisplay();
 
                 // Check for tier advancement (skip in review mode)
                 if (!reviewMode) checkTierAdvancement();
@@ -2682,6 +3601,12 @@
 
             playSound('wrong');
             speakFeedback(false, currentFact.answer, currentFact);
+
+            // Show hint button for next attempt
+            currentHint = getHintForFact(currentFact);
+            if (currentHint) {
+                document.getElementById('hintBtn').style.display = 'inline-block';
+            }
         }
 
         function checkTierAdvancement() {
@@ -2694,7 +3619,8 @@
                 currentProfile.currentTierIndex++;
                 saveProfiles();
 
-                // Show celebration
+                // Show celebration with confetti!
+                showConfetti();
                 const newTier = getCurrentTier(currentProfile);
                 document.getElementById('tierUnlockName').textContent = newTier.name;
                 document.getElementById('tierUnlock').classList.add('active');
@@ -2709,6 +3635,32 @@
         // ============================================
         // SESSION COMPLETE
         // ============================================
+        function endPracticeSession() {
+            // Stop Pomodoro timer
+            stopPomodoro();
+
+            // Stop any timed mode
+            if (timedMode && timedModeTimer) {
+                clearInterval(timedModeTimer);
+                timedModeTimer = null;
+                timedMode = false;
+                document.getElementById('timerBar').style.display = 'none';
+                document.querySelector('.tier-progress').style.display = 'block';
+                document.getElementById('pomodoroSection').style.display = 'flex';
+            }
+
+            // If no problems attempted, just go back to profiles
+            const total = sessionStats.correct + sessionStats.wrong;
+            if (total === 0) {
+                reviewMode = false;
+                showProfiles();
+                return;
+            }
+
+            // Show session summary
+            showSessionComplete();
+        }
+
         function showSessionComplete() {
             const total = sessionStats.correct + sessionStats.wrong;
             const accuracy = total > 0 ? Math.round((sessionStats.correct / total) * 100) : 0;
@@ -2719,7 +3671,11 @@
             // Show streak
             const streak = calculateStreak(currentProfile);
             document.getElementById('streakCount').textContent = streak;
+            document.getElementById('streakLabel').textContent = 'Day Streak';
             document.getElementById('streakDisplay').style.display = streak > 0 ? 'flex' : 'none';
+
+            // Reset accuracy label for normal mode
+            document.getElementById('sessionAccuracyLabel').textContent = 'Accuracy';
 
             // Show mastered facts
             if (sessionStats.newlyMastered.length > 0) {
@@ -2742,11 +3698,9 @@
             showScreen('sessionScreen');
         }
 
-        function continuePractice() {
-            // Increase daily goal by 5 and continue
-            dailyGoal += 5;
-            showScreen('practiceScreen');
-            generateProblem();
+        function finishSession() {
+            reviewMode = false;
+            showProfiles();
         }
 
         // ============================================
@@ -2883,6 +3837,9 @@
             document.getElementById('achievementDesc').textContent = achievement.desc;
             document.getElementById('achievementPopup').classList.add('active');
 
+            // Celebration confetti!
+            showConfetti();
+
             setTimeout(() => {
                 document.getElementById('achievementPopup').classList.remove('active');
             }, 3000);
@@ -2893,24 +3850,54 @@
         // ============================================
         function showSettings() {
             document.getElementById('settingsModal').classList.add('active');
-            updateGoalButtons();
+            updateSettingsDisplay();
         }
 
         function closeSettings() {
             document.getElementById('settingsModal').classList.remove('active');
         }
 
-        function setDailyGoal(goal) {
-            dailyGoal = goal;
-            localStorage.setItem('nanana_dailyGoal', goal);
-            updateGoalButtons();
-            if (currentProfile) updateDailyGoal();
+        function setSessionLength(minutes) {
+            pomodoroLength = minutes * 60;
+            localStorage.setItem('nanana_pomodoroLength', minutes);
+            updateSettingsDisplay();
         }
 
-        function updateGoalButtons() {
-            document.querySelectorAll('.goal-option').forEach(btn => {
+        function setMasteryGoal(goal) {
+            masteryGoal = goal;
+            localStorage.setItem('nanana_masteryGoal', goal);
+            updateSettingsDisplay();
+            // Update display if in practice
+            document.getElementById('masteryGoalDisplay').textContent = goal;
+        }
+
+        function setBreakLength(minutes) {
+            breakLength = minutes * 60;
+            localStorage.setItem('nanana_breakLength', minutes);
+            updateSettingsDisplay();
+        }
+
+        function updateSettingsDisplay() {
+            // Session length buttons
+            document.querySelectorAll('#sessionLengthOptions .goal-option').forEach(btn => {
                 btn.classList.remove('active');
-                if (btn.textContent === dailyGoal.toString()) {
+                if (btn.textContent === (pomodoroLength / 60) + ' min') {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Mastery goal buttons
+            document.querySelectorAll('#masteryGoalOptions .goal-option').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === masteryGoal.toString()) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // Break length buttons
+            document.querySelectorAll('#breakLengthOptions .goal-option').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === (breakLength / 60) + ' min') {
                     btn.classList.add('active');
                 }
             });
@@ -2997,6 +3984,9 @@
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('answerBox').className = 'answer-box';
 
+            // Hide previous hint
+            hideHint();
+
             const hintEl = document.getElementById('problemHint');
             hintEl.textContent = 'Review: ' + (currentProfile.factProgress[factDisplay] ?
                 `${currentProfile.factProgress[factDisplay].wrong} errors` : '');
@@ -3009,9 +3999,15 @@
         // ============================================
         // INIT
         // ============================================
-        // Load saved settings
-        const savedGoal = localStorage.getItem('nanana_dailyGoal');
-        if (savedGoal) dailyGoal = parseInt(savedGoal);
+        // Load saved Pomodoro settings
+        const savedPomodoroLength = localStorage.getItem('nanana_pomodoroLength');
+        if (savedPomodoroLength) pomodoroLength = parseInt(savedPomodoroLength) * 60;
+
+        const savedMasteryGoal = localStorage.getItem('nanana_masteryGoal');
+        if (savedMasteryGoal) masteryGoal = parseInt(savedMasteryGoal);
+
+        const savedBreakLength = localStorage.getItem('nanana_breakLength');
+        if (savedBreakLength) breakLength = parseInt(savedBreakLength) * 60;
 
         const savedTextSize = localStorage.getItem('nanana_textSize');
         if (savedTextSize === 'large') document.body.classList.add('large-text');

@@ -1437,6 +1437,72 @@
         .screen.active {
             opacity: 1;
         }
+
+        /* Quick Practice Progress */
+        .quick-practice-progress {
+            display: none;
+            background: rgba(57, 255, 20, 0.1);
+            border-radius: 15px;
+            padding: 12px 20px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .quick-practice-progress.active {
+            display: block;
+        }
+        .quick-progress-title {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .quick-progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+        .quick-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+        }
+        .quick-dot.completed {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        .quick-dot.current {
+            border-color: var(--primary);
+            animation: pulse-dot 1s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* Streak Fire Animation */
+        .dash-stat-value.streak-active {
+            animation: fire-glow 1.5s ease-in-out infinite;
+        }
+        @keyframes fire-glow {
+            0%, 100% { text-shadow: 0 0 5px rgba(255, 100, 0, 0.5); }
+            50% { text-shadow: 0 0 15px rgba(255, 100, 0, 0.8), 0 0 25px rgba(255, 50, 0, 0.5); }
+        }
+
+        /* Goal Complete Celebration */
+        .goal-ring.complete .goal-ring-progress {
+            stroke: #ffd700;
+            filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+        }
+        .goal-ring.complete {
+            animation: goal-celebrate 0.6s ease;
+        }
+        @keyframes goal-celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
     </style>
 </head>
 <body>
@@ -1598,6 +1664,17 @@
                 </div>
                 <div class="session-counter">
                     <span id="sessionCount">0</span> solved
+                </div>
+            </div>
+
+            <div class="quick-practice-progress" id="quickPracticeProgress">
+                <div class="quick-progress-title">⚡ Quick Practice</div>
+                <div class="quick-progress-dots" id="quickProgressDots">
+                    <div class="quick-dot current"></div>
+                    <div class="quick-dot"></div>
+                    <div class="quick-dot"></div>
+                    <div class="quick-dot"></div>
+                    <div class="quick-dot"></div>
                 </div>
             </div>
 
@@ -4570,12 +4647,16 @@
             document.getElementById('goalRingProgress').style.strokeDashoffset = offset;
             document.getElementById('goalRingValue').textContent = todayProgress;
 
+            // Goal ring completion celebration
+            const goalRing = document.querySelector('.goal-ring');
             if (todayProgress >= DAILY_GOAL) {
                 document.getElementById('goalTitle').textContent = 'Goal Complete! 🎉';
                 document.getElementById('goalSubtitle').innerHTML = '<span class="goal-complete">Amazing work today!</span>';
+                goalRing.classList.add('complete');
             } else {
                 document.getElementById('goalTitle').textContent = 'Daily Goal';
                 document.getElementById('goalSubtitle').textContent = `${DAILY_GOAL - todayProgress} more to reach ${DAILY_GOAL}`;
+                goalRing.classList.remove('complete');
             }
 
             // Update motivational message
@@ -4587,7 +4668,15 @@
             const totalProblems = Object.values(profile.dailyProgress || {}).reduce((a, b) => a + b, 0);
             const masteredCount = countMasteredFacts(profile);
 
-            document.getElementById('dashStreak').textContent = streak;
+            // Add fire animation for active streaks
+            const streakEl = document.getElementById('dashStreak');
+            streakEl.textContent = streak;
+            if (streak >= 2) {
+                streakEl.classList.add('streak-active');
+            } else {
+                streakEl.classList.remove('streak-active');
+            }
+
             document.getElementById('dashProblems').textContent = totalProblems;
             document.getElementById('dashMastered').textContent = masteredCount;
 
@@ -4677,8 +4766,10 @@
 
             updateTierDisplay();
 
-            // Hide pomodoro section for quick practice
+            // Hide pomodoro section, show quick practice progress
             document.getElementById('pomodoroSection').style.display = 'none';
+            document.getElementById('quickPracticeProgress').classList.add('active');
+            updateQuickPracticeProgress();
 
             // Show practice screen
             showScreen('practiceScreen');
@@ -4690,12 +4781,27 @@
             generateProblem();
         }
 
+        function updateQuickPracticeProgress() {
+            const dots = document.querySelectorAll('.quick-dot');
+            dots.forEach((dot, index) => {
+                dot.classList.remove('completed', 'current');
+                if (index < quickPracticeCount) {
+                    dot.classList.add('completed');
+                } else if (index === quickPracticeCount) {
+                    dot.classList.add('current');
+                }
+            });
+        }
+
         function checkQuickPracticeComplete() {
             if (quickPracticeMode) {
                 quickPracticeCount++;
+                updateQuickPracticeProgress();
+
                 if (quickPracticeCount >= QUICK_PRACTICE_TOTAL) {
                     quickPracticeMode = false;
                     document.getElementById('pomodoroSection').style.display = 'flex';
+                    document.getElementById('quickPracticeProgress').classList.remove('active');
                     showSessionComplete();
                     return true;
                 }
@@ -4706,6 +4812,7 @@
         function startPracticeSession() {
             // Ensure we're not in review mode for normal practice
             reviewMode = false;
+            quickPracticeMode = false;
             if (currentProfile && currentProfile._reviewFacts) {
                 delete currentProfile._reviewFacts;
             }
@@ -4715,6 +4822,10 @@
             document.getElementById('currentName').textContent = currentProfile.name;
 
             updateTierDisplay();
+
+            // Ensure correct UI state
+            document.getElementById('pomodoroSection').style.display = 'flex';
+            document.getElementById('quickPracticeProgress').classList.remove('active');
 
             // Show practice screen
             showScreen('practiceScreen');

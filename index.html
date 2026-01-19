@@ -907,6 +907,84 @@
                 name: 'Multiply by 10',
                 facts: generateMultiplicationFacts(10),
                 requiredMastery: 0.9
+            },
+            {
+                id: 'missing_add10',
+                name: 'Missing Number +',
+                facts: generateMissingAdditionFacts(10),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'mult3',
+                name: 'Multiply by 3',
+                facts: generateMultiplicationFacts(3),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'mult4',
+                name: 'Multiply by 4',
+                facts: generateMultiplicationFacts(4),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'div2',
+                name: 'Divide by 2',
+                facts: generateDivisionFacts(2),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'div5',
+                name: 'Divide by 5',
+                facts: generateDivisionFacts(5),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'div10',
+                name: 'Divide by 10',
+                facts: generateDivisionFacts(10),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'mult6',
+                name: 'Multiply by 6',
+                facts: generateMultiplicationFacts(6),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'mult7',
+                name: 'Multiply by 7',
+                facts: generateMultiplicationFacts(7),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'mult8',
+                name: 'Multiply by 8',
+                facts: generateMultiplicationFacts(8),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'mult9',
+                name: 'Multiply by 9',
+                facts: generateMultiplicationFacts(9),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'div3',
+                name: 'Divide by 3',
+                facts: generateDivisionFacts(3),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'div4',
+                name: 'Divide by 4',
+                facts: generateDivisionFacts(4),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'missing_sub10',
+                name: 'Missing Number −',
+                facts: generateMissingSubtractionFacts(10),
+                requiredMastery: 0.9
             }
         ];
 
@@ -947,6 +1025,58 @@
             // Start at 1 to avoid trivial 0×x facts
             for (let a = 1; a <= 10; a++) {
                 facts.push({ a, b: multiplier, op: '×', answer: a * multiplier, display: `${a} × ${multiplier}` });
+            }
+            return facts;
+        }
+
+        function generateDivisionFacts(divisor) {
+            const facts = [];
+            // Generate division facts from multiplication (e.g., 6÷2=3 from 2×3=6)
+            for (let a = 1; a <= 10; a++) {
+                const dividend = a * divisor;
+                facts.push({ a: dividend, b: divisor, op: '÷', answer: a, display: `${dividend} ÷ ${divisor}` });
+            }
+            return facts;
+        }
+
+        function generateMissingAdditionFacts(max) {
+            const facts = [];
+            // Problems like: 3 + ? = 7 (answer is 4)
+            for (let sum = 3; sum <= max; sum++) {
+                for (let a = 1; a < sum; a++) {
+                    const missing = sum - a;
+                    if (missing >= 1) {
+                        facts.push({
+                            a,
+                            b: missing,
+                            op: '+?',
+                            answer: missing,
+                            display: `${a} + ? = ${sum}`,
+                            sum: sum
+                        });
+                    }
+                }
+            }
+            return facts;
+        }
+
+        function generateMissingSubtractionFacts(max) {
+            const facts = [];
+            // Problems like: 7 − ? = 3 (answer is 4)
+            for (let a = 3; a <= max; a++) {
+                for (let result = 1; result < a; result++) {
+                    const missing = a - result;
+                    if (missing >= 1) {
+                        facts.push({
+                            a,
+                            b: missing,
+                            op: '-?',
+                            answer: missing,
+                            display: `${a} − ? = ${result}`,
+                            result: result
+                        });
+                    }
+                }
             }
             return facts;
         }
@@ -1041,6 +1171,10 @@
                 text = `What is ${fact.a} times ${fact.b}?`;
             } else if (fact.op === '÷') {
                 text = `What is ${fact.a} divided by ${fact.b}?`;
+            } else if (fact.op === '+?') {
+                text = `${fact.a} plus what equals ${fact.sum}?`;
+            } else if (fact.op === '-?') {
+                text = `${fact.a} minus what equals ${fact.result}?`;
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
@@ -1073,41 +1207,64 @@
         function renderDots(fact) {
             const container = document.getElementById('dotsContainer');
 
-            if (!dotsEnabled || !fact || fact.a > 12 || fact.b > 12) {
+            // Skip dots for multiplication/division (too many) or large numbers
+            if (!dotsEnabled || !fact) {
+                container.innerHTML = '';
+                return;
+            }
+
+            // Skip dots for multiplication, division, or numbers > 12
+            if (fact.op === '×' || fact.op === '÷' || fact.a > 12 || fact.b > 12) {
                 container.innerHTML = '';
                 return;
             }
 
             let html = '';
 
-            // First group of dots
-            html += '<div class="dot-group">';
-            for (let i = 0; i < fact.a; i++) {
-                html += '<div class="dot"></div>';
+            // Standard addition: show two groups
+            if (fact.op === '+') {
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.a; i++) html += '<div class="dot"></div>';
+                html += '</div>';
+                html += '<div class="dots-operator">+</div>';
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.b; i++) html += '<div class="dot second"></div>';
+                html += '</div>';
             }
-            html += '</div>';
-
-            // Operator
-            html += `<div class="dots-operator">${fact.op}</div>`;
-
-            // Second group of dots (different color)
-            html += '<div class="dot-group">';
-            for (let i = 0; i < fact.b; i++) {
-                html += '<div class="dot second"></div>';
-            }
-            html += '</div>';
-
-            // For subtraction, we show crossing out instead
-            if (fact.op === '-' || fact.op === '−') {
-                // Show the starting amount with some crossed out
+            // Subtraction: show crossed out dots
+            else if (fact.op === '-' || fact.op === '−') {
                 html = '<div class="dot-group">';
                 for (let i = 0; i < fact.a; i++) {
                     if (i < fact.b) {
-                        html += '<div class="dot" style="opacity:0.3;text-decoration:line-through;"></div>';
+                        html += '<div class="dot" style="opacity:0.3;"></div>';
                     } else {
                         html += '<div class="dot"></div>';
                     }
                 }
+                html += '</div>';
+            }
+            // Missing addition: show known + ? = total
+            else if (fact.op === '+?') {
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.a; i++) html += '<div class="dot"></div>';
+                html += '</div>';
+                html += '<div class="dots-operator">+</div>';
+                html += '<div class="dots-result">?</div>';
+                html += '<div class="dots-equals">=</div>';
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.sum; i++) html += '<div class="dot" style="opacity:0.5;"></div>';
+                html += '</div>';
+            }
+            // Missing subtraction: show total - ? = result
+            else if (fact.op === '-?') {
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.a; i++) html += '<div class="dot"></div>';
+                html += '</div>';
+                html += '<div class="dots-operator">−</div>';
+                html += '<div class="dots-result">?</div>';
+                html += '<div class="dots-equals">=</div>';
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.result; i++) html += '<div class="dot second"></div>';
                 html += '</div>';
             }
 

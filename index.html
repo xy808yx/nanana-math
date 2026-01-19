@@ -1370,15 +1370,21 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 24px;
         }
         .dashboard-avatar {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 10px;
+            width: 72px;
+            height: 72px;
+            margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 8px;
         }
         .dashboard-avatar svg {
             width: 100%;
@@ -1387,14 +1393,17 @@
             image-rendering: crisp-edges;
         }
         .dashboard-name {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 700;
             color: var(--text);
         }
         .dashboard-tier {
-            font-size: 0.95rem;
-            color: var(--text-dim);
-            margin-top: 5px;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-top: 4px;
+            padding: 4px 12px;
+            background: rgba(255, 215, 61, 0.1);
+            border-radius: 12px;
         }
         .dashboard-stats {
             display: grid;
@@ -1403,20 +1412,29 @@
             margin-bottom: 30px;
         }
         .dash-stat {
-            background: rgba(255,255,255,0.05);
-            border-radius: 15px;
-            padding: 15px 10px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 16px 10px;
             text-align: center;
+            transition: all 0.2s;
+        }
+        .dash-stat:hover {
+            background: rgba(255,255,255,0.06);
+            border-color: rgba(255,255,255,0.1);
         }
         .dash-stat-value {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
+            line-height: 1;
         }
         .dash-stat-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: var(--text-dim);
-            margin-top: 5px;
+            margin-top: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .dashboard-actions {
             display: flex;
@@ -1443,13 +1461,14 @@
             transform: translateY(-2px);
         }
         .dash-action.primary {
-            background: var(--primary);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
             border-color: var(--primary);
             color: #000;
+            box-shadow: 0 4px 15px rgba(255, 215, 61, 0.3);
         }
         .dash-action.primary:hover {
-            background: #2dd310;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 215, 61, 0.4);
         }
         .dash-action-icon {
             font-size: 1.8rem;
@@ -1495,11 +1514,12 @@
         .daily-goal-section {
             display: flex;
             align-items: center;
-            gap: 20px;
-            background: rgba(255,255,255,0.03);
+            gap: 16px;
+            background: linear-gradient(135deg, rgba(255, 215, 61, 0.08) 0%, rgba(255, 107, 157, 0.05) 100%);
+            border: 1px solid rgba(255, 215, 61, 0.15);
             border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
         }
         .goal-ring {
             position: relative;
@@ -1560,20 +1580,22 @@
         /* Motivational Message */
         .motivation-message {
             text-align: center;
-            padding: 15px;
-            margin-bottom: 15px;
-            font-size: 0.95rem;
+            padding: 10px 15px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
             color: var(--text-dim);
             font-style: italic;
+            opacity: 0.8;
         }
 
         /* Quick Practice Button */
         .dash-action.quick {
-            background: linear-gradient(135deg, rgba(57, 255, 20, 0.15), rgba(57, 255, 20, 0.05));
-            border-color: rgba(57, 255, 20, 0.3);
+            background: linear-gradient(135deg, rgba(107, 203, 119, 0.12), rgba(107, 203, 119, 0.05));
+            border-color: rgba(107, 203, 119, 0.25);
         }
         .dash-action.quick:hover {
-            border-color: var(--primary);
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(107, 203, 119, 0.18), rgba(107, 203, 119, 0.08));
         }
 
         /* Timed Best Score Badge */
@@ -1691,30 +1713,36 @@
         /* Focus Fact Highlight */
         .focus-fact {
             display: none;
-            background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(57, 255, 20, 0.02));
-            border: 1px solid rgba(57, 255, 20, 0.2);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 15px;
+            background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(255, 107, 157, 0.02));
+            border: 1px solid rgba(255, 107, 157, 0.2);
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 12px;
             text-align: center;
         }
         .focus-fact.visible {
             display: block;
         }
         .focus-fact-label {
-            font-size: 0.75rem;
-            color: var(--text-dim);
-            margin-bottom: 5px;
+            font-size: 0.7rem;
+            color: var(--accent);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .focus-fact-problem {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--text);
         }
         .focus-fact-hint {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: var(--text-dim);
-            margin-top: 5px;
+            margin-top: 6px;
         }
     </style>
 </head>
@@ -2254,7 +2282,7 @@
                 <div class="hint-text" id="hintText" style="display:none;"></div>
                 <button class="explain-btn" id="explainBtn" onclick="showExplanation()" aria-label="Show step by step solution"><svg class="pixel-icon-sm"><use href="#icon-review"/></svg> Explain</button>
                 <div class="explanation-text" id="explanationText" style="display:none;"></div>
-                <button class="skip-btn" id="skipBtn" onclick="skipProblem()" aria-label="Skip this problem">⏭️ Too hard? Skip</button>
+                <button class="skip-btn" id="skipBtn" onclick="skipProblem()" aria-label="Skip this problem"><svg class="pixel-icon-sm"><use href="#icon-lightning"/></svg> Too hard? Skip</button>
             </div>
 
             <div class="numpad" role="group" aria-label="Number pad">
@@ -2277,11 +2305,11 @@
     <!-- Session Complete Screen -->
     <div class="screen" id="sessionScreen">
         <div class="practice-container session-complete">
-            <div class="session-emoji">🌟</div>
+            <div class="session-emoji"><svg class="pixel-icon-lg" style="width:48px;height:48px;"><use href="#icon-star"/></svg></div>
             <div class="session-title">Great Practice!</div>
 
             <div class="streak-display" id="streakDisplay">
-                <span class="streak-fire">🔥</span>
+                <span class="streak-fire"><svg class="pixel-icon" style="width:28px;height:28px;"><use href="#icon-fire"/></svg></span>
                 <span class="streak-count" id="streakCount">1</span>
                 <span class="streak-label" id="streakLabel">day streak!</span>
             </div>
@@ -2298,12 +2326,12 @@
             </div>
 
             <div class="mastered-section" id="masteredSection" style="display:none;">
-                <div class="mastered-title">⭐ Newly Mastered!</div>
+                <div class="mastered-title"><svg class="pixel-icon-sm"><use href="#icon-star"/></svg> Newly Mastered!</div>
                 <div class="mastered-facts" id="masteredFacts"></div>
             </div>
 
             <div class="practice-section" id="practiceMoreSection" style="display:none;">
-                <div class="practice-title">📝 Keep Practicing</div>
+                <div class="practice-title"><svg class="pixel-icon-sm"><use href="#icon-book"/></svg> Keep Practicing</div>
                 <div class="practice-facts" id="practiceFacts"></div>
             </div>
 
@@ -2316,24 +2344,24 @@
     <!-- Parent View Modal -->
     <div class="modal" id="parentModal" role="dialog" aria-modal="true" aria-labelledby="parentModalTitle">
         <div class="modal-content parent-view">
-            <div class="modal-title" id="parentModalTitle">📊 Progress Report</div>
+            <div class="modal-title" id="parentModalTitle"><svg class="pixel-icon"><use href="#icon-chart"/></svg> Progress Report</div>
             <div class="parent-player" id="parentPlayerName"></div>
             <div class="parent-stats" id="parentStats"></div>
             <div class="parent-struggles" id="parentStruggles"></div>
             <button class="modal-btn confirm" onclick="closeParentView()" style="width:100%;margin-top:20px;" aria-label="Close progress report">Close</button>
-            <button class="delete-profile-btn" id="deleteProfileBtn" onclick="resetProgress()" aria-label="Reset all progress">🗑️ Reset Progress</button>
+            <button class="delete-profile-btn" id="deleteProfileBtn" onclick="resetProgress()" aria-label="Reset all progress"><svg class="pixel-icon-sm"><use href="#icon-close"/></svg> Reset Progress</button>
         </div>
     </div>
     <!-- Tier Unlock Celebration -->
     <div class="tier-unlock" id="tierUnlock">
-        <div class="tier-unlock-emoji">🎉</div>
+        <div class="tier-unlock-emoji"><svg class="pixel-icon-lg" style="width:64px;height:64px;"><use href="#icon-sparkle"/></svg></div>
         <div class="tier-unlock-title">NEW SKILL UNLOCKED!</div>
         <div class="tier-unlock-name" id="tierUnlockName">Subtraction to 5</div>
     </div>
 
     <!-- Achievement Popup -->
     <div class="tier-unlock" id="achievementPopup">
-        <div class="tier-unlock-emoji" id="achievementEmoji">🏆</div>
+        <div class="tier-unlock-emoji" id="achievementEmoji"><svg class="pixel-icon-lg" style="width:64px;height:64px;"><use href="#icon-trophy"/></svg></div>
         <div class="tier-unlock-title">ACHIEVEMENT UNLOCKED!</div>
         <div class="tier-unlock-name" id="achievementName">Getting Started</div>
         <div style="font-size:0.9rem;color:var(--text-dim);margin-top:10px;" id="achievementDesc">Answer 10 problems</div>
@@ -2342,7 +2370,7 @@
     <!-- Achievements Modal -->
     <div class="modal" id="achievementsModal" role="dialog" aria-modal="true" aria-labelledby="achievementsModalTitle">
         <div class="modal-content" style="max-height:80vh;overflow-y:auto;">
-            <div class="modal-title" id="achievementsModalTitle">🏆 Achievements</div>
+            <div class="modal-title" id="achievementsModalTitle"><svg class="pixel-icon"><use href="#icon-trophy"/></svg> Achievements</div>
             <div id="achievementsList" style="display:grid;gap:10px;"></div>
             <button class="modal-btn confirm" onclick="closeAchievements()" style="width:100%;margin-top:20px;" aria-label="Close achievements">Close</button>
         </div>
@@ -2351,7 +2379,7 @@
     <!-- Settings Modal -->
     <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
         <div class="modal-content">
-            <div class="modal-title" id="settingsModalTitle">⚙️ Settings</div>
+            <div class="modal-title" id="settingsModalTitle"><svg class="pixel-icon"><use href="#icon-settings"/></svg> Settings</div>
             <div style="margin-bottom:20px;">
                 <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Session Length</label>
                 <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="sessionLengthOptions">
@@ -2398,25 +2426,25 @@
     <!-- Onboarding Modal for First-time Users -->
     <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingModalTitle">
         <div class="modal-content" style="max-width:360px;">
-            <div class="modal-title" id="onboardingModalTitle">👋 Welcome!</div>
+            <div class="modal-title" id="onboardingModalTitle"><svg class="pixel-icon"><use href="#icon-heart"/></svg> Welcome!</div>
             <div id="onboardingContent" class="onboarding-content">
                 <div class="onboarding-step" data-step="1">
-                    <div class="onboarding-icon">🔢</div>
+                    <div class="onboarding-icon"><svg class="pixel-icon-lg" style="width:48px;height:48px;"><use href="#icon-book"/></svg></div>
                     <h3>Solve Math Problems</h3>
                     <p>Math facts will appear on screen. Type your answer using the number pad or keyboard.</p>
                 </div>
                 <div class="onboarding-step" data-step="2" style="display:none;">
-                    <div class="onboarding-icon">⏭️</div>
+                    <div class="onboarding-icon"><svg class="pixel-icon-lg" style="width:48px;height:48px;"><use href="#icon-lightning"/></svg></div>
                     <h3>Stuck? Skip It!</h3>
                     <p>If a problem is too hard, tap "Skip" - we'll come back to it later when you're ready.</p>
                 </div>
                 <div class="onboarding-step" data-step="3" style="display:none;">
-                    <div class="onboarding-icon">⏱️</div>
+                    <div class="onboarding-icon"><svg class="pixel-icon-lg" style="width:48px;height:48px;"><use href="#icon-timer"/></svg></div>
                     <h3>Take Breaks</h3>
                     <p>Practice in 25-minute sessions with 5-minute breaks. Rest is important for learning!</p>
                 </div>
                 <div class="onboarding-step" data-step="4" style="display:none;">
-                    <div class="onboarding-icon">⭐</div>
+                    <div class="onboarding-icon"><svg class="pixel-icon-lg" style="width:48px;height:48px;"><use href="#icon-star"/></svg></div>
                     <h3>Master Facts</h3>
                     <p>Answer each fact correctly 4 times to master it. Watch your progress grow!</p>
                 </div>
@@ -3863,20 +3891,20 @@
         ];
 
         const ACHIEVEMENTS = [
-            { id: 'first10', name: 'Getting Started', emoji: '🌱', desc: 'Answer 10 problems', check: p => (p.totalCorrect || 0) >= 10 },
-            { id: 'first100', name: 'Century Club', emoji: '💯', desc: 'Answer 100 problems', check: p => (p.totalCorrect || 0) >= 100 },
-            { id: 'first500', name: 'Math Explorer', emoji: '🧭', desc: 'Answer 500 problems', check: p => (p.totalCorrect || 0) >= 500 },
-            { id: 'first1000', name: 'Math Master', emoji: '👑', desc: 'Answer 1000 problems', check: p => (p.totalCorrect || 0) >= 1000 },
-            { id: 'streak3', name: 'On a Roll', emoji: '🔥', desc: '3 day streak', check: p => calculateStreak(p) >= 3 },
-            { id: 'streak7', name: 'Week Warrior', emoji: '⚡', desc: '7 day streak', check: p => calculateStreak(p) >= 7 },
-            { id: 'streak30', name: 'Monthly Champion', emoji: '🏆', desc: '30 day streak', check: p => calculateStreak(p) >= 30 },
-            { id: 'perfect10', name: 'Perfect 10', emoji: '⭐', desc: '10 correct in a row', check: p => (p.bestStreak || 0) >= 10 },
-            { id: 'tier5', name: 'Level Up!', emoji: '📈', desc: 'Complete 5 tiers', check: p => (p.currentTierIndex || 0) >= 5 },
-            { id: 'tier10', name: 'Rising Star', emoji: '🌟', desc: 'Complete 10 tiers', check: p => (p.currentTierIndex || 0) >= 10 },
-            { id: 'tier20', name: 'Superstar', emoji: '💫', desc: 'Complete 20 tiers', check: p => (p.currentTierIndex || 0) >= 20 },
-            { id: 'mastery50', name: 'Fact Finder', emoji: '🔍', desc: 'Master 50 facts', check: p => countMasteredFacts(p) >= 50 },
-            { id: 'mastery100', name: 'Fact Collector', emoji: '📚', desc: 'Master 100 facts', check: p => countMasteredFacts(p) >= 100 },
-            { id: 'mastery200', name: 'Fact Expert', emoji: '🎓', desc: 'Master 200 facts', check: p => countMasteredFacts(p) >= 200 }
+            { id: 'first10', name: 'Getting Started', icon: 'heart', desc: 'Answer 10 problems', check: p => (p.totalCorrect || 0) >= 10 },
+            { id: 'first100', name: 'Century Club', icon: 'star', desc: 'Answer 100 problems', check: p => (p.totalCorrect || 0) >= 100 },
+            { id: 'first500', name: 'Math Explorer', icon: 'book', desc: 'Answer 500 problems', check: p => (p.totalCorrect || 0) >= 500 },
+            { id: 'first1000', name: 'Math Master', icon: 'trophy', desc: 'Answer 1000 problems', check: p => (p.totalCorrect || 0) >= 1000 },
+            { id: 'streak3', name: 'On a Roll', icon: 'fire', desc: '3 day streak', check: p => calculateStreak(p) >= 3 },
+            { id: 'streak7', name: 'Week Warrior', icon: 'lightning', desc: '7 day streak', check: p => calculateStreak(p) >= 7 },
+            { id: 'streak30', name: 'Monthly Champion', icon: 'trophy', desc: '30 day streak', check: p => calculateStreak(p) >= 30 },
+            { id: 'perfect10', name: 'Perfect 10', icon: 'star', desc: '10 correct in a row', check: p => (p.bestStreak || 0) >= 10 },
+            { id: 'tier5', name: 'Level Up!', icon: 'chart', desc: 'Complete 5 tiers', check: p => (p.currentTierIndex || 0) >= 5 },
+            { id: 'tier10', name: 'Rising Star', icon: 'sparkle', desc: 'Complete 10 tiers', check: p => (p.currentTierIndex || 0) >= 10 },
+            { id: 'tier20', name: 'Superstar', icon: 'star', desc: 'Complete 20 tiers', check: p => (p.currentTierIndex || 0) >= 20 },
+            { id: 'mastery50', name: 'Fact Finder', icon: 'eye', desc: 'Master 50 facts', check: p => countMasteredFacts(p) >= 50 },
+            { id: 'mastery100', name: 'Fact Collector', icon: 'book', desc: 'Master 100 facts', check: p => countMasteredFacts(p) >= 100 },
+            { id: 'mastery200', name: 'Fact Expert', icon: 'star', desc: 'Master 200 facts', check: p => countMasteredFacts(p) >= 200 }
         ];
 
         // Single player mode - no profiles array
@@ -4672,7 +4700,7 @@
 
             // Update UI for timed mode
             document.getElementById('currentAvatar').innerHTML = getAvatarDisplay(currentProfile.avatar);
-            document.getElementById('currentName').innerHTML = currentProfile.name + '<span class="timed-badge">⏱️ TIMED</span>';
+            document.getElementById('currentName').innerHTML = currentProfile.name + '<span class="timed-badge"><svg class="pixel-icon-sm" style="width:12px;height:12px;vertical-align:middle;margin-right:2px;"><use href="#icon-timer"/></svg>TIMED</span>';
             document.getElementById('currentTier').textContent = '60 second challenge!';
             document.getElementById('tierName').textContent = 'Timed Challenge';
             document.querySelector('.tier-progress').style.display = 'none';
@@ -4742,7 +4770,7 @@
             // Show streak or personal best
             if (isPB && timedModeScore > 0) {
                 document.getElementById('streakDisplay').style.display = 'flex';
-                document.getElementById('streakCount').textContent = '🏆';
+                document.getElementById('streakCount').innerHTML = '<svg class="pixel-icon" style="width:24px;height:24px;"><use href="#icon-trophy"/></svg>';
                 document.getElementById('streakLabel').textContent = 'New Best!';
             } else {
                 document.getElementById('streakDisplay').style.display = 'flex';
@@ -5452,7 +5480,7 @@
                 // Show strategy tips occasionally (20% of the time)
                 const strategyTip = getStrategyTip(currentFact);
                 if (strategyTip && Math.random() < 0.2) {
-                    hintEl.innerHTML = `<span class="strategy-tip">💡 ${strategyTip}</span>`;
+                    hintEl.innerHTML = `<span class="strategy-tip"><svg class="pixel-icon-sm" style="vertical-align:middle;margin-right:4px;"><use href="#icon-hint"/></svg>${strategyTip}</span>`;
                     hintEl.style.display = 'block';
                 } else {
                     hintEl.style.display = 'none';
@@ -5669,15 +5697,15 @@
 
         // Varied encouragement messages
         const ENCOURAGEMENTS = [
-            '✓ Correct!', '✓ Nice!', '✓ Great!', '✓ Awesome!', '✓ Perfect!',
-            '✓ You got it!', '✓ Well done!', '✓ Super!', '✓ Fantastic!', '✓ Excellent!'
+            'Correct!', 'Nice!', 'Great!', 'Awesome!', 'Perfect!',
+            'You got it!', 'Well done!', 'Super!', 'Fantastic!', 'Excellent!'
         ];
         const STREAK_MESSAGES = {
-            3: '🔥 3 in a row!',
-            5: '🔥 5 streak! On fire!',
-            10: '⚡ 10 streak! Amazing!',
-            15: '💫 15 streak! Incredible!',
-            20: '🌟 20 streak! Superstar!'
+            3: '3 in a row!',
+            5: '5 streak! On fire!',
+            10: '10 streak! Amazing!',
+            15: '15 streak! Incredible!',
+            20: '20 streak! Superstar!'
         };
 
         function getEncouragement(streak) {
@@ -5744,7 +5772,7 @@
             if (!progress.mastered && progress.correct >= 4 && errorRate < 0.3) {
                 progress.mastered = true;
                 sessionStats.newlyMastered.push(key);
-                document.getElementById('feedback').textContent = '⭐ Mastered!';
+                document.getElementById('feedback').innerHTML = '<svg class="pixel-icon-sm" style="vertical-align:middle;margin-right:4px;"><use href="#icon-star"/></svg>Mastered!';
                 document.getElementById('feedback').classList.add('mastery-pulse');
                 playSound('mastered');
                 showMiniConfetti();
@@ -5884,15 +5912,15 @@
             // For addition, show nearby doubles
             if (fact.op === '+') {
                 if (fact.a === fact.b) {
-                    return `💡 Double: ${fact.a}+${fact.a}=${fact.a*2}`;
+                    return `Double: ${fact.a}+${fact.a}=${fact.a*2}`;
                 }
                 const smaller = Math.min(fact.a, fact.b);
-                return `💡 ${smaller}+${smaller}=${smaller*2}, then add ${Math.abs(fact.a - fact.b)}`;
+                return `${smaller}+${smaller}=${smaller*2}, then add ${Math.abs(fact.a - fact.b)}`;
             }
 
             // For subtraction, show the related addition
             if (fact.op === '-' || fact.op === '−') {
-                return `💡 Related: ${fact.answer}+${fact.b}=${fact.a}`;
+                return `Related: ${fact.answer}+${fact.b}=${fact.a}`;
             }
 
             // For multiplication, show skip counting
@@ -5902,7 +5930,7 @@
                     for (let i = 1; i <= fact.b; i++) {
                         steps.push(fact.a * i);
                     }
-                    return `💡 Count by ${fact.a}: ${steps.join(', ')}`;
+                    return `Count by ${fact.a}: ${steps.join(', ')}`;
                 }
             }
 
@@ -6141,12 +6169,12 @@
                 const unlocked = profile.achievements.includes(a.id);
                 return `
                     <div class="achievement-item ${unlocked ? '' : 'locked'}">
-                        <div class="achievement-emoji">${a.emoji}</div>
+                        <div class="achievement-emoji"><svg class="pixel-icon-lg"><use href="#icon-${a.icon}"/></svg></div>
                         <div class="achievement-info">
                             <div class="achievement-name">${a.name}</div>
                             <div class="achievement-desc">${a.desc}</div>
                         </div>
-                        ${unlocked ? '✓' : '🔒'}
+                        ${unlocked ? '<svg class="pixel-icon-sm" style="color:var(--success);"><use href="#icon-check"/></svg>' : '<svg class="pixel-icon-sm" style="opacity:0.4;"><use href="#icon-close"/></svg>'}
                     </div>
                 `;
             }).join('');
@@ -6159,7 +6187,7 @@
         }
 
         function showAchievementPopup(achievement) {
-            document.getElementById('achievementEmoji').textContent = achievement.emoji;
+            document.getElementById('achievementEmoji').innerHTML = `<svg class="pixel-icon-lg" style="width:64px;height:64px;"><use href="#icon-${achievement.icon}"/></svg>`;
             document.getElementById('achievementName').textContent = achievement.name;
             document.getElementById('achievementDesc').textContent = achievement.desc;
             document.getElementById('achievementPopup').classList.add('active');

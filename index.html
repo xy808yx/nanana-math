@@ -4012,6 +4012,29 @@
         const savedTextSize = localStorage.getItem('nanana_textSize');
         if (savedTextSize === 'large') document.body.classList.add('large-text');
 
+        // Keyboard support for desktop users
+        document.addEventListener('keydown', function(e) {
+            // Only handle keyboard in practice mode
+            if (!document.getElementById('practiceScreen').classList.contains('active')) return;
+            if (document.getElementById('breakOverlay').classList.contains('active')) return;
+
+            // Number keys 0-9
+            if (e.key >= '0' && e.key <= '9') {
+                e.preventDefault();
+                numPress(parseInt(e.key));
+            }
+            // Backspace to delete
+            else if (e.key === 'Backspace') {
+                e.preventDefault();
+                clearInput();
+            }
+            // Enter to submit
+            else if (e.key === 'Enter') {
+                e.preventDefault();
+                checkAnswer();
+            }
+        });
+
         loadProfiles();
     </script>
 </body>

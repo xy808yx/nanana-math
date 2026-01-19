@@ -198,6 +198,21 @@
             border-radius: 6px;
             transition: width 0.5s ease;
         }
+        .tier-preview {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+        .tier-preview-label {
+            color: var(--text-dim);
+        }
+        .tier-preview-name {
+            color: var(--accent);
+            font-weight: 500;
+        }
 
         /* Pomodoro Timer */
         .pomodoro-section {
@@ -1017,6 +1032,10 @@
                 </div>
                 <div class="tier-bar">
                     <div class="tier-fill" id="tierFill" style="width: 0%"></div>
+                </div>
+                <div class="tier-preview" id="tierPreview">
+                    <span class="tier-preview-label">Next:</span>
+                    <span class="tier-preview-name" id="nextTierName">Subtraction to 5</span>
                 </div>
             </div>
 
@@ -3722,6 +3741,17 @@
             document.getElementById('tierName').textContent = tier.name;
             document.getElementById('tierCount').textContent = `${mastered}/${total} mastered`;
             document.getElementById('tierFill').style.width = `${percent}%`;
+
+            // Update next tier preview
+            const nextTierIndex = currentProfile.currentTierIndex + 1;
+            const tierPreview = document.getElementById('tierPreview');
+            if (nextTierIndex < TIERS.length) {
+                const nextTier = TIERS[nextTierIndex];
+                document.getElementById('nextTierName').textContent = nextTier.name;
+                tierPreview.style.display = 'flex';
+            } else {
+                tierPreview.style.display = 'none';
+            }
         }
 
         // ============================================

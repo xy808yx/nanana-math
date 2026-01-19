@@ -259,6 +259,15 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.3); }
         }
+        .session-counter {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            padding: 0 15px;
+        }
+        .session-counter span {
+            font-weight: 700;
+            color: var(--text);
+        }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -836,6 +845,23 @@
             background: var(--primary);
             color: #000;
         }
+        .delete-profile-btn {
+            background: transparent;
+            border: 1px solid var(--error);
+            color: var(--error);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 15px;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+        .delete-profile-btn:hover {
+            background: var(--error);
+            color: #fff;
+            opacity: 1;
+        }
 
         /* Tier unlock celebration */
         .tier-unlock {
@@ -912,6 +938,9 @@
                 </div>
                 <div class="mastery-tracker">
                     <span class="mastery-progress" id="masteryProgress">0</span>/<span id="masteryGoalDisplay">5</span> ⭐ mastered
+                </div>
+                <div class="session-counter">
+                    <span id="sessionCount">0</span> solved
                 </div>
             </div>
 
@@ -1000,6 +1029,7 @@
             <div class="parent-stats" id="parentStats"></div>
             <div class="parent-struggles" id="parentStruggles"></div>
             <button class="modal-btn confirm" onclick="closeParentView()" style="width:100%;margin-top:20px;" aria-label="Close progress report">Close</button>
+            <button class="delete-profile-btn" id="deleteProfileBtn" onclick="confirmDeleteProfile()" aria-label="Delete this profile">🗑️ Delete Profile</button>
         </div>
     </div>
 
@@ -3706,6 +3736,13 @@
             }
         }
 
+        function updateSessionCount() {
+            const countEl = document.getElementById('sessionCount');
+            if (countEl) {
+                countEl.textContent = sessionStats.correct + sessionStats.wrong;
+            }
+        }
+
         function handleCorrectAnswer(progress, key) {
             sessionStats.correct++;
             sessionStats.correctStreak++;
@@ -3719,6 +3756,7 @@
 
             // Update streak display
             updateStreakDisplay();
+            updateSessionCount();
 
             // Celebrate streak milestones with confetti
             if ([5, 10, 15, 20].includes(sessionStats.correctStreak)) {
@@ -3755,6 +3793,7 @@
             sessionStats.wrong++;
             sessionStats.correctStreak = 0; // Reset streak on wrong answer
             updateStreakDisplay();
+            updateSessionCount();
             vibrate([100, 50, 100]); // Wrong answer vibration pattern
             progress.wrong++;
 
@@ -3894,7 +3933,10 @@
         // ============================================
         // PARENT VIEW
         // ============================================
+        let viewingProfileIndex = null;
+
         function showParentView(profileIndex) {
+            viewingProfileIndex = profileIndex;
             const profile = profiles[profileIndex];
             const tier = getCurrentTier(profile);
 
@@ -3960,6 +4002,28 @@
 
         function closeParentView() {
             document.getElementById('parentModal').classList.remove('active');
+            viewingProfileIndex = null;
+        }
+
+        function confirmDeleteProfile() {
+            if (viewingProfileIndex === null) return;
+            const profile = profiles[viewingProfileIndex];
+
+            const confirmed = window.confirm(
+                `Are you sure you want to delete ${profile.name}'s profile?\n\n` +
+                `This will permanently delete all progress and cannot be undone.`
+            );
+
+            if (confirmed) {
+                deleteProfile(viewingProfileIndex);
+            }
+        }
+
+        function deleteProfile(index) {
+            profiles.splice(index, 1);
+            saveProfiles();
+            closeParentView();
+            renderProfiles();
         }
 
         // ============================================

@@ -203,11 +203,81 @@
             transition: width 0.3s;
         }
 
+        /* Audio Controls */
+        .audio-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .audio-btn {
+            background: var(--card-bg);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            font-size: 1.3rem;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: all 0.2s;
+        }
+        .audio-btn.active {
+            opacity: 1;
+            border-color: var(--primary);
+            background: rgba(255, 215, 61, 0.2);
+        }
+
         /* Problem Area */
         .problem-area {
             text-align: center;
-            padding: 30px 20px;
+            padding: 20px;
         }
+
+        /* Counting Dots */
+        .dots-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            min-height: 50px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .dot-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+            max-width: 120px;
+        }
+        .dot {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+        }
+        .dot.second {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+        .dots-operator {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-dim);
+        }
+        .dots-equals {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+        }
+        .dots-result {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dim);
+            min-width: 30px;
+        }
+
         .problem {
             font-size: 3rem;
             font-weight: 700;
@@ -546,7 +616,14 @@
                 </div>
             </div>
 
+            <div class="audio-controls">
+                <button class="audio-btn active" id="soundBtn" onclick="toggleSound()" title="Sound effects">🔊</button>
+                <button class="audio-btn active" id="speakBtn" onclick="toggleSpeak()" title="Read aloud">🗣️</button>
+                <button class="audio-btn active" id="dotsBtn" onclick="toggleDots()" title="Show counting dots">👁️</button>
+            </div>
+
             <div class="problem-area">
+                <div class="dots-container" id="dotsContainer"></div>
                 <div class="problem" id="problem">3 + 2</div>
                 <div class="answer-box" id="answerBox">|</div>
                 <div class="feedback" id="feedback"></div>
@@ -741,6 +818,162 @@
         let dailyGoal = 10;
         let selectedAvatar = '🦊';
 
+        // Audio/Visual settings
+        let soundEnabled = true;
+        let speakEnabled = true;
+        let dotsEnabled = true;
+        let audioContext = null;
+
+        // ============================================
+        // SOUND EFFECTS
+        // ============================================
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            if (type === 'tap') {
+                oscillator.frequency.value = 600;
+                gain.gain.value = 0.1;
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.05);
+            } else if (type === 'correct') {
+                oscillator.frequency.value = 523; // C5
+                gain.gain.value = 0.15;
+                oscillator.start();
+                setTimeout(() => oscillator.frequency.value = 659, 100); // E5
+                setTimeout(() => oscillator.frequency.value = 784, 200); // G5
+                oscillator.stop(audioContext.currentTime + 0.35);
+            } else if (type === 'wrong') {
+                oscillator.frequency.value = 200;
+                gain.gain.value = 0.15;
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } else if (type === 'mastered') {
+                oscillator.frequency.value = 523;
+                gain.gain.value = 0.15;
+                oscillator.start();
+                setTimeout(() => oscillator.frequency.value = 659, 100);
+                setTimeout(() => oscillator.frequency.value = 784, 200);
+                setTimeout(() => oscillator.frequency.value = 1047, 300);
+                oscillator.stop(audioContext.currentTime + 0.5);
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
+            if (soundEnabled) playSound('tap');
+        }
+
+        // ============================================
+        // SPEECH SYNTHESIS (Read Aloud)
+        // ============================================
+        function speakProblem(fact) {
+            if (!speakEnabled || !('speechSynthesis' in window)) return;
+
+            // Cancel any ongoing speech
+            speechSynthesis.cancel();
+
+            // Build the sentence
+            let text = '';
+            if (fact.op === '+') {
+                text = `What is ${fact.a} plus ${fact.b}?`;
+            } else if (fact.op === '-' || fact.op === '−') {
+                text = `What is ${fact.a} minus ${fact.b}?`;
+            } else if (fact.op === '×') {
+                text = `What is ${fact.a} times ${fact.b}?`;
+            } else if (fact.op === '÷') {
+                text = `What is ${fact.a} divided by ${fact.b}?`;
+            }
+
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            speechSynthesis.speak(utterance);
+        }
+
+        function speakFeedback(correct, answer) {
+            if (!speakEnabled || !('speechSynthesis' in window)) return;
+
+            speechSynthesis.cancel();
+
+            const text = correct ? 'Correct!' : `The answer is ${answer}`;
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 0.9;
+            utterance.pitch = 1.1;
+            speechSynthesis.speak(utterance);
+        }
+
+        function toggleSpeak() {
+            speakEnabled = !speakEnabled;
+            document.getElementById('speakBtn').classList.toggle('active', speakEnabled);
+            if (speakEnabled && currentFact) speakProblem(currentFact);
+        }
+
+        // ============================================
+        // COUNTING DOTS
+        // ============================================
+        function renderDots(fact) {
+            const container = document.getElementById('dotsContainer');
+
+            if (!dotsEnabled || !fact || fact.a > 12 || fact.b > 12) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+
+            // First group of dots
+            html += '<div class="dot-group">';
+            for (let i = 0; i < fact.a; i++) {
+                html += '<div class="dot"></div>';
+            }
+            html += '</div>';
+
+            // Operator
+            html += `<div class="dots-operator">${fact.op}</div>`;
+
+            // Second group of dots (different color)
+            html += '<div class="dot-group">';
+            for (let i = 0; i < fact.b; i++) {
+                html += '<div class="dot second"></div>';
+            }
+            html += '</div>';
+
+            // For subtraction, we show crossing out instead
+            if (fact.op === '-' || fact.op === '−') {
+                // Show the starting amount with some crossed out
+                html = '<div class="dot-group">';
+                for (let i = 0; i < fact.a; i++) {
+                    if (i < fact.b) {
+                        html += '<div class="dot" style="opacity:0.3;text-decoration:line-through;"></div>';
+                    } else {
+                        html += '<div class="dot"></div>';
+                    }
+                }
+                html += '</div>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        function toggleDots() {
+            dotsEnabled = !dotsEnabled;
+            document.getElementById('dotsBtn').classList.toggle('active', dotsEnabled);
+            if (currentFact) renderDots(currentFact);
+        }
+
         // ============================================
         // PROFILE MANAGEMENT
         // ============================================
@@ -909,6 +1142,10 @@
             document.getElementById('feedback').textContent = '';
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('answerBox').className = 'answer-box';
+
+            // Audio/Visual aids
+            renderDots(currentFact);
+            speakProblem(currentFact);
         }
 
         function selectSmartFact(tier) {
@@ -971,11 +1208,13 @@
             if (currentInput.length >= 3) return;
             currentInput += num;
             updateAnswerDisplay();
+            playSound('tap');
         }
 
         function clearInput() {
             currentInput = currentInput.slice(0, -1);
             updateAnswerDisplay();
+            playSound('tap');
         }
 
         function updateAnswerDisplay() {
@@ -1028,12 +1267,16 @@
             document.getElementById('feedback').textContent = '✓ Correct!';
             document.getElementById('feedback').className = 'feedback correct';
 
+            playSound('correct');
+            speakFeedback(true);
+
             // Check for mastery (5 correct with < 20% error rate)
             const errorRate = progress.wrong / (progress.correct + progress.wrong);
             if (!progress.mastered && progress.correct >= 5 && errorRate < 0.2) {
                 progress.mastered = true;
                 sessionStats.newlyMastered.push(key);
                 document.getElementById('feedback').textContent = '⭐ Mastered!';
+                playSound('mastered');
 
                 // Check for tier advancement
                 checkTierAdvancement();
@@ -1061,6 +1304,9 @@
                 <span class="correct-answer">The answer is ${currentFact.answer}</span>
             `;
             document.getElementById('feedback').className = 'feedback wrong';
+
+            playSound('wrong');
+            speakFeedback(false, currentFact.answer);
         }
 
         function checkTierAdvancement() {

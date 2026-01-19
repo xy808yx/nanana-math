@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Math Blaster">
+    <meta name="theme-color" content="#1a0a2e">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Math Blaster</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #1a0a2e 0%, #16213e 50%, #0f3460 100%);
+            --primary: #ff6b9d;
+            --accent: #ffd93d;
+            --success: #6bcb77;
+            --error: #ff6b6b;
+            --card-bg: rgba(0, 0, 0, 0.4);
+            --container-bg: rgba(10, 10, 30, 0.7);
+        }
+        .theme-ocean { --bg-gradient: linear-gradient(135deg, #0a1628, #1a3a5c, #2d6187); --primary: #00d9ff; --accent: #7fdbff; --container-bg: rgba(10, 22, 40, 0.7); }
+        .theme-sunset { --bg-gradient: linear-gradient(135deg, #2d1b2e, #4a2c4a, #6b3a5b); --primary: #ff9a56; --accent: #ffcd3c; --container-bg: rgba(45, 27, 46, 0.7); }
+        .theme-berry { --bg-gradient: linear-gradient(135deg, #1a0a1a, #2d1f3d, #4a3260); --primary: #da70d6; --accent: #ff69b4; --container-bg: rgba(26, 10, 26, 0.7); }
+        .theme-retro { --bg-gradient: linear-gradient(135deg, #0a0a0a, #1a1a1a); --primary: #39ff14; --accent: #39ff14; --success: #39ff14; --container-bg: rgba(10, 10, 10, 0.8); }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            height: 100%;
+            height: -webkit-fill-available;
+        }
+
+        /* 3D Canvas Background */
+        #three-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        body {
+            background: transparent;
+            color: var(--primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100%;
+            min-height: -webkit-fill-available;
+            overflow: hidden;
+            padding: 10px;
+            padding-top: max(10px, env(safe-area-inset-top));
+            padding-left: max(10px, env(safe-area-inset-left));
+            padding-right: max(10px, env(safe-area-inset-right));
+            padding-bottom: max(20px, calc(env(safe-area-inset-bottom) + 10px));
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 500px;
+            height: auto;
+            max-height: calc(100% - 20px);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: var(--container-bg);
+            border-radius: 20px;
+            padding: 15px;
+            padding-bottom: 25px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+        .top-buttons { display: flex; gap: 8px; }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .icon-btn:hover { opacity: 0.8; }
+        .icon-btn.muted { opacity: 0.5; }
+
+        /* Settings */
+        .settings-toggle {
+            display: flex;
+            justify-content: center;
+        }
+
+        .settings-btn {
+            padding: 8px 20px;
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            color: var(--primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .settings-panel {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 12px;
+        }
+        .settings-panel.show { display: flex; }
+
+        .settings-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .settings-row button {
+            padding: 8px 14px;
+            background: transparent;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .settings-row button.active {
+            background: var(--primary);
+            color: #1a0a2e;
+        }
+
+        /* Stats */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 8px 0;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .stat-icon { font-size: 1.4rem; display: flex; align-items: center; }
+        .stat-icon svg { width: 24px; height: 24px; }
+
+        /* Pixel Art SVG Styles */
+        .pixel-mango { image-rendering: pixelated; }
+        .pixel-watermelon { image-rendering: pixelated; }
+        .pixel-box { image-rendering: pixelated; }
+        .pixel-boss { image-rendering: pixelated; }
+
+        /* Progress Bars */
+        .progress-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 0 10px;
+        }
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+        .progress-bar {
+            width: 60px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .progress-fill.mystery { background: linear-gradient(90deg, #ffd93d, #ff6b9d); }
+        .progress-fill.boss { background: linear-gradient(90deg, #ff6b6b, #ff0000); }
+
+        /* Combo Multiplier */
+        .combo-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .combo-display.active { opacity: 1; animation: comboPulse 0.5s infinite; }
+        @keyframes comboPulse { 50% { transform: scale(1.1); } }
+
+        /* Power-ups */
+        .powerups-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            min-height: 36px;
+        }
+        .powerup-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid var(--accent);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: all 0.2s;
+        }
+        .powerup-btn.available { opacity: 1; animation: powerupGlow 1s infinite; }
+        .powerup-btn.available:hover { transform: scale(1.1); }
+        .powerup-btn.used { opacity: 0.2; cursor: not-allowed; }
+        @keyframes powerupGlow { 50% { box-shadow: 0 0 15px var(--accent); } }
+
+        /* Achievements Toast */
+        .achievement-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: linear-gradient(135deg, #ffd93d, #ff6b9d);
+            color: #1a0a2e;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1rem;
+            z-index: 400;
+            transition: transform 0.4s ease-out;
+            box-shadow: 0 4px 20px rgba(255, 217, 61, 0.4);
+        }
+        .achievement-toast.show { transform: translateX(-50%) translateY(0); }
+
+        /* Achievements Modal */
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 350px;
+            margin: 20px auto;
+        }
+        .achievement-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .achievement-item.unlocked { border-color: var(--accent); }
+        .achievement-item.locked { opacity: 0.4; }
+        .achievement-emoji { font-size: 2rem; display: block; margin-bottom: 5px; }
+        .achievement-name { font-size: 0.75rem; color: var(--primary); }
+
+        /* Level Display */
+        .level-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: var(--accent);
+        }
+        .level-num { min-width: 45px; }
+        .xp-bar {
+            width: 60px;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .xp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            transition: width 0.3s;
+        }
+
+        /* Locked theme */
+        .theme-btn.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .theme-btn.locked:hover { opacity: 0.5; }
+
+        /* Timer */
+        .timer-display {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: var(--accent);
+            min-height: 1.5rem;
+        }
+        .timer-display.warning { color: var(--error); animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        /* Problem Area */
+        .problem-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            min-height: 150px;
+        }
+
+        .problem {
+            font-size: clamp(2.5rem, 10vw, 4rem);
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .answer-display {
+            font-size: clamp(2rem, 8vw, 3rem);
+            font-weight: bold;
+            color: #ffffff;
+            background: var(--card-bg);
+            border: 3px solid var(--primary);
+            border-radius: 12px;
+            padding: 10px 30px;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 0 20px var(--primary);
+        }
+        .answer-display.correct {
+            border-color: var(--success);
+            box-shadow: 0 0 30px var(--success);
+            background: rgba(107, 203, 119, 0.2);
+        }
+
+        .cursor { animation: blink 1s infinite; }
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+        .feedback {
+            font-size: 1.3rem;
+            font-weight: bold;
+            min-height: 1.5rem;
+        }
+        .feedback.correct { color: var(--success); }
+
+        /* Streak Celebration */
+        .streak-celebration {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: clamp(2rem, 8vw, 4rem);
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 0 0 30px var(--accent);
+            z-index: 100;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .streak-celebration.show { animation: streakPop 1s ease-out forwards; }
+        @keyframes streakPop {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1) translateY(-30px); }
+        }
+
+        /* Number Pad */
+        .numpad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            padding-bottom: 10px;
+        }
+
+        .numpad button {
+            height: 54px;
+            font-size: 1.8rem;
+            font-weight: bold;
+            background: rgba(255, 107, 157, 0.15);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            color: var(--primary);
+            cursor: pointer;
+        }
+        .numpad button:hover { opacity: 0.8; }
+        .numpad button:active { transform: scale(0.95); }
+        .numpad .delete {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: var(--error);
+            color: var(--error);
+        }
+        .numpad .submit {
+            background: rgba(107, 203, 119, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        /* Modals */
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        .modal.show { display: flex; }
+
+        /* Theme Picker */
+        .theme-picker h2 { font-size: 1.5rem; margin-bottom: 15px; }
+        .theme-btn {
+            width: 100%;
+            max-width: 250px;
+            padding: 12px 20px;
+            margin: 6px 0;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            border: 3px solid;
+            cursor: pointer;
+        }
+        .theme-btn.tropical { background: linear-gradient(135deg, #1a0a2e, #16213e); border-color: #ff6b9d; color: #ff6b9d; }
+        .theme-btn.ocean { background: linear-gradient(135deg, #0a1628, #1a3a5c); border-color: #00d9ff; color: #00d9ff; }
+        .theme-btn.sunset { background: linear-gradient(135deg, #2d1b2e, #4a2c4a); border-color: #ff9a56; color: #ff9a56; }
+        .theme-btn.berry { background: linear-gradient(135deg, #1a0a1a, #2d1f3d); border-color: #da70d6; color: #da70d6; }
+        .theme-btn.retro { background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border-color: #39ff14; color: #39ff14; }
+
+        .close-btn {
+            margin-top: 15px;
+            padding: 10px 30px;
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Mystery Box */
+        .mystery-box { font-size: 5rem; cursor: pointer; }
+        .mystery-reward { font-size: 3rem; margin-top: 20px; }
+        .mystery-text { font-size: 1.3rem; margin-top: 15px; color: var(--accent); }
+
+        /* Boss Battle */
+        .boss-modal.show { animation: bossFlash 0.5s ease-out; }
+        @keyframes bossFlash {
+            0% { background: rgba(255, 0, 0, 0.8); }
+            100% { background: rgba(0, 0, 0, 0.95); }
+        }
+
+        .boss-container { text-align: center; width: 100%; max-width: 350px; }
+
+        .boss-title {
+            font-size: 1.5rem;
+            color: var(--error);
+            text-shadow: 0 0 20px var(--error);
+            margin-bottom: 15px;
+            animation: bossPulse 1s infinite;
+        }
+        @keyframes bossPulse {
+            0%, 100% { text-shadow: 0 0 20px var(--error); }
+            50% { text-shadow: 0 0 40px var(--error), 0 0 60px var(--error); }
+        }
+
+        .boss-emoji { font-size: 5rem; display: block; margin: 15px 0; }
+        .boss-emoji.entrance { animation: bossEnter 0.8s ease-out; }
+        @keyframes bossEnter {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            60% { transform: scale(1.3) rotate(10deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+        .boss-emoji.hit { animation: bossHit 0.3s ease-out; }
+        @keyframes bossHit {
+            50% { transform: scale(0.8) rotate(-10deg); filter: brightness(3); }
+        }
+        .boss-emoji.defeated { animation: bossDefeat 1.5s ease-out forwards; }
+        @keyframes bossDefeat {
+            50% { transform: scale(1.5) rotate(180deg); }
+            100% { transform: scale(0) rotate(720deg); opacity: 0; }
+        }
+
+        .boss-name { font-size: 1.2rem; color: var(--error); margin-bottom: 15px; }
+
+        .boss-health-bar {
+            width: 100%;
+            max-width: 220px;
+            height: 20px;
+            background: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 auto 15px;
+            border: 2px solid var(--error);
+        }
+        .boss-health-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff0000, #ff6b6b);
+            transition: width 0.3s;
+        }
+
+        .boss-timer { font-size: 1.8rem; font-weight: bold; color: var(--accent); margin: 10px 0; }
+        .boss-timer.danger { color: var(--error); animation: timerPanic 0.3s infinite; }
+        @keyframes timerPanic { 50% { transform: scale(1.1); } }
+
+        .boss-problem { font-size: 1.8rem; color: #fff; margin: 15px 0; }
+        .boss-answer {
+            font-size: 1.5rem;
+            padding: 8px 20px;
+            min-width: 80px;
+            background: var(--card-bg);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            color: #fff;
+            text-align: center;
+            margin: 0 auto 15px;
+            display: inline-block;
+        }
+
+        .boss-numpad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            max-width: 280px;
+            margin: 0 auto;
+        }
+        .boss-numpad button {
+            font-size: 1.2rem;
+            padding: 10px;
+            min-height: 44px;
+            background: rgba(255, 107, 157, 0.15);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        .boss-numpad .delete { border-color: var(--error); color: var(--error); }
+        .boss-numpad .submit { border-color: var(--success); color: var(--success); }
+
+        .boss-victory {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            text-shadow: 0 0 30px var(--accent);
+            text-align: center;
+            z-index: 10;
+        }
+        .boss-victory.show { animation: victoryPop 1s ease-out; }
+        @keyframes victoryPop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.3); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        .boss-reward { font-size: 1.5rem; color: var(--success); margin-top: 10px; }
+
+        /* Game Over */
+        .game-over {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            padding: 20px;
+            cursor: pointer;
+        }
+        .game-over.show { display: flex; }
+        .game-over h2 { font-size: 2.5rem; color: var(--accent); margin-bottom: 25px; }
+        .game-over-stats { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
+        .final-stat { font-size: 1.3rem; display: flex; align-items: center; gap: 10px; }
+        .new-record { color: var(--accent); font-weight: bold; animation: recordGlow 0.5s infinite; }
+        @keyframes recordGlow { 50% { text-shadow: 0 0 20px var(--accent); } }
+        .tap-restart { font-size: 1rem; color: var(--primary); opacity: 0.7; animation: tapFade 2s infinite; }
+        @keyframes tapFade { 50% { opacity: 1; } }
+
+        .shake { animation: shake 0.3s; }
+        @keyframes shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .hidden { display: none !important; }
+
+        /* Desktop */
+        @media (min-width: 800px) {
+            .game-container { max-height: 750px; }
+            .numpad button { height: 70px; font-size: 2rem; }
+            .problem { font-size: 4rem; }
+            .answer-display { font-size: 3rem; padding: 15px 40px; }
+        }
+
+        /* Landscape mobile */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .game-container {
+                flex-direction: row;
+                flex-wrap: wrap;
+                max-width: 100%;
+                max-height: 100%;
+                padding: 10px;
+            }
+            .top-bar { width: 100%; }
+            .settings-toggle { display: none; }
+            .stats { width: 100%; padding: 4px 0; gap: 15px; }
+            .stat-item { font-size: 0.9rem; }
+            .timer-display { position: absolute; top: 5px; left: 50%; transform: translateX(-50%); font-size: 1rem; }
+            .problem-area { flex: 1; min-width: 50%; min-height: auto; gap: 8px; }
+            .problem { font-size: 2rem; }
+            .answer-display { font-size: 1.5rem; padding: 8px 20px; min-width: 80px; }
+            .feedback { font-size: 1rem; }
+            .numpad { max-width: 180px; gap: 4px; }
+            .numpad button { height: 38px; font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Three.js 3D Background -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- Pixel Art SVG Definitions -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <!-- Cute Chibi Mango -->
+        <symbol id="pixel-mango" viewBox="0 0 16 16">
+            <rect x="6" y="1" width="2" height="2" fill="#2d5a1d"/>
+            <rect x="8" y="2" width="1" height="1" fill="#2d5a1d"/>
+            <rect x="5" y="3" width="6" height="2" fill="#ffb347"/>
+            <rect x="4" y="5" width="8" height="3" fill="#ffb347"/>
+            <rect x="3" y="8" width="10" height="3" fill="#ff9a3c"/>
+            <rect x="4" y="11" width="8" height="2" fill="#ff8c42"/>
+            <rect x="5" y="13" width="6" height="2" fill="#ff7b3a"/>
+            <rect x="6" y="15" width="4" height="1" fill="#ff6b2c"/>
+            <!-- Cute blush -->
+            <rect x="4" y="9" width="2" height="1" fill="#ffccaa" opacity="0.6"/>
+            <rect x="10" y="9" width="2" height="1" fill="#ffccaa" opacity="0.6"/>
+            <!-- Eyes -->
+            <rect x="5" y="7" width="2" height="2" fill="#3a2a1a"/>
+            <rect x="9" y="7" width="2" height="2" fill="#3a2a1a"/>
+            <rect x="5" y="7" width="1" height="1" fill="#fff"/>
+            <rect x="9" y="7" width="1" height="1" fill="#fff"/>
+            <!-- Smile -->
+            <rect x="7" y="10" width="2" height="1" fill="#e85a3c"/>
+        </symbol>
+
+        <!-- Cute Chibi Watermelon Slice -->
+        <symbol id="pixel-watermelon" viewBox="0 0 16 16">
+            <!-- Rind -->
+            <rect x="1" y="12" width="14" height="3" fill="#4a7c3f"/>
+            <rect x="2" y="11" width="12" height="1" fill="#8bc34a"/>
+            <!-- Pink flesh -->
+            <rect x="2" y="4" width="12" height="7" fill="#ff6b8a"/>
+            <rect x="3" y="3" width="10" height="1" fill="#ff6b8a"/>
+            <rect x="4" y="2" width="8" height="1" fill="#ff8fa3"/>
+            <!-- Seeds -->
+            <rect x="4" y="6" width="1" height="2" fill="#2a1a1a"/>
+            <rect x="7" y="5" width="1" height="2" fill="#2a1a1a"/>
+            <rect x="10" y="7" width="1" height="2" fill="#2a1a1a"/>
+            <rect x="5" y="9" width="1" height="2" fill="#2a1a1a"/>
+            <rect x="9" y="9" width="1" height="2" fill="#2a1a1a"/>
+            <!-- Cute face -->
+            <rect x="5" y="5" width="2" height="2" fill="#3a2a1a"/>
+            <rect x="9" y="5" width="2" height="2" fill="#3a2a1a"/>
+            <rect x="5" y="5" width="1" height="1" fill="#fff"/>
+            <rect x="9" y="5" width="1" height="1" fill="#fff"/>
+            <rect x="7" y="8" width="2" height="1" fill="#ff4d6d"/>
+        </symbol>
+
+        <!-- Tiki Mystery Box -->
+        <symbol id="pixel-mysterybox" viewBox="0 0 24 24">
+            <!-- Box body -->
+            <rect x="3" y="10" width="18" height="12" fill="#8b5a2b"/>
+            <rect x="4" y="11" width="16" height="10" fill="#a0522d"/>
+            <!-- Tiki face -->
+            <rect x="7" y="13" width="3" height="3" fill="#2a1a0a"/>
+            <rect x="14" y="13" width="3" height="3" fill="#2a1a0a"/>
+            <rect x="7" y="13" width="1" height="1" fill="#fff"/>
+            <rect x="14" y="13" width="1" height="1" fill="#fff"/>
+            <rect x="9" y="17" width="6" height="2" fill="#2a1a0a"/>
+            <rect x="10" y="18" width="4" height="1" fill="#ff6b4a"/>
+            <!-- Lid -->
+            <rect x="2" y="7" width="20" height="3" fill="#654321"/>
+            <rect x="3" y="8" width="18" height="1" fill="#8b5a2b"/>
+            <!-- Palm leaves on top -->
+            <rect x="10" y="3" width="4" height="4" fill="#2d8a4e"/>
+            <rect x="8" y="4" width="2" height="2" fill="#3cb371"/>
+            <rect x="14" y="4" width="2" height="2" fill="#3cb371"/>
+            <rect x="11" y="2" width="2" height="1" fill="#3cb371"/>
+            <!-- Sparkles -->
+            <rect x="5" y="5" width="1" height="1" fill="#ffd700"/>
+            <rect x="18" y="6" width="1" height="1" fill="#ffd700"/>
+            <rect x="20" y="9" width="1" height="1" fill="#ffd700"/>
+        </symbol>
+
+        <!-- BOSSES: Tropical Chibi Monsters -->
+
+        <!-- Tiki Mask Boss -->
+        <symbol id="boss-tiki" viewBox="0 0 32 32">
+            <rect x="8" y="4" width="16" height="24" fill="#8b5a2b"/>
+            <rect x="6" y="6" width="2" height="20" fill="#654321"/>
+            <rect x="24" y="6" width="2" height="20" fill="#654321"/>
+            <rect x="10" y="8" width="5" height="5" fill="#2a1a0a"/>
+            <rect x="17" y="8" width="5" height="5" fill="#2a1a0a"/>
+            <rect x="10" y="8" width="2" height="2" fill="#ff4444"/>
+            <rect x="17" y="8" width="2" height="2" fill="#ff4444"/>
+            <rect x="11" y="16" width="10" height="6" fill="#2a1a0a"/>
+            <rect x="12" y="17" width="2" height="2" fill="#fff"/>
+            <rect x="15" y="18" width="2" height="2" fill="#fff"/>
+            <rect x="18" y="17" width="2" height="2" fill="#fff"/>
+            <rect x="10" y="2" width="3" height="3" fill="#ff6b4a"/>
+            <rect x="19" y="2" width="3" height="3" fill="#ff6b4a"/>
+            <rect x="14" y="1" width="4" height="2" fill="#ffd93d"/>
+        </symbol>
+
+        <!-- Coconut Crab Boss -->
+        <symbol id="boss-crab" viewBox="0 0 32 32">
+            <!-- Body -->
+            <rect x="10" y="12" width="12" height="10" fill="#ff6b4a"/>
+            <rect x="8" y="14" width="16" height="6" fill="#ff8c69"/>
+            <!-- Eyes on stalks -->
+            <rect x="12" y="8" width="2" height="4" fill="#ff6b4a"/>
+            <rect x="18" y="8" width="2" height="4" fill="#ff6b4a"/>
+            <rect x="11" y="6" width="4" height="3" fill="#fff"/>
+            <rect x="17" y="6" width="4" height="3" fill="#fff"/>
+            <rect x="12" y="7" width="2" height="2" fill="#1a1a1a"/>
+            <rect x="18" y="7" width="2" height="2" fill="#1a1a1a"/>
+            <!-- Claws -->
+            <rect x="2" y="14" width="6" height="4" fill="#ff4444"/>
+            <rect x="24" y="14" width="6" height="4" fill="#ff4444"/>
+            <rect x="4" y="12" width="3" height="2" fill="#ff4444"/>
+            <rect x="25" y="12" width="3" height="2" fill="#ff4444"/>
+            <!-- Legs -->
+            <rect x="8" y="22" width="2" height="4" fill="#ff6b4a"/>
+            <rect x="12" y="22" width="2" height="4" fill="#ff6b4a"/>
+            <rect x="18" y="22" width="2" height="4" fill="#ff6b4a"/>
+            <rect x="22" y="22" width="2" height="4" fill="#ff6b4a"/>
+            <!-- Smile -->
+            <rect x="13" y="18" width="6" height="2" fill="#c94444"/>
+        </symbol>
+
+        <!-- Pufferfish Boss -->
+        <symbol id="boss-puffer" viewBox="0 0 32 32">
+            <!-- Spiky body -->
+            <rect x="8" y="8" width="16" height="16" fill="#ffd93d"/>
+            <rect x="6" y="10" width="2" height="12" fill="#ffeb3b"/>
+            <rect x="24" y="10" width="2" height="12" fill="#ffeb3b"/>
+            <rect x="10" y="6" width="12" height="2" fill="#ffeb3b"/>
+            <rect x="10" y="24" width="12" height="2" fill="#ffeb3b"/>
+            <!-- Spikes -->
+            <rect x="4" y="14" width="2" height="4" fill="#ffa726"/>
+            <rect x="26" y="14" width="2" height="4" fill="#ffa726"/>
+            <rect x="14" y="4" width="4" height="2" fill="#ffa726"/>
+            <rect x="14" y="26" width="4" height="2" fill="#ffa726"/>
+            <!-- Face -->
+            <rect x="10" y="12" width="4" height="4" fill="#1a1a1a"/>
+            <rect x="18" y="12" width="4" height="4" fill="#1a1a1a"/>
+            <rect x="10" y="12" width="2" height="2" fill="#fff"/>
+            <rect x="18" y="12" width="2" height="2" fill="#fff"/>
+            <rect x="13" y="18" width="6" height="3" fill="#ff9999"/>
+            <!-- Blush -->
+            <rect x="7" y="16" width="2" height="2" fill="#ffaaaa" opacity="0.7"/>
+            <rect x="23" y="16" width="2" height="2" fill="#ffaaaa" opacity="0.7"/>
+        </symbol>
+
+        <!-- Jellyfish Boss -->
+        <symbol id="boss-jelly" viewBox="0 0 32 32">
+            <!-- Dome -->
+            <rect x="8" y="4" width="16" height="12" fill="#da70d6"/>
+            <rect x="6" y="8" width="2" height="6" fill="#ee82ee"/>
+            <rect x="24" y="8" width="2" height="6" fill="#ee82ee"/>
+            <rect x="10" y="2" width="12" height="2" fill="#ee82ee"/>
+            <!-- Face -->
+            <rect x="10" y="8" width="3" height="3" fill="#1a1a1a"/>
+            <rect x="19" y="8" width="3" height="3" fill="#1a1a1a"/>
+            <rect x="10" y="8" width="1" height="1" fill="#fff"/>
+            <rect x="19" y="8" width="1" height="1" fill="#fff"/>
+            <rect x="13" y="12" width="6" height="2" fill="#9932cc"/>
+            <!-- Tentacles -->
+            <rect x="8" y="16" width="2" height="8" fill="#da70d6"/>
+            <rect x="12" y="16" width="2" height="10" fill="#ee82ee"/>
+            <rect x="16" y="16" width="2" height="8" fill="#da70d6"/>
+            <rect x="20" y="16" width="2" height="10" fill="#ee82ee"/>
+            <rect x="8" y="24" width="2" height="4" fill="#ee82ee"/>
+            <rect x="20" y="24" width="2" height="4" fill="#ee82ee"/>
+        </symbol>
+
+        <!-- Tropical Bird Boss -->
+        <symbol id="boss-bird" viewBox="0 0 32 32">
+            <!-- Body -->
+            <rect x="10" y="12" width="12" height="12" fill="#00bcd4"/>
+            <rect x="8" y="14" width="2" height="8" fill="#26c6da"/>
+            <rect x="22" y="14" width="2" height="8" fill="#26c6da"/>
+            <!-- Head crest -->
+            <rect x="12" y="4" width="8" height="8" fill="#ff5722"/>
+            <rect x="14" y="2" width="4" height="2" fill="#ff9800"/>
+            <rect x="10" y="6" width="2" height="4" fill="#ffeb3b"/>
+            <rect x="20" y="6" width="2" height="4" fill="#ffeb3b"/>
+            <!-- Eyes -->
+            <rect x="11" y="14" width="3" height="3" fill="#fff"/>
+            <rect x="18" y="14" width="3" height="3" fill="#fff"/>
+            <rect x="12" y="15" width="2" height="2" fill="#1a1a1a"/>
+            <rect x="19" y="15" width="2" height="2" fill="#1a1a1a"/>
+            <!-- Beak -->
+            <rect x="14" y="18" width="4" height="3" fill="#ff9800"/>
+            <rect x="13" y="19" width="6" height="1" fill="#ffc107"/>
+            <!-- Wings -->
+            <rect x="4" y="16" width="4" height="6" fill="#4dd0e1"/>
+            <rect x="24" y="16" width="4" height="6" fill="#4dd0e1"/>
+            <!-- Tail -->
+            <rect x="12" y="24" width="8" height="4" fill="#e91e63"/>
+            <rect x="14" y="28" width="4" height="2" fill="#ff5722"/>
+        </symbol>
+
+        <!-- Surfing Shark Boss -->
+        <symbol id="boss-shark" viewBox="0 0 32 32">
+            <!-- Body -->
+            <rect x="4" y="12" width="24" height="10" fill="#607d8b"/>
+            <rect x="6" y="10" width="20" height="2" fill="#78909c"/>
+            <rect x="6" y="22" width="20" height="2" fill="#546e7a"/>
+            <!-- Fin -->
+            <rect x="14" y="4" width="4" height="8" fill="#607d8b"/>
+            <rect x="15" y="2" width="2" height="2" fill="#78909c"/>
+            <!-- Tail -->
+            <rect x="26" y="10" width="4" height="4" fill="#607d8b"/>
+            <rect x="26" y="18" width="4" height="4" fill="#607d8b"/>
+            <!-- Face -->
+            <rect x="6" y="14" width="3" height="3" fill="#1a1a1a"/>
+            <rect x="6" y="14" width="1" height="1" fill="#fff"/>
+            <rect x="3" y="16" width="3" height="2" fill="#90a4ae"/>
+            <!-- Teeth -->
+            <rect x="4" y="18" width="8" height="2" fill="#fff"/>
+            <rect x="5" y="20" width="1" height="1" fill="#fff"/>
+            <rect x="7" y="20" width="1" height="1" fill="#fff"/>
+            <rect x="9" y="20" width="1" height="1" fill="#fff"/>
+            <!-- Surfboard -->
+            <rect x="2" y="24" width="28" height="3" fill="#ff6b4a"/>
+            <rect x="4" y="27" width="24" height="1" fill="#ff8c69"/>
+        </symbol>
+
+        <!-- Volcano Spirit Boss -->
+        <symbol id="boss-volcano" viewBox="0 0 32 32">
+            <!-- Mountain body -->
+            <rect x="6" y="16" width="20" height="12" fill="#5d4037"/>
+            <rect x="8" y="12" width="16" height="4" fill="#6d4c41"/>
+            <rect x="10" y="8" width="12" height="4" fill="#795548"/>
+            <!-- Lava top -->
+            <rect x="12" y="4" width="8" height="4" fill="#ff5722"/>
+            <rect x="11" y="6" width="2" height="4" fill="#ff9800"/>
+            <rect x="19" y="6" width="2" height="4" fill="#ff9800"/>
+            <rect x="14" y="2" width="4" height="2" fill="#ffeb3b"/>
+            <!-- Eyes -->
+            <rect x="10" y="14" width="4" height="4" fill="#ff5722"/>
+            <rect x="18" y="14" width="4" height="4" fill="#ff5722"/>
+            <rect x="11" y="15" width="2" height="2" fill="#ffeb3b"/>
+            <rect x="19" y="15" width="2" height="2" fill="#ffeb3b"/>
+            <!-- Mouth -->
+            <rect x="12" y="20" width="8" height="4" fill="#ff5722"/>
+            <rect x="13" y="21" width="6" height="2" fill="#ffeb3b"/>
+            <!-- Lava drips -->
+            <rect x="8" y="22" width="2" height="4" fill="#ff5722"/>
+            <rect x="22" y="20" width="2" height="4" fill="#ff5722"/>
+        </symbol>
+
+        <!-- Coconut Monster Boss -->
+        <symbol id="boss-coconut" viewBox="0 0 32 32">
+            <!-- Coconut body -->
+            <rect x="8" y="8" width="16" height="16" fill="#8d6e63"/>
+            <rect x="6" y="10" width="2" height="12" fill="#795548"/>
+            <rect x="24" y="10" width="2" height="12" fill="#795548"/>
+            <rect x="10" y="6" width="12" height="2" fill="#795548"/>
+            <rect x="10" y="24" width="12" height="2" fill="#6d4c41"/>
+            <!-- Face holes (coconut style) -->
+            <rect x="10" y="12" width="4" height="4" fill="#4e342e"/>
+            <rect x="18" y="12" width="4" height="4" fill="#4e342e"/>
+            <!-- Cute eyes inside -->
+            <rect x="11" y="13" width="2" height="2" fill="#fff"/>
+            <rect x="19" y="13" width="2" height="2" fill="#fff"/>
+            <rect x="11" y="13" width="1" height="1" fill="#1a1a1a"/>
+            <rect x="19" y="13" width="1" height="1" fill="#1a1a1a"/>
+            <!-- Third hole (mouth) -->
+            <rect x="13" y="18" width="6" height="4" fill="#4e342e"/>
+            <rect x="14" y="19" width="4" height="2" fill="#6d4c41"/>
+            <!-- Palm leaves hair -->
+            <rect x="12" y="2" width="8" height="4" fill="#4caf50"/>
+            <rect x="10" y="4" width="4" height="2" fill="#66bb6a"/>
+            <rect x="18" y="4" width="4" height="2" fill="#66bb6a"/>
+            <rect x="14" y="1" width="4" height="1" fill="#81c784"/>
+        </symbol>
+    </svg>
+
+    <div class="game-container">
+        <div class="top-bar">
+            <div class="level-display" id="levelDisplay">Lv.1</div>
+            <div class="top-buttons">
+                <button class="icon-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+                <button class="icon-btn" onclick="showAchievements()">🏆</button>
+                <button class="icon-btn" onclick="showThemePicker()">🎨</button>
+            </div>
+        </div>
+
+        <div class="settings-toggle">
+            <button class="settings-btn" onclick="toggleSettings()">
+                <span id="settingsLabel">Easy • Mixed</span> ▼
+            </button>
+        </div>
+
+        <div class="settings-panel" id="settingsPanel">
+            <div class="settings-row">
+                <button id="easy" class="active" onclick="setDifficulty('easy')">Easy</button>
+                <button id="medium" onclick="setDifficulty('medium')">Medium</button>
+                <button id="hard" onclick="setDifficulty('hard')">Hard</button>
+            </div>
+            <div class="settings-row">
+                <button id="add" onclick="setOperation('add')">+</button>
+                <button id="subtract" onclick="setOperation('subtract')">−</button>
+                <button id="multiply" onclick="setOperation('multiply')">×</button>
+                <button id="divide" onclick="setOperation('divide')">÷</button>
+                <button id="mixed" class="active" onclick="setOperation('mixed')">Mix</button>
+            </div>
+            <div class="settings-row">
+                <button id="endless" class="active" onclick="setMode('endless')">Free Play</button>
+                <button id="timed" onclick="setMode('timed')">60 Sec</button>
+                <button id="speed" onclick="setMode('speed')">⚡ Speed</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item"><span class="stat-icon"><svg class="pixel-mango"><use href="#pixel-mango"/></svg></span> <span id="score">0</span></div>
+            <div class="stat-item"><span class="stat-icon"><svg class="pixel-watermelon"><use href="#pixel-watermelon"/></svg></span> <span id="streak">0</span></div>
+        </div>
+
+        <div class="progress-container">
+            <div class="progress-item">
+                <svg class="pixel-box" style="width:20px;height:20px;"><use href="#pixel-mysterybox"/></svg>
+                <div class="progress-bar"><div class="progress-fill mystery" id="mysteryProgress" style="width: 0%"></div></div>
+            </div>
+            <div class="progress-item">
+                <svg class="pixel-boss" style="width:20px;height:20px;"><use href="#boss-tiki"/></svg>
+                <div class="progress-bar"><div class="progress-fill boss" id="bossProgress" style="width: 0%"></div></div>
+            </div>
+        </div>
+
+        <div class="powerups-bar">
+            <button class="powerup-btn" id="powerupHint" onclick="usePowerup('hint')" title="Hint">💡</button>
+            <button class="powerup-btn" id="powerupDouble" onclick="usePowerup('double')" title="Double Points">2️⃣</button>
+            <button class="powerup-btn" id="powerupSkip" onclick="usePowerup('skip')" title="Skip">⏭️</button>
+        </div>
+
+        <div class="combo-display" id="comboDisplay">x1</div>
+
+        <div class="timer-display" id="timer"></div>
+
+        <div class="problem-area">
+            <div class="problem" id="problem"></div>
+            <div class="answer-display" id="answerDisplay"><span class="cursor">|</span></div>
+            <div class="feedback" id="feedback"></div>
+        </div>
+
+        <div class="numpad">
+            <button onclick="numPress(1)">1</button>
+            <button onclick="numPress(2)">2</button>
+            <button onclick="numPress(3)">3</button>
+            <button onclick="numPress(4)">4</button>
+            <button onclick="numPress(5)">5</button>
+            <button onclick="numPress(6)">6</button>
+            <button onclick="numPress(7)">7</button>
+            <button onclick="numPress(8)">8</button>
+            <button onclick="numPress(9)">9</button>
+            <button class="delete" onclick="deletePress()">⌫</button>
+            <button onclick="numPress(0)">0</button>
+            <button class="submit" onclick="checkAnswer()">GO</button>
+        </div>
+    </div>
+
+    <div class="streak-celebration" id="streakCelebration"></div>
+
+    <!-- Theme Picker -->
+    <div class="modal theme-picker" id="themePicker">
+        <h2>Pick a Theme</h2>
+        <div id="themeButtons"></div>
+        <button class="close-btn" onclick="hideThemePicker()">Done</button>
+    </div>
+
+    <!-- Mystery Box -->
+    <div class="modal" id="mysteryBoxModal">
+        <div class="mystery-box" id="mysteryBox" onclick="openMysteryBox()">
+            <svg class="pixel-box" style="width:120px;height:120px;cursor:pointer;"><use href="#pixel-mysterybox"/></svg>
+        </div>
+        <div class="mystery-reward" id="mysteryReward"></div>
+        <div class="mystery-text" id="mysteryText">Tap to open!</div>
+        <button class="close-btn hidden" id="mysteryCloseBtn" onclick="closeMysteryBox()">Nice!</button>
+    </div>
+
+    <!-- Boss Battle -->
+    <div class="modal boss-modal" id="bossBattleModal">
+        <div class="boss-title">⚔️ BOSS BATTLE ⚔️</div>
+        <div class="boss-container" id="bossContainer">
+            <div class="boss-emoji" id="bossEmoji">
+                <svg class="pixel-boss" style="width:100px;height:100px;"><use href="#boss-tiki" id="bossUse"/></svg>
+            </div>
+            <div class="boss-name" id="bossName">Tiki Mask</div>
+            <div class="boss-health-bar">
+                <div class="boss-health-fill" id="bossHealthFill"></div>
+            </div>
+            <div class="boss-timer" id="bossTimer">30</div>
+            <div class="boss-problem" id="bossProblem"></div>
+            <div class="boss-answer" id="bossAnswer">|</div>
+            <div class="boss-numpad">
+                <button onclick="bossNumPress(1)">1</button>
+                <button onclick="bossNumPress(2)">2</button>
+                <button onclick="bossNumPress(3)">3</button>
+                <button onclick="bossNumPress(4)">4</button>
+                <button onclick="bossNumPress(5)">5</button>
+                <button onclick="bossNumPress(6)">6</button>
+                <button onclick="bossNumPress(7)">7</button>
+                <button onclick="bossNumPress(8)">8</button>
+                <button onclick="bossNumPress(9)">9</button>
+                <button onclick="bossNumPress(0)">0</button>
+                <button class="delete" onclick="bossDeletePress()">⌫</button>
+                <button class="submit" onclick="bossCheckAnswer()">GO</button>
+            </div>
+        </div>
+        <div class="boss-victory hidden" id="bossVictory">
+            <div>🎉 VICTORY! 🎉</div>
+            <div class="boss-reward" id="bossReward">+10 <svg class="pixel-mango" style="width:24px;height:24px;display:inline-block;vertical-align:middle;"><use href="#pixel-mango"/></svg></div>
+        </div>
+    </div>
+
+    <!-- Game Over -->
+    <div class="game-over" id="gameOver" onclick="restartGame()">
+        <h2>TIME'S UP!</h2>
+        <div id="newRecordBanner"></div>
+        <div class="game-over-stats">
+            <div class="final-stat"><svg class="pixel-mango" style="width:24px;height:24px;vertical-align:middle;"><use href="#pixel-mango"/></svg> Score: <span id="finalScore">0</span></div>
+            <div class="final-stat"><svg class="pixel-watermelon" style="width:24px;height:24px;vertical-align:middle;"><use href="#pixel-watermelon"/></svg> Best Streak: <span id="bestStreak">0</span></div>
+            <div class="final-stat">✓ Accuracy: <span id="accuracy">0%</span></div>
+            <div class="final-stat">📝 Problems: <span id="totalProblems">0</span></div>
+        </div>
+        <div class="tap-restart">Tap anywhere to play again</div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div class="modal" id="achievementsModal">
+        <h2 style="color: var(--accent);">🏆 Achievements</h2>
+        <div class="achievements-grid" id="achievementsGrid"></div>
+        <button class="close-btn" onclick="hideAchievements()">Done</button>
+    </div>
+
+    <!-- Achievement Toast -->
+    <div class="achievement-toast" id="achievementToast"></div>
+
+    <script>
+        // Bosses with unlock levels
+        const BOSSES = [
+            { svg: 'boss-tiki', name: 'Tiki Mask', unlockLevel: 1 },
+            { svg: 'boss-crab', name: 'Coconut Crab', unlockLevel: 1 },
+            { svg: 'boss-puffer', name: 'Pufferfish', unlockLevel: 3 },
+            { svg: 'boss-jelly', name: 'Jellyfish', unlockLevel: 5 },
+            { svg: 'boss-bird', name: 'Tropical Bird', unlockLevel: 7 },
+            { svg: 'boss-shark', name: 'Surfing Shark', unlockLevel: 10 },
+            { svg: 'boss-volcano', name: 'Volcano Spirit', unlockLevel: 12 },
+            { svg: 'boss-coconut', name: 'Coconut Monster', unlockLevel: 15 }
+        ];
+
+        // Themes with unlock levels
+        const THEMES = [
+            { id: 'tropical', name: '🌺 Tropical', unlockLevel: 1 },
+            { id: 'ocean', name: '🌊 Ocean', unlockLevel: 3 },
+            { id: 'sunset', name: '🌅 Sunset', unlockLevel: 6 },
+            { id: 'berry', name: '🍇 Berry', unlockLevel: 9 },
+            { id: 'retro', name: '👾 Retro', unlockLevel: 12 }
+        ];
+
+        // XP and Level system
+        let playerXP = 0;
+        let playerLevel = 1;
+        const XP_PER_LEVEL = 100; // XP needed per level
+
+        let num1, num2, correctAnswer, currentOp;
+        let score = 0, streak = 0, bestStreak = 0;
+        let difficulty = 'easy', operation = 'mixed', mode = 'endless';
+        let timeLeft = 60, timerInterval = null;
+        let gameActive = true, currentInput = '';
+        let soundEnabled = true, audioContext = null;
+        let correctCount = 0, totalAttempts = 0;
+
+        let bossActive = false, bossHealth = 100, bossTimer = 30;
+        let bossInterval = null, bossAnswer = '', bossCorrectAnswer;
+
+        // Combo system
+        let lastAnswerTime = 0;
+        let comboMultiplier = 1;
+        let comboTimeout = null;
+
+        // Power-ups
+        let powerups = { hint: 0, double: 0, skip: 0 };
+        let doublePointsActive = false;
+
+        // Achievements
+        const ACHIEVEMENTS = [
+            { id: 'first_correct', emoji: '🌟', name: 'First Star', desc: 'Get your first answer right' },
+            { id: 'streak_5', emoji: '🔥', name: 'On Fire', desc: 'Get a 5 streak' },
+            { id: 'streak_10', emoji: '💥', name: 'Blazing', desc: 'Get a 10 streak' },
+            { id: 'streak_20', emoji: '🌋', name: 'Unstoppable', desc: 'Get a 20 streak' },
+            { id: 'score_25', emoji: '🥉', name: 'Bronze Math', desc: 'Score 25 points' },
+            { id: 'score_50', emoji: '🥈', name: 'Silver Math', desc: 'Score 50 points' },
+            { id: 'score_100', emoji: '🥇', name: 'Gold Math', desc: 'Score 100 points' },
+            { id: 'boss_slayer', emoji: '⚔️', name: 'Boss Slayer', desc: 'Defeat a boss' },
+            { id: 'speed_demon', emoji: '⚡', name: 'Speed Demon', desc: 'Get a 3x combo' },
+            { id: 'collector', emoji: '🎁', name: 'Collector', desc: 'Open 3 mystery boxes' },
+            { id: 'powerup_user', emoji: '💪', name: 'Powered Up', desc: 'Use a power-up' },
+            { id: 'perfectionist', emoji: '💯', name: 'Perfectionist', desc: '100% accuracy in timed mode' },
+            { id: 'speed_round_10', emoji: '🏃', name: 'Quick Thinker', desc: 'Solve 10+ in speed round' },
+            { id: 'speed_round_20', emoji: '🚀', name: 'Lightning Fast', desc: 'Solve 20+ in speed round' },
+            { id: 'level_5', emoji: '📈', name: 'Rising Star', desc: 'Reach level 5' },
+            { id: 'level_10', emoji: '🌟', name: 'Math Master', desc: 'Reach level 10' }
+        ];
+        let unlockedAchievements = [];
+        let mysteryBoxesOpened = 0;
+        let bossesDefeated = 0;
+
+        // Haptic feedback - works on Android via Vibration API, iOS via AudioContext workaround
+        let hapticContext = null;
+        function haptic(type) {
+            // Try Vibration API first (Android)
+            if (navigator.vibrate) {
+                try {
+                    if (type === 'light') navigator.vibrate(10);
+                    else if (type === 'medium') navigator.vibrate(25);
+                    else if (type === 'heavy') navigator.vibrate([50, 30, 50]);
+                    else if (type === 'success') navigator.vibrate([10, 50, 20]);
+                    else if (type === 'error') navigator.vibrate([50, 50, 50]);
+                    return;
+                } catch (e) {}
+            }
+
+            // iOS fallback using AudioContext (triggers Taptic Engine on some iOS versions)
+            try {
+                if (!hapticContext) {
+                    hapticContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const oscillator = hapticContext.createOscillator();
+                const gain = hapticContext.createGain();
+                oscillator.connect(gain);
+                gain.connect(hapticContext.destination);
+
+                // Very short, low-frequency pulse
+                oscillator.frequency.value = 10;
+                gain.gain.value = 0.001; // Nearly silent
+
+                const duration = type === 'light' ? 0.01 : type === 'medium' ? 0.02 : 0.03;
+                oscillator.start(hapticContext.currentTime);
+                oscillator.stop(hapticContext.currentTime + duration);
+            } catch (e) {}
+        }
+
+        function toggleSettings() {
+            document.getElementById('settingsPanel').classList.toggle('show');
+        }
+
+        function updateSettingsLabel() {
+            const diff = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+            const op = operation === 'mixed' ? 'Mixed' : operation === 'add' ? '+' : operation === 'subtract' ? '−' : operation === 'multiply' ? '×' : '÷';
+            const modeLabel = mode === 'speed' ? '⚡' : mode === 'timed' ? '⏱️' : '∞';
+            document.getElementById('settingsLabel').textContent = `${diff} • ${op} • ${modeLabel}`;
+        }
+
+        // XP and Level System
+        function loadProgression() {
+            playerXP = parseInt(localStorage.getItem('mathblaster_xp') || '0');
+            playerLevel = Math.floor(playerXP / XP_PER_LEVEL) + 1;
+            updateLevelDisplay();
+        }
+
+        function saveProgression() {
+            localStorage.setItem('mathblaster_xp', playerXP.toString());
+        }
+
+        function gainXP(amount) {
+            const oldLevel = playerLevel;
+            playerXP += amount;
+            playerLevel = Math.floor(playerXP / XP_PER_LEVEL) + 1;
+            saveProgression();
+            updateLevelDisplay();
+
+            if (playerLevel > oldLevel) {
+                showLevelUp(playerLevel);
+                checkAchievement('level_5', playerLevel >= 5);
+                checkAchievement('level_10', playerLevel >= 10);
+            }
+        }
+
+        function updateLevelDisplay() {
+            const levelEl = document.getElementById('levelDisplay');
+            if (levelEl) {
+                const xpInLevel = playerXP % XP_PER_LEVEL;
+                const progress = (xpInLevel / XP_PER_LEVEL) * 100;
+                levelEl.innerHTML = `<span class="level-num">Lv.${playerLevel}</span><div class="xp-bar"><div class="xp-fill" style="width:${progress}%"></div></div>`;
+            }
+        }
+
+        function showLevelUp(level) {
+            const toast = document.getElementById('achievementToast');
+            toast.textContent = `🎉 Level Up! You're now Level ${level}!`;
+            toast.classList.add('show');
+            playSound('streak');
+            haptic('heavy');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function isThemeUnlocked(themeId) {
+            const theme = THEMES.find(t => t.id === themeId);
+            return theme ? playerLevel >= theme.unlockLevel : false;
+        }
+
+        function getUnlockedBosses() {
+            return BOSSES.filter(b => playerLevel >= b.unlockLevel);
+        }
+
+        function setTheme(theme) {
+            if (!isThemeUnlocked(theme)) {
+                const t = THEMES.find(th => th.id === theme);
+                alert(`Unlock ${t.name} at Level ${t.unlockLevel}!`);
+                return;
+            }
+            document.body.className = theme === 'tropical' ? '' : `theme-${theme}`;
+            localStorage.setItem('mathblaster_theme', theme);
+            hideThemePicker();
+        }
+
+        function loadTheme() {
+            const theme = localStorage.getItem('mathblaster_theme') || 'tropical';
+            if (isThemeUnlocked(theme)) {
+                document.body.className = theme === 'tropical' ? '' : `theme-${theme}`;
+            } else {
+                document.body.className = '';
+            }
+        }
+
+        function showThemePicker() {
+            const container = document.getElementById('themeButtons');
+            if (container) {
+                container.innerHTML = THEMES.map(t => {
+                    const unlocked = playerLevel >= t.unlockLevel;
+                    const lockIcon = unlocked ? '' : ` 🔒 Lv.${t.unlockLevel}`;
+                    return `<button class="theme-btn ${t.id} ${!unlocked ? 'locked' : ''}" onclick="setTheme('${t.id}')">${t.name}${lockIcon}</button>`;
+                }).join('');
+            }
+            document.getElementById('themePicker').classList.add('show');
+        }
+        function hideThemePicker() { document.getElementById('themePicker').classList.remove('show'); }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('soundBtn');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            btn.classList.toggle('muted', !soundEnabled);
+            localStorage.setItem('mathblaster_sound', soundEnabled);
+        }
+
+        function loadSoundPref() {
+            if (localStorage.getItem('mathblaster_sound') === 'false') {
+                soundEnabled = false;
+                document.getElementById('soundBtn').textContent = '🔇';
+                document.getElementById('soundBtn').classList.add('muted');
+            }
+        }
+
+        function getAudioContext() {
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioContext.state === 'suspended') audioContext.resume();
+            return audioContext;
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const ctx = getAudioContext();
+                const playTone = (freq, wave, vol, dur) => {
+                    const osc = ctx.createOscillator();
+                    const g = ctx.createGain();
+                    osc.connect(g);
+                    g.connect(ctx.destination);
+                    osc.frequency.value = freq;
+                    osc.type = wave;
+                    g.gain.setValueAtTime(vol, ctx.currentTime);
+                    g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + dur);
+                    osc.start();
+                    osc.stop(ctx.currentTime + dur);
+                };
+
+                if (type === 'tap') playTone(600, 'sine', 0.08, 0.05);
+                else if (type === 'correct') {
+                    playTone(880, 'sine', 0.12, 0.08);
+                    setTimeout(() => playTone(1100, 'sine', 0.1, 0.08), 80);
+                }
+                else if (type === 'wrong') playTone(200, 'triangle', 0.15, 0.2);
+                else if (type === 'streak') {
+                    [880, 1100, 1320, 1760].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.12, 0.15), i * 80));
+                }
+                else if (type === 'bonus') {
+                    [800, 1000, 1200].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.12, 0.1), i * 60));
+                }
+                else if (type === 'bossappear') {
+                    [150, 200, 150, 250].forEach((f, i) => setTimeout(() => playTone(f, 'sawtooth', 0.2, 0.15), i * 120));
+                }
+                else if (type === 'bosshit') {
+                    playTone(300, 'square', 0.15, 0.1);
+                    setTimeout(() => playTone(500, 'square', 0.1, 0.08), 50);
+                }
+                else if (type === 'bosswin') {
+                    [400, 500, 600, 800, 1000, 1200].forEach((f, i) => setTimeout(() => playTone(f, 'sine', 0.15, 0.15), i * 80));
+                }
+                else if (type === 'gameover') {
+                    [400, 350, 300, 250].forEach((f, i) => setTimeout(() => playTone(f, 'triangle', 0.12, 0.3), i * 150));
+                }
+            } catch (e) {}
+        }
+
+        // Progress bars
+        function updateProgressBars() {
+            const mysteryProgress = (correctCount % 10) / 10 * 100;
+            const bossProgress = (correctCount % 15) / 15 * 100;
+            document.getElementById('mysteryProgress').style.width = mysteryProgress + '%';
+            document.getElementById('bossProgress').style.width = bossProgress + '%';
+        }
+
+        // Combo system
+        function updateCombo() {
+            const now = Date.now();
+            const timeSinceLastAnswer = now - lastAnswerTime;
+
+            if (lastAnswerTime > 0 && timeSinceLastAnswer < 2000) {
+                comboMultiplier = Math.min(comboMultiplier + 1, 5);
+            } else if (timeSinceLastAnswer >= 3000) {
+                comboMultiplier = 1;
+            }
+
+            lastAnswerTime = now;
+
+            const comboEl = document.getElementById('comboDisplay');
+            if (comboMultiplier > 1) {
+                comboEl.textContent = `x${comboMultiplier}`;
+                comboEl.classList.add('active');
+                checkAchievement('speed_demon', comboMultiplier >= 3);
+            } else {
+                comboEl.classList.remove('active');
+            }
+
+            clearTimeout(comboTimeout);
+            comboTimeout = setTimeout(() => {
+                comboMultiplier = 1;
+                comboEl.classList.remove('active');
+            }, 3000);
+        }
+
+        // Power-ups
+        function updatePowerupButtons() {
+            ['hint', 'double', 'skip'].forEach(type => {
+                const btn = document.getElementById('powerup' + type.charAt(0).toUpperCase() + type.slice(1));
+                btn.classList.toggle('available', powerups[type] > 0);
+                btn.classList.toggle('used', powerups[type] === 0);
+            });
+        }
+
+        function usePowerup(type) {
+            if (powerups[type] <= 0 || !gameActive || bossActive) return;
+
+            powerups[type]--;
+            updatePowerupButtons();
+            checkAchievement('powerup_user', true);
+            playSound('bonus');
+
+            if (type === 'hint') {
+                // Show first digit of answer
+                const hint = String(correctAnswer).charAt(0);
+                document.getElementById('feedback').textContent = `Hint: starts with ${hint}...`;
+                document.getElementById('feedback').className = 'feedback correct';
+            } else if (type === 'double') {
+                doublePointsActive = true;
+                document.getElementById('feedback').textContent = '2x points active!';
+                document.getElementById('feedback').className = 'feedback correct';
+            } else if (type === 'skip') {
+                correctCount++;
+                updateProgressBars();
+                generateProblem();
+            }
+        }
+
+        function grantRandomPowerup() {
+            const types = ['hint', 'double', 'skip'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            powerups[type]++;
+            updatePowerupButtons();
+            return type;
+        }
+
+        // Achievements
+        function loadAchievements() {
+            const saved = localStorage.getItem('mathblaster_achievements');
+            if (saved) unlockedAchievements = JSON.parse(saved);
+        }
+
+        function saveAchievements() {
+            localStorage.setItem('mathblaster_achievements', JSON.stringify(unlockedAchievements));
+        }
+
+        function checkAchievement(id, condition) {
+            if (condition && !unlockedAchievements.includes(id)) {
+                unlockAchievement(id);
+            }
+        }
+
+        function unlockAchievement(id) {
+            if (unlockedAchievements.includes(id)) return;
+
+            unlockedAchievements.push(id);
+            saveAchievements();
+
+            const achievement = ACHIEVEMENTS.find(a => a.id === id);
+            if (achievement) {
+                const toast = document.getElementById('achievementToast');
+                toast.textContent = `${achievement.emoji} ${achievement.name} unlocked!`;
+                toast.classList.add('show');
+                playSound('streak');
+                setTimeout(() => toast.classList.remove('show'), 3000);
+            }
+        }
+
+        function showAchievements() {
+            const grid = document.getElementById('achievementsGrid');
+            grid.innerHTML = ACHIEVEMENTS.map(a => {
+                const unlocked = unlockedAchievements.includes(a.id);
+                return `<div class="achievement-item ${unlocked ? 'unlocked' : 'locked'}">
+                    <span class="achievement-emoji">${unlocked ? a.emoji : '🔒'}</span>
+                    <span class="achievement-name">${a.name}</span>
+                </div>`;
+            }).join('');
+            document.getElementById('achievementsModal').classList.add('show');
+        }
+
+        function hideAchievements() {
+            document.getElementById('achievementsModal').classList.remove('show');
+        }
+
+        function showStreakCelebration(num) {
+            const el = document.getElementById('streakCelebration');
+            el.textContent = `🍉 ${num} STREAK! 🍉`;
+            el.classList.remove('show');
+            void el.offsetWidth;
+            el.classList.add('show');
+            playSound('streak');
+        }
+
+        function showMysteryBox() {
+            document.getElementById('mysteryReward').textContent = '';
+            document.getElementById('mysteryText').textContent = 'Tap to open!';
+            document.getElementById('mysteryCloseBtn').classList.add('hidden');
+            document.getElementById('mysteryBox').style.display = 'block';
+            document.getElementById('mysteryBoxModal').classList.add('show');
+            playSound('bonus');
+        }
+
+        function openMysteryBox() {
+            mysteryBoxesOpened++;
+            checkAchievement('collector', mysteryBoxesOpened >= 3);
+
+            document.getElementById('mysteryBox').style.display = 'none';
+
+            // 50% chance for power-up, 50% chance for bonus points
+            if (Math.random() < 0.5) {
+                const type = grantRandomPowerup();
+                const icons = { hint: '💡', double: '2️⃣', skip: '⏭️' };
+                const names = { hint: 'Hint', double: 'Double Points', skip: 'Skip' };
+                document.getElementById('mysteryReward').textContent = icons[type];
+                document.getElementById('mysteryText').textContent = `Got ${names[type]}!`;
+            } else {
+                const bonus = Math.floor(Math.random() * 3) + 2;
+                score += bonus;
+                document.getElementById('score').textContent = score;
+                // Show pixel art mangoes
+                let mangoHTML = '';
+                for (let i = 0; i < bonus; i++) {
+                    mangoHTML += '<svg class="pixel-mango" style="width:40px;height:40px;display:inline-block;"><use href="#pixel-mango"/></svg>';
+                }
+                document.getElementById('mysteryReward').innerHTML = mangoHTML;
+                document.getElementById('mysteryText').textContent = `+${bonus} bonus!`;
+            }
+
+            document.getElementById('mysteryCloseBtn').classList.remove('hidden');
+            playSound('bonus');
+        }
+
+        function closeMysteryBox() {
+            document.getElementById('mysteryBoxModal').classList.remove('show');
+            setTimeout(generateProblem, 200);
+        }
+
+        function startBossBattle() {
+            bossActive = true;
+            bossHealth = 100;
+            bossTimer = 30;
+            bossAnswer = '';
+
+            const availableBosses = getUnlockedBosses();
+            const boss = availableBosses[Math.floor(Math.random() * availableBosses.length)];
+            const bossEmojiEl = document.getElementById('bossEmoji');
+            const bossUseEl = document.getElementById('bossUse');
+            bossUseEl.setAttribute('href', '#' + boss.svg);
+            bossEmojiEl.className = 'boss-emoji entrance';
+            document.getElementById('bossName').textContent = boss.name;
+            document.getElementById('bossHealthFill').style.width = '100%';
+            document.getElementById('bossTimer').textContent = '30';
+            document.getElementById('bossTimer').classList.remove('danger');
+            document.getElementById('bossAnswer').textContent = '|';
+            document.getElementById('bossVictory').classList.add('hidden');
+            document.getElementById('bossContainer').style.opacity = '1';
+            document.getElementById('bossBattleModal').classList.add('show');
+
+            playSound('bossappear');
+
+            setTimeout(() => {
+                bossEmojiEl.classList.remove('entrance');
+                generateBossProblem();
+            }, 800);
+
+            bossInterval = setInterval(() => {
+                bossTimer--;
+                const timerEl = document.getElementById('bossTimer');
+                timerEl.textContent = bossTimer;
+                if (bossTimer <= 10) timerEl.classList.add('danger');
+                if (bossTimer <= 0) endBossBattle(false);
+            }, 1000);
+        }
+
+        function generateBossProblem() {
+            const max = getMaxNumber();
+            const ops = operation === 'mixed' ? ['add', 'subtract', 'multiply', 'divide'] : [operation];
+            const currentBossOp = ops[Math.floor(Math.random() * ops.length)];
+            let num1, num2, display;
+
+            if (currentBossOp === 'add') {
+                num1 = Math.floor(Math.random() * max) + 1;
+                num2 = Math.floor(Math.random() * max) + 1;
+                bossCorrectAnswer = num1 + num2;
+                display = `${num1} + ${num2}`;
+            } else if (currentBossOp === 'subtract') {
+                num1 = Math.floor(Math.random() * max) + 1;
+                num2 = Math.floor(Math.random() * num1) + 1;
+                bossCorrectAnswer = num1 - num2;
+                display = `${num1} − ${num2}`;
+            } else if (currentBossOp === 'multiply') {
+                const m = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 12;
+                num1 = Math.floor(Math.random() * m) + 1;
+                num2 = Math.floor(Math.random() * m) + 1;
+                bossCorrectAnswer = num1 * num2;
+                display = `${num1} × ${num2}`;
+            } else {
+                const m = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 12;
+                num2 = Math.floor(Math.random() * m) + 1;
+                bossCorrectAnswer = Math.floor(Math.random() * m) + 1;
+                num1 = num2 * bossCorrectAnswer;
+                display = `${num1} ÷ ${num2}`;
+            }
+
+            document.getElementById('bossProblem').textContent = `${display} = ?`;
+            bossAnswer = '';
+            document.getElementById('bossAnswer').textContent = '|';
+        }
+
+        function bossNumPress(num) {
+            if (!bossActive || bossAnswer.length >= 4) return;
+            bossAnswer += num;
+            document.getElementById('bossAnswer').textContent = bossAnswer + '|';
+            playSound('tap');
+            haptic('light');
+        }
+
+        function bossDeletePress() {
+            if (!bossActive) return;
+            bossAnswer = bossAnswer.slice(0, -1);
+            document.getElementById('bossAnswer').textContent = (bossAnswer || '') + '|';
+            haptic('light');
+        }
+
+        function bossCheckAnswer() {
+            if (!bossActive || bossAnswer === '') return;
+
+            if (parseInt(bossAnswer) === bossCorrectAnswer) {
+                bossHealth -= 25;
+                document.getElementById('bossHealthFill').style.width = bossHealth + '%';
+                const emoji = document.getElementById('bossEmoji');
+                emoji.classList.add('hit');
+                setTimeout(() => emoji.classList.remove('hit'), 300);
+                playSound('bosshit');
+                haptic('medium');
+
+                if (bossHealth <= 0) endBossBattle(true);
+                else generateBossProblem();
+            } else {
+                bossAnswer = '';
+                document.getElementById('bossAnswer').textContent = '|';
+                playSound('wrong');
+                haptic('error');
+            }
+        }
+
+        function endBossBattle(victory) {
+            bossActive = false;
+            clearInterval(bossInterval);
+
+            if (victory) {
+                bossesDefeated++;
+                checkAchievement('boss_slayer', true);
+
+                document.getElementById('bossEmoji').classList.add('defeated');
+                document.getElementById('bossContainer').style.opacity = '0.3';
+                const victoryEl = document.getElementById('bossVictory');
+                victoryEl.classList.remove('hidden');
+                victoryEl.classList.add('show');
+                playSound('bosswin');
+                haptic('heavy');
+                gainXP(10); // Bonus XP for defeating boss
+
+                score += 10;
+                document.getElementById('score').textContent = score;
+                document.getElementById('bossReward').innerHTML = '+10 <svg class="pixel-mango" style="width:24px;height:24px;display:inline-block;vertical-align:middle;"><use href="#pixel-mango"/></svg>';
+
+                setTimeout(() => {
+                    document.getElementById('bossBattleModal').classList.remove('show');
+                    victoryEl.classList.remove('show');
+                    setTimeout(generateProblem, 200);
+                }, 2500);
+            } else {
+                document.getElementById('bossVictory').innerHTML = '<div>💀 ESCAPED!</div><div class="boss-reward">Boss fled...</div>';
+                document.getElementById('bossVictory').classList.remove('hidden');
+                playSound('gameover');
+
+                setTimeout(() => {
+                    document.getElementById('bossBattleModal').classList.remove('show');
+                    document.getElementById('bossVictory').innerHTML = '<div>🎉 VICTORY! 🎉</div><div class="boss-reward" id="bossReward">+10 <svg class="pixel-mango" style="width:24px;height:24px;display:inline-block;vertical-align:middle;"><use href="#pixel-mango"/></svg></div>';
+                    setTimeout(generateProblem, 200);
+                }, 1500);
+            }
+        }
+
+        function updateAnswerDisplay() {
+            document.getElementById('answerDisplay').innerHTML =
+                currentInput === '' ? '<span class="cursor">|</span>' : currentInput + '<span class="cursor">|</span>';
+        }
+
+        function numPress(num) {
+            if (!gameActive || bossActive || currentInput.length >= 5) return;
+            currentInput += num;
+            updateAnswerDisplay();
+            playSound('tap');
+            haptic('light');
+        }
+
+        function deletePress() {
+            if (!gameActive || bossActive) return;
+            currentInput = currentInput.slice(0, -1);
+            updateAnswerDisplay();
+            playSound('tap');
+            haptic('light');
+        }
+
+        function getMaxNumber() {
+            return difficulty === 'easy' ? 10 : difficulty === 'medium' ? 20 : 50;
+        }
+
+        function generateProblem() {
+            const max = getMaxNumber();
+            const ops = operation === 'mixed' ? ['add', 'subtract', 'multiply', 'divide'] : [operation];
+            currentOp = ops[Math.floor(Math.random() * ops.length)];
+            const el = document.getElementById('problem');
+
+            if (currentOp === 'add') {
+                num1 = Math.floor(Math.random() * max) + 1;
+                num2 = Math.floor(Math.random() * max) + 1;
+                correctAnswer = num1 + num2;
+                el.textContent = `${num1} + ${num2}`;
+            } else if (currentOp === 'subtract') {
+                num1 = Math.floor(Math.random() * max) + 1;
+                num2 = Math.floor(Math.random() * num1) + 1;
+                correctAnswer = num1 - num2;
+                el.textContent = `${num1} − ${num2}`;
+            } else if (currentOp === 'multiply') {
+                const m = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 12;
+                num1 = Math.floor(Math.random() * m) + 1;
+                num2 = Math.floor(Math.random() * m) + 1;
+                correctAnswer = num1 * num2;
+                el.textContent = `${num1} × ${num2}`;
+            } else {
+                const m = difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 12;
+                num2 = Math.floor(Math.random() * m) + 1;
+                correctAnswer = Math.floor(Math.random() * m) + 1;
+                num1 = num2 * correctAnswer;
+                el.textContent = `${num1} ÷ ${num2}`;
+            }
+
+            currentInput = '';
+            updateAnswerDisplay();
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('answerDisplay').classList.remove('correct');
+        }
+
+        function checkAnswer() {
+            if (!gameActive || bossActive || currentInput === '') return;
+
+            totalAttempts++;
+            const userAnswer = parseInt(currentInput);
+            const feedbackEl = document.getElementById('feedback');
+            const answerEl = document.getElementById('answerDisplay');
+
+            if (userAnswer === correctAnswer) {
+                streak++;
+                correctCount++;
+                if (streak > bestStreak) bestStreak = streak;
+
+                // Combo multiplier
+                updateCombo();
+                let points = doublePointsActive ? 2 : 1;
+                points *= comboMultiplier;
+                score += points;
+                doublePointsActive = false;
+
+                document.getElementById('score').textContent = score;
+                document.getElementById('streak').textContent = streak;
+                answerEl.classList.add('correct');
+                updateProgressBars();
+
+                // Check achievements
+                checkAchievement('first_correct', correctCount >= 1);
+                checkAchievement('streak_5', streak >= 5);
+                checkAchievement('streak_10', streak >= 10);
+                checkAchievement('streak_20', streak >= 20);
+                checkAchievement('score_25', score >= 25);
+                checkAchievement('score_50', score >= 50);
+                checkAchievement('score_100', score >= 100);
+
+                if (streak === 5 || streak === 10 || streak === 15 || streak === 20 || (streak > 20 && streak % 10 === 0)) {
+                    showStreakCelebration(streak);
+                }
+
+                let feedbackText = streak >= 5 ? `🍉 ${streak} streak!` : 'Correct!';
+                if (comboMultiplier > 1) feedbackText += ` x${comboMultiplier}`;
+                if (points > 1) feedbackText += ` (+${points})`;
+                feedbackEl.textContent = feedbackText;
+                feedbackEl.className = 'feedback correct';
+                playSound('correct');
+                haptic('success');
+                gainXP(points); // Gain XP based on points earned
+
+                // Boss every 15, Mystery box every 10 (but not when boss triggers)
+                if (correctCount > 0 && correctCount % 15 === 0) {
+                    setTimeout(startBossBattle, 400);
+                    return;
+                }
+
+                if (correctCount > 0 && correctCount % 10 === 0) {
+                    setTimeout(showMysteryBox, 400);
+                    return;
+                }
+
+                setTimeout(generateProblem, 400);
+            } else {
+                feedbackEl.textContent = 'Try again!';
+                feedbackEl.className = 'feedback';
+                playSound('wrong');
+                haptic('error');
+                streak = 0;
+                comboMultiplier = 1;
+                document.getElementById('comboDisplay').classList.remove('active');
+                document.getElementById('streak').textContent = 0;
+                currentInput = '';
+                updateAnswerDisplay();
+                document.body.classList.add('shake');
+                setTimeout(() => document.body.classList.remove('shake'), 300);
+            }
+        }
+
+        function setDifficulty(diff) {
+            difficulty = diff;
+            document.querySelectorAll('.settings-row button').forEach(b => {
+                if (['easy', 'medium', 'hard'].includes(b.id)) b.classList.toggle('active', b.id === diff);
+            });
+            updateSettingsLabel();
+            resetGame();
+        }
+
+        function setOperation(op) {
+            operation = op;
+            document.querySelectorAll('.settings-row button').forEach(b => {
+                if (['add', 'subtract', 'multiply', 'divide', 'mixed'].includes(b.id)) b.classList.toggle('active', b.id === op);
+            });
+            updateSettingsLabel();
+            resetGame();
+        }
+
+        function setMode(m) {
+            mode = m;
+            document.querySelectorAll('.settings-row button').forEach(b => {
+                if (['endless', 'timed', 'speed'].includes(b.id)) b.classList.toggle('active', b.id === m);
+            });
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+            if (mode === 'timed') startTimer();
+            else if (mode === 'speed') startSpeedRound();
+            else {
+                document.getElementById('timer').textContent = '';
+                document.getElementById('timer').classList.remove('warning');
+            }
+            resetGame();
+        }
+
+        function startSpeedRound() {
+            timeLeft = 30;
+            document.getElementById('timer').textContent = '⚡ 30';
+            document.getElementById('timer').classList.remove('warning');
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = '⚡ ' + timeLeft;
+                if (timeLeft <= 10) document.getElementById('timer').classList.add('warning');
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        function startTimer() {
+            timeLeft = 60;
+            document.getElementById('timer').textContent = '⏱️ 60';
+            document.getElementById('timer').classList.remove('warning');
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = '⏱️ ' + timeLeft;
+                if (timeLeft <= 10) document.getElementById('timer').classList.add('warning');
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        function endGame() {
+            gameActive = false;
+            clearInterval(timerInterval);
+
+            const acc = totalAttempts > 0 ? Math.round((correctCount / totalAttempts) * 100) : 0;
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('bestStreak').textContent = bestStreak;
+            document.getElementById('accuracy').textContent = acc + '%';
+            document.getElementById('totalProblems').textContent = correctCount;
+            document.getElementById('newRecordBanner').textContent = '';
+
+            // Check perfectionist achievement (100% accuracy with at least 10 problems in timed mode)
+            if (mode === 'timed' && acc === 100 && correctCount >= 10) {
+                checkAchievement('perfectionist', true);
+            }
+
+            // Check speed round achievements
+            if (mode === 'speed') {
+                checkAchievement('speed_round_10', correctCount >= 10);
+                checkAchievement('speed_round_20', correctCount >= 20);
+            }
+
+            haptic('heavy');
+            playSound('gameover');
+            document.getElementById('gameOver').classList.add('show');
+        }
+
+        function resetGame() {
+            score = 0; streak = 0; bestStreak = 0;
+            gameActive = true;
+            correctCount = 0; totalAttempts = 0;
+            mysteryBoxesOpened = 0;
+            bossesDefeated = 0;
+
+            // Reset combo
+            comboMultiplier = 1;
+            lastAnswerTime = 0;
+            document.getElementById('comboDisplay').classList.remove('active');
+
+            // Reset power-ups
+            powerups = { hint: 0, double: 0, skip: 0 };
+            doublePointsActive = false;
+            updatePowerupButtons();
+
+            // Reset progress bars
+            updateProgressBars();
+
+            document.getElementById('score').textContent = 0;
+            document.getElementById('streak').textContent = 0;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('answerDisplay').classList.remove('correct');
+
+            generateProblem();
+        }
+
+        function restartGame() {
+            document.getElementById('gameOver').classList.remove('show');
+            document.getElementById('timer').classList.remove('warning');
+            if (mode === 'timed') startTimer();
+            resetGame();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (bossActive) {
+                if (e.key >= '0' && e.key <= '9') bossNumPress(e.key);
+                else if (e.key === 'Backspace') { e.preventDefault(); bossDeletePress(); }
+                else if (e.key === 'Enter') bossCheckAnswer();
+                return;
+            }
+            if (!gameActive) {
+                if (e.key === 'Enter' || e.key === ' ') restartGame();
+                return;
+            }
+            if (e.key >= '0' && e.key <= '9') numPress(e.key);
+            else if (e.key === 'Backspace') { e.preventDefault(); deletePress(); }
+            else if (e.key === 'Enter') checkAnswer();
+        });
+
+        loadTheme();
+        loadSoundPref();
+        loadAchievements();
+        loadProgression();
+        updateSettingsLabel();
+        updatePowerupButtons();
+        generateProblem();
+
+        // ============================================
+        // THREE.JS PIXEL ART LANIKAI BEACH SCENE
+        // ============================================
+        (function initThreeJS() {
+            const canvas = document.getElementById('three-canvas');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, antialias: false }); // No AA for pixel look
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(1); // Force low resolution for pixel art
+
+            // Pixel art color palette (limited colors)
+            const colors = {
+                sky: 0x87ceeb,
+                skyHorizon: 0xffecd2,
+                sun: 0xffd93d,
+                sunGlow: 0xffaa00,
+                oceanDeep: 0x1a8cba,
+                oceanMid: 0x40c4dc,
+                oceanLight: 0x7fdbff,
+                oceanFoam: 0xffffff,
+                sand: 0xf4d9a0,
+                sandDark: 0xe8c890,
+                palmTrunk: 0x8b5a2b,
+                palmLeaf: 0x228b22,
+                palmLeafLight: 0x32cd32,
+                island: 0x2d5a2d,
+                islandDark: 0x1a3a1a,
+                cloud: 0xffffff,
+                cloudShadow: 0xe8e8e8
+            };
+
+            // Sky gradient using a large box
+            scene.background = new THREE.Color(colors.sky);
+
+            // Lighting - simple for flat shading
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const sunLight = new THREE.DirectionalLight(0xffffee, 0.8);
+            sunLight.position.set(0, 10, -20);
+            scene.add(sunLight);
+
+            // Helper to create flat-shaded material
+            function pixelMat(color) {
+                return new THREE.MeshLambertMaterial({
+                    color: color,
+                    flatShading: true
+                });
+            }
+
+            // ===== SUN =====
+            const sunGeo = new THREE.BoxGeometry(4, 4, 0.5);
+            const sun = new THREE.Mesh(sunGeo, pixelMat(colors.sun));
+            sun.position.set(8, 12, -50);
+            scene.add(sun);
+
+            // Sun glow (larger box behind)
+            const sunGlowGeo = new THREE.BoxGeometry(6, 6, 0.3);
+            const sunGlow = new THREE.Mesh(sunGlowGeo, new THREE.MeshBasicMaterial({
+                color: colors.sunGlow,
+                transparent: true,
+                opacity: 0.5
+            }));
+            sunGlow.position.set(8, 12, -51);
+            scene.add(sunGlow);
+
+            // ===== OCEAN (layered planes for depth) =====
+            const oceanWidth = 200;
+            const oceanDepth = 100;
+
+            // Deep ocean
+            const oceanDeepGeo = new THREE.BoxGeometry(oceanWidth, 1, oceanDepth);
+            const oceanDeep = new THREE.Mesh(oceanDeepGeo, pixelMat(colors.oceanDeep));
+            oceanDeep.position.set(0, -2, -60);
+            scene.add(oceanDeep);
+
+            // Mid ocean with wave segments
+            const waveSegments = [];
+            for (let z = 0; z < 8; z++) {
+                const waveGeo = new THREE.BoxGeometry(oceanWidth, 0.5, 8);
+                const waveColor = z < 3 ? colors.oceanDeep : z < 5 ? colors.oceanMid : colors.oceanLight;
+                const wave = new THREE.Mesh(waveGeo, pixelMat(waveColor));
+                wave.position.set(0, -1.5 + z * 0.1, -50 + z * 6);
+                wave.userData = { baseY: wave.position.y, offset: z * 0.5 };
+                waveSegments.push(wave);
+                scene.add(wave);
+            }
+
+            // Foam/shore waves
+            const foamGeo = new THREE.BoxGeometry(oceanWidth, 0.3, 3);
+            const foam = new THREE.Mesh(foamGeo, pixelMat(colors.oceanFoam));
+            foam.position.set(0, -1, 0);
+            scene.add(foam);
+
+            // ===== BEACH =====
+            const beachGeo = new THREE.BoxGeometry(oceanWidth, 2, 30);
+            const beach = new THREE.Mesh(beachGeo, pixelMat(colors.sand));
+            beach.position.set(0, -2, 15);
+            scene.add(beach);
+
+            // Beach texture (darker sand patches)
+            for (let i = 0; i < 15; i++) {
+                const patchGeo = new THREE.BoxGeometry(
+                    1 + Math.random() * 3,
+                    0.1,
+                    1 + Math.random() * 2
+                );
+                const patch = new THREE.Mesh(patchGeo, pixelMat(colors.sandDark));
+                patch.position.set(
+                    (Math.random() - 0.5) * 40,
+                    -0.9,
+                    5 + Math.random() * 20
+                );
+                scene.add(patch);
+            }
+
+            // ===== MOKULUA ISLANDS (Lanikai's twin islands) =====
+            function createIsland(x, z, scale) {
+                const islandGroup = new THREE.Group();
+
+                // Main mountain shape (stacked boxes for pixel look)
+                const heights = [2, 3.5, 4.5, 3, 1.5];
+                const widths = [4, 3, 2, 2.5, 3.5];
+                heights.forEach((h, i) => {
+                    const blockGeo = new THREE.BoxGeometry(widths[i] * scale, h * scale, widths[i] * scale * 0.8);
+                    const block = new THREE.Mesh(blockGeo, pixelMat(i % 2 === 0 ? colors.island : colors.islandDark));
+                    block.position.set(
+                        (i - 2) * scale * 0.8,
+                        h * scale / 2 - 1,
+                        0
+                    );
+                    islandGroup.add(block);
+                });
+
+                islandGroup.position.set(x, -1, z);
+                return islandGroup;
+            }
+
+            const island1 = createIsland(-15, -45, 1.2);
+            const island2 = createIsland(-8, -50, 0.9);
+            scene.add(island1);
+            scene.add(island2);
+
+            // ===== PALM TREES =====
+            function createPalmTree(x, z, height) {
+                const palmGroup = new THREE.Group();
+
+                // Trunk (stacked boxes)
+                const trunkSegments = Math.floor(height / 1.5);
+                for (let i = 0; i < trunkSegments; i++) {
+                    const segGeo = new THREE.BoxGeometry(0.6 - i * 0.05, 1.5, 0.6 - i * 0.05);
+                    const seg = new THREE.Mesh(segGeo, pixelMat(colors.palmTrunk));
+                    seg.position.set(
+                        Math.sin(i * 0.3) * 0.2,
+                        i * 1.4 + 0.7,
+                        0
+                    );
+                    seg.rotation.z = Math.sin(i * 0.5) * 0.1;
+                    palmGroup.add(seg);
+                }
+
+                // Palm fronds (flat boxes angled outward)
+                const frondCount = 7;
+                for (let i = 0; i < frondCount; i++) {
+                    const angle = (i / frondCount) * Math.PI * 2;
+                    const frondGeo = new THREE.BoxGeometry(0.4, 0.15, 3);
+                    const frondColor = i % 2 === 0 ? colors.palmLeaf : colors.palmLeafLight;
+                    const frond = new THREE.Mesh(frondGeo, pixelMat(frondColor));
+                    frond.position.set(
+                        Math.cos(angle) * 1.2,
+                        height - 0.5,
+                        Math.sin(angle) * 1.2 - 1
+                    );
+                    frond.rotation.x = 0.5;
+                    frond.rotation.y = angle;
+                    frond.rotation.z = 0.3;
+                    frond.userData = { baseRotZ: frond.rotation.z, angle: angle };
+                    palmGroup.add(frond);
+                }
+
+                // Coconuts
+                for (let i = 0; i < 3; i++) {
+                    const coconutGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
+                    const coconut = new THREE.Mesh(coconutGeo, pixelMat(0x8b4513));
+                    coconut.position.set(
+                        Math.cos(i * 2) * 0.3,
+                        height - 1.2,
+                        Math.sin(i * 2) * 0.3
+                    );
+                    palmGroup.add(coconut);
+                }
+
+                palmGroup.position.set(x, -1, z);
+                return palmGroup;
+            }
+
+            const palms = [];
+            // Left side palms
+            palms.push(createPalmTree(-12, 8, 8));
+            palms.push(createPalmTree(-18, 12, 10));
+            palms.push(createPalmTree(-22, 6, 7));
+            // Right side palms
+            palms.push(createPalmTree(14, 10, 9));
+            palms.push(createPalmTree(20, 8, 11));
+            palms.push(createPalmTree(10, 15, 6));
+
+            palms.forEach(p => scene.add(p));
+
+            // ===== CLOUDS =====
+            function createCloud(x, y, z, scale) {
+                const cloudGroup = new THREE.Group();
+                const puffs = [
+                    { x: 0, y: 0, z: 0, s: 1 },
+                    { x: 1.2, y: 0.2, z: 0, s: 0.8 },
+                    { x: -1, y: 0.1, z: 0, s: 0.7 },
+                    { x: 0.5, y: 0.5, z: 0, s: 0.6 },
+                    { x: -0.5, y: 0.4, z: 0, s: 0.5 }
+                ];
+
+                puffs.forEach(p => {
+                    const puffGeo = new THREE.BoxGeometry(2 * p.s * scale, 1 * p.s * scale, 1 * p.s * scale);
+                    const puff = new THREE.Mesh(puffGeo, pixelMat(colors.cloud));
+                    puff.position.set(p.x * scale, p.y * scale, p.z * scale);
+                    cloudGroup.add(puff);
+                });
+
+                cloudGroup.position.set(x, y, z);
+                cloudGroup.userData = { baseX: x, speed: 0.01 + Math.random() * 0.02 };
+                return cloudGroup;
+            }
+
+            const clouds = [];
+            clouds.push(createCloud(-20, 15, -40, 2));
+            clouds.push(createCloud(15, 18, -45, 1.5));
+            clouds.push(createCloud(-5, 20, -50, 2.5));
+            clouds.push(createCloud(25, 14, -35, 1.8));
+            clouds.forEach(c => scene.add(c));
+
+            // ===== BIRDS (simple V shapes) =====
+            const birds = [];
+            for (let i = 0; i < 5; i++) {
+                const birdGroup = new THREE.Group();
+                const wingGeo = new THREE.BoxGeometry(0.8, 0.1, 0.3);
+                const wingMat = pixelMat(0x333333);
+
+                const leftWing = new THREE.Mesh(wingGeo, wingMat);
+                leftWing.position.set(-0.3, 0, 0);
+                leftWing.rotation.z = 0.3;
+                birdGroup.add(leftWing);
+
+                const rightWing = new THREE.Mesh(wingGeo, wingMat);
+                rightWing.position.set(0.3, 0, 0);
+                rightWing.rotation.z = -0.3;
+                birdGroup.add(rightWing);
+
+                birdGroup.position.set(
+                    (Math.random() - 0.5) * 40,
+                    10 + Math.random() * 8,
+                    -30 + Math.random() * 10
+                );
+                birdGroup.userData = {
+                    speed: 0.02 + Math.random() * 0.03,
+                    flapOffset: Math.random() * Math.PI * 2
+                };
+                birds.push(birdGroup);
+                scene.add(birdGroup);
+            }
+
+            // ===== BEACH ITEMS =====
+            // Surfboard
+            const surfboardGeo = new THREE.BoxGeometry(0.5, 0.15, 2.5);
+            const surfboard = new THREE.Mesh(surfboardGeo, pixelMat(0xff6b9d));
+            surfboard.position.set(5, -0.8, 12);
+            surfboard.rotation.y = 0.3;
+            scene.add(surfboard);
+
+            // Beach umbrella
+            const umbrellaGroup = new THREE.Group();
+            const poleGeo = new THREE.BoxGeometry(0.2, 4, 0.2);
+            const pole = new THREE.Mesh(poleGeo, pixelMat(0x8b4513));
+            pole.position.set(0, 1, 0);
+            umbrellaGroup.add(pole);
+
+            const canopyGeo = new THREE.BoxGeometry(3, 0.3, 3);
+            const canopy = new THREE.Mesh(canopyGeo, pixelMat(0xff9a56));
+            canopy.position.set(0, 3, 0);
+            umbrellaGroup.add(canopy);
+            umbrellaGroup.position.set(-5, -1, 18);
+            scene.add(umbrellaGroup);
+
+            // Camera position (beach view looking at ocean)
+            camera.position.set(0, 3, 25);
+            camera.lookAt(0, 2, -20);
+
+            // Animation
+            let time = 0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.02;
+
+                // Animate waves
+                waveSegments.forEach((wave, i) => {
+                    wave.position.y = wave.userData.baseY + Math.sin(time + wave.userData.offset) * 0.15;
+                });
+
+                // Animate foam
+                foam.position.z = Math.sin(time * 0.5) * 1.5;
+                foam.scale.x = 1 + Math.sin(time) * 0.1;
+
+                // Animate clouds
+                clouds.forEach(cloud => {
+                    cloud.position.x += cloud.userData.speed;
+                    if (cloud.position.x > 50) cloud.position.x = -50;
+                });
+
+                // Animate birds
+                birds.forEach(bird => {
+                    bird.position.x += bird.userData.speed;
+                    bird.position.y += Math.sin(time * 3 + bird.userData.flapOffset) * 0.02;
+                    if (bird.position.x > 30) bird.position.x = -30;
+
+                    // Wing flap
+                    const flap = Math.sin(time * 8 + bird.userData.flapOffset) * 0.3;
+                    bird.children[0].rotation.z = 0.3 + flap;
+                    bird.children[1].rotation.z = -0.3 - flap;
+                });
+
+                // Animate palm fronds (gentle sway)
+                palms.forEach(palm => {
+                    palm.children.forEach(child => {
+                        if (child.userData.baseRotZ !== undefined) {
+                            child.rotation.z = child.userData.baseRotZ + Math.sin(time + child.userData.angle) * 0.1;
+                        }
+                    });
+                });
+
+                // Gentle camera sway
+                camera.position.x = Math.sin(time * 0.2) * 0.3;
+                camera.position.y = 3 + Math.cos(time * 0.15) * 0.2;
+
+                // Sun glow pulse
+                sunGlow.scale.set(
+                    1 + Math.sin(time) * 0.1,
+                    1 + Math.sin(time) * 0.1,
+                    1
+                );
+
+                renderer.render(scene, camera);
+            }
+
+            // Handle resize
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+
+            animate();
+        })();
+    </script>
+</body>
+</html>

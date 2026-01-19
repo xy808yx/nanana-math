@@ -419,6 +419,14 @@
         .answer-box.wrong {
             border-color: var(--error);
             background: rgba(255, 107, 107, 0.2);
+            animation: shake 0.4s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-10px); }
+            40% { transform: translateX(10px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
         }
 
         .feedback {
@@ -1118,19 +1126,20 @@
         body.large-text .answer-box { font-size: 3.5rem; }
         body.large-text .numpad button { font-size: 2.2rem; }
 
-        /* Analog Clock */
+        /* Analog Clock - Enhanced for visibility */
         .clock-face {
-            width: 120px;
-            height: 120px;
-            border: 4px solid var(--primary);
+            width: 140px;
+            height: 140px;
+            border: 5px solid var(--primary);
             border-radius: 50%;
             position: relative;
-            background: rgba(0,0,0,0.3);
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0.3) 100%);
             margin: 0 auto 15px;
+            box-shadow: 0 0 20px rgba(255, 215, 61, 0.3), inset 0 0 30px rgba(0,0,0,0.3);
         }
         .clock-center {
-            width: 10px;
-            height: 10px;
+            width: 14px;
+            height: 14px;
             background: var(--primary);
             border-radius: 50%;
             position: absolute;
@@ -1138,6 +1147,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 10;
+            box-shadow: 0 0 8px var(--primary);
         }
         .clock-hand {
             position: absolute;
@@ -1147,22 +1157,25 @@
             border-radius: 4px;
         }
         .clock-hand.hour {
-            width: 6px;
-            height: 30px;
+            width: 7px;
+            height: 35px;
             background: var(--primary);
-            margin-left: -3px;
+            margin-left: -3.5px;
+            box-shadow: 0 0 6px var(--primary);
         }
         .clock-hand.minute {
-            width: 4px;
-            height: 45px;
+            width: 5px;
+            height: 50px;
             background: var(--accent);
-            margin-left: -2px;
+            margin-left: -2.5px;
+            box-shadow: 0 0 6px var(--accent);
         }
         .clock-number {
             position: absolute;
-            font-size: 0.75rem;
-            font-weight: bold;
-            color: var(--text-dim);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text);
+            text-shadow: 0 0 4px rgba(0,0,0,0.5);
         }
 
         /* Coins */
@@ -2762,13 +2775,13 @@
                 clockHtml += `<div class="clock-hand hour" style="transform: rotate(${hourAngle}deg);"></div>`;
                 clockHtml += `<div class="clock-hand minute" style="transform: rotate(${minuteAngle}deg);"></div>`;
 
-                // Add clock numbers
+                // Add clock numbers (adjusted for 140px clock)
                 const numbers = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-                const radius = 45;
+                const radius = 52;
                 numbers.forEach((num, i) => {
                     const angle = (i * 30 - 90) * Math.PI / 180;
-                    const x = 60 + radius * Math.cos(angle) - 8;
-                    const y = 60 + radius * Math.sin(angle) - 8;
+                    const x = 70 + radius * Math.cos(angle) - 8;
+                    const y = 70 + radius * Math.sin(angle) - 8;
                     clockHtml += `<span class="clock-number" style="left:${x}px;top:${y}px;">${num}</span>`;
                 });
 

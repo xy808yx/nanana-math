@@ -922,9 +922,9 @@
     </div>
 
     <!-- Parent View Modal -->
-    <div class="modal" id="parentModal">
+    <div class="modal" id="parentModal" role="dialog" aria-modal="true" aria-labelledby="parentModalTitle">
         <div class="modal-content parent-view">
-            <div class="modal-title">📊 Progress Report</div>
+            <div class="modal-title" id="parentModalTitle">📊 Progress Report</div>
             <div class="parent-player" id="parentPlayerName"></div>
             <div class="parent-stats" id="parentStats"></div>
             <div class="parent-struggles" id="parentStruggles"></div>
@@ -933,9 +933,9 @@
     </div>
 
     <!-- Add Profile Modal -->
-    <div class="modal" id="addProfileModal">
+    <div class="modal" id="addProfileModal" role="dialog" aria-modal="true" aria-labelledby="addProfileModalTitle">
         <div class="modal-content">
-            <div class="modal-title">New Player</div>
+            <div class="modal-title" id="addProfileModalTitle">New Player</div>
             <div class="avatar-picker" id="avatarPicker"></div>
             <input type="text" class="name-input" id="nameInput" placeholder="Enter name" maxlength="12" aria-label="Player name" autocomplete="off">
             <div class="modal-buttons">
@@ -961,18 +961,18 @@
     </div>
 
     <!-- Achievements Modal -->
-    <div class="modal" id="achievementsModal">
+    <div class="modal" id="achievementsModal" role="dialog" aria-modal="true" aria-labelledby="achievementsModalTitle">
         <div class="modal-content" style="max-height:80vh;overflow-y:auto;">
-            <div class="modal-title">🏆 Achievements</div>
+            <div class="modal-title" id="achievementsModalTitle">🏆 Achievements</div>
             <div id="achievementsList" style="display:grid;gap:10px;"></div>
             <button class="modal-btn confirm" onclick="closeAchievements()" style="width:100%;margin-top:20px;" aria-label="Close achievements">Close</button>
         </div>
     </div>
 
     <!-- Settings Modal -->
-    <div class="modal" id="settingsModal">
+    <div class="modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
         <div class="modal-content">
-            <div class="modal-title">⚙️ Settings</div>
+            <div class="modal-title" id="settingsModalTitle">⚙️ Settings</div>
             <div style="margin-bottom:20px;">
                 <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Session Length</label>
                 <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;" id="sessionLengthOptions">

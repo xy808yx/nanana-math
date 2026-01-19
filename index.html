@@ -1217,6 +1217,8 @@
                 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
                 <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()" aria-label="Get a hint">💡 Need a hint?</button>
                 <div class="hint-text" id="hintText" style="display:none;"></div>
+                <button class="explain-btn" id="explainBtn" onclick="showExplanation()" aria-label="Show step by step solution">📝 Explain</button>
+                <div class="explanation-text" id="explanationText" style="display:none;"></div>
                 <button class="skip-btn" id="skipBtn" onclick="skipProblem()" aria-label="Skip this problem">⏭️ Too hard? Skip</button>
             </div>
 
@@ -1633,6 +1635,56 @@
             color: var(--accent);
             margin-top: 8px;
             font-style: italic;
+        }
+        .explain-btn {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 6px 14px;
+            border-radius: 15px;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.2s;
+        }
+        .explain-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: var(--accent);
+        }
+        .explanation-text {
+            font-size: 0.85rem;
+            color: var(--text);
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(255,107,157,0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255,107,157,0.3);
+            text-align: left;
+            line-height: 1.6;
+        }
+        .explanation-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .explanation-step:last-child {
+            margin-bottom: 0;
+            color: var(--success);
+            font-weight: 600;
+        }
+        .step-num {
+            background: var(--accent);
+            color: #000;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            flex-shrink: 0;
         }
         .skip-btn {
             background: transparent;
@@ -3362,6 +3414,99 @@
             }
         }
 
+        function showExplanation() {
+            if (!currentFact) return;
+
+            const explanationEl = document.getElementById('explanationText');
+            const explainBtn = document.getElementById('explainBtn');
+
+            // Hide the button after clicking
+            explainBtn.style.display = 'none';
+
+            // Generate step-by-step explanation
+            const steps = getExplanationSteps(currentFact);
+
+            let html = '';
+            steps.forEach((step, i) => {
+                html += `<div class="explanation-step">
+                    <span class="step-num">${i + 1}</span>
+                    <span>${step}</span>
+                </div>`;
+            });
+
+            explanationEl.innerHTML = html;
+            explanationEl.style.display = 'block';
+        }
+
+        function getExplanationSteps(fact) {
+            if (!fact) return [];
+
+            // Addition
+            if (fact.op === '+') {
+                return [
+                    `Start with ${fact.a}`,
+                    `Count up ${fact.b} more: ${Array.from({length: fact.b}, (_, i) => fact.a + i + 1).join(', ')}`,
+                    `The answer is ${fact.answer}`
+                ];
+            }
+
+            // Subtraction
+            if (fact.op === '-' || fact.op === '−') {
+                return [
+                    `Start with ${fact.a}`,
+                    `Count back ${fact.b}: ${Array.from({length: fact.b}, (_, i) => fact.a - i - 1).join(', ')}`,
+                    `The answer is ${fact.answer}`
+                ];
+            }
+
+            // Multiplication
+            if (fact.op === '×') {
+                const groups = Array.from({length: fact.b}, () => fact.a);
+                return [
+                    `Think: ${fact.a} groups of ${fact.b}`,
+                    `Count by ${fact.a}: ${Array.from({length: fact.b}, (_, i) => fact.a * (i + 1)).join(', ')}`,
+                    `The answer is ${fact.answer}`
+                ];
+            }
+
+            // Division
+            if (fact.op === '÷') {
+                return [
+                    `Share ${fact.a} into ${fact.b} equal groups`,
+                    `Each group gets ${fact.answer}`,
+                    `The answer is ${fact.answer}`
+                ];
+            }
+
+            // Word problems
+            if (fact.op === 'wordadd') {
+                return [
+                    `Read: ${fact.story}`,
+                    `Add: ${fact.a} + ${fact.b}`,
+                    `The answer is ${fact.answer}`
+                ];
+            }
+            if (fact.op === 'wordsub') {
+                return [
+                    `Read: ${fact.story}`,
+                    `Subtract: ${fact.a} - ${fact.b}`,
+                    `The answer is ${fact.answer}`
+                ];
+            }
+
+            // Default
+            return [
+                `Think about the problem`,
+                `Work it out step by step`,
+                `The answer is ${fact.answer}`
+            ];
+        }
+
+        function hideExplanation() {
+            document.getElementById('explanationText').style.display = 'none';
+            document.getElementById('explainBtn').style.display = 'inline-block';
+        }
+
         function getHintForFact(fact) {
             if (!fact) return '';
 
@@ -3399,6 +3544,8 @@
         function hideHint() {
             document.getElementById('hintBtn').style.display = 'none';
             document.getElementById('hintText').style.display = 'none';
+            document.getElementById('explanationText').style.display = 'none';
+            document.getElementById('explainBtn').style.display = 'inline-block';
             currentHint = '';
         }
 

@@ -928,7 +928,7 @@
             <div class="parent-player" id="parentPlayerName"></div>
             <div class="parent-stats" id="parentStats"></div>
             <div class="parent-struggles" id="parentStruggles"></div>
-            <button class="modal-btn confirm" onclick="closeParentView()" style="width:100%;margin-top:20px;">Close</button>
+            <button class="modal-btn confirm" onclick="closeParentView()" style="width:100%;margin-top:20px;" aria-label="Close progress report">Close</button>
         </div>
     </div>
 
@@ -939,8 +939,8 @@
             <div class="avatar-picker" id="avatarPicker"></div>
             <input type="text" class="name-input" id="nameInput" placeholder="Enter name" maxlength="12" aria-label="Player name" autocomplete="off">
             <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeAddProfile()">Cancel</button>
-                <button class="modal-btn confirm" onclick="saveNewProfile()">Create</button>
+                <button class="modal-btn cancel" onclick="closeAddProfile()" aria-label="Cancel creating new profile">Cancel</button>
+                <button class="modal-btn confirm" onclick="saveNewProfile()" aria-label="Create new profile">Create</button>
             </div>
         </div>
     </div>
@@ -965,7 +965,7 @@
         <div class="modal-content" style="max-height:80vh;overflow-y:auto;">
             <div class="modal-title">🏆 Achievements</div>
             <div id="achievementsList" style="display:grid;gap:10px;"></div>
-            <button class="modal-btn confirm" onclick="closeAchievements()" style="width:100%;margin-top:20px;">Close</button>
+            <button class="modal-btn confirm" onclick="closeAchievements()" style="width:100%;margin-top:20px;" aria-label="Close achievements">Close</button>
         </div>
     </div>
 
@@ -1004,7 +1004,7 @@
                     <button class="goal-option" onclick="setTextSize('large')">Large</button>
                 </div>
             </div>
-            <button class="modal-btn confirm" onclick="closeSettings()" style="width:100%;margin-top:10px;">Done</button>
+            <button class="modal-btn confirm" onclick="closeSettings()" style="width:100%;margin-top:10px;" aria-label="Close settings">Done</button>
         </div>
     </div>
 

@@ -476,6 +476,12 @@
             font-weight: 600;
             font-size: 1.2rem;
         }
+        .related-hint {
+            font-size: 0.85rem;
+            color: var(--accent);
+            margin-top: 5px;
+            display: inline-block;
+        }
 
         /* Numpad */
         .numpad {
@@ -975,7 +981,7 @@
                 <button onclick="numPress(7)" aria-label="7">7</button>
                 <button onclick="numPress(8)" aria-label="8">8</button>
                 <button onclick="numPress(9)" aria-label="9">9</button>
-                <button onclick="clearInput()" aria-label="Delete">←</button>
+                <button id="deleteBtn" onclick="clearInput()" onmousedown="startLongPress()" onmouseup="cancelLongPress()" ontouchstart="startLongPress()" ontouchend="cancelLongPress()" aria-label="Delete, hold to clear all">←</button>
                 <button onclick="numPress(0)" aria-label="0">0</button>
                 <button class="go-btn" onclick="checkAnswer()" aria-label="Submit answer">GO</button>
             </div>
@@ -3160,9 +3166,49 @@
             pomodoroTimeLeft--;
             updatePomodoroDisplay();
 
+            // Warning sounds at specific times
+            if (pomodoroTimeLeft === 300) { // 5 minutes left
+                playTimerWarning('medium');
+            } else if (pomodoroTimeLeft === 60) { // 1 minute left
+                playTimerWarning('urgent');
+            } else if (pomodoroTimeLeft === 10) { // 10 seconds left
+                playTimerWarning('critical');
+            }
+
             // Check if time is up
             if (pomodoroTimeLeft <= 0) {
                 triggerBreak('time');
+            }
+        }
+
+        function playTimerWarning(level) {
+            if (!soundEnabled) return;
+            initAudio();
+
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+
+            if (level === 'medium') {
+                // Gentle reminder
+                oscillator.frequency.value = 440;
+                gain.gain.value = 0.1;
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.2);
+            } else if (level === 'urgent') {
+                // More urgent
+                oscillator.frequency.value = 520;
+                gain.gain.value = 0.12;
+                oscillator.start();
+                setTimeout(() => oscillator.frequency.value = 440, 150);
+                oscillator.stop(audioContext.currentTime + 0.3);
+            } else if (level === 'critical') {
+                // Final countdown
+                oscillator.frequency.value = 600;
+                gain.gain.value = 0.15;
+                oscillator.start();
+                oscillator.stop(audioContext.currentTime + 0.15);
             }
         }
 
@@ -3649,6 +3695,29 @@
             vibrate(10);
         }
 
+        // Long-press to clear all input
+        let longPressTimer = null;
+
+        function startLongPress() {
+            longPressTimer = setTimeout(() => {
+                clearAllInput();
+            }, 500); // 500ms hold to clear all
+        }
+
+        function cancelLongPress() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+        }
+
+        function clearAllInput() {
+            currentInput = '';
+            updateAnswerDisplay();
+            playSound('tap');
+            vibrate([20, 10, 20]); // Double vibration to indicate clear all
+        }
+
         function updateAnswerDisplay() {
             document.getElementById('answerBox').textContent = currentInput || '|';
         }
@@ -3821,8 +3890,12 @@
                 answerText = '30 (half past)';
             }
 
+            // Get related facts to help learning
+            const relatedHint = getRelatedFactsHint(currentFact);
+
             document.getElementById('feedback').innerHTML = `
                 <span class="correct-answer">The answer is ${answerText}</span>
+                ${relatedHint ? `<br><span class="related-hint">${relatedHint}</span>` : ''}
             `;
             document.getElementById('feedback').className = 'feedback wrong';
 
@@ -3834,6 +3907,37 @@
             if (currentHint) {
                 document.getElementById('hintBtn').style.display = 'inline-block';
             }
+        }
+
+        function getRelatedFactsHint(fact) {
+            if (!fact) return '';
+
+            // For addition, show nearby doubles
+            if (fact.op === '+') {
+                if (fact.a === fact.b) {
+                    return `💡 Double: ${fact.a}+${fact.a}=${fact.a*2}`;
+                }
+                const smaller = Math.min(fact.a, fact.b);
+                return `💡 ${smaller}+${smaller}=${smaller*2}, then add ${Math.abs(fact.a - fact.b)}`;
+            }
+
+            // For subtraction, show the related addition
+            if (fact.op === '-' || fact.op === '−') {
+                return `💡 Related: ${fact.answer}+${fact.b}=${fact.a}`;
+            }
+
+            // For multiplication, show skip counting
+            if (fact.op === '×') {
+                if (fact.b <= 3) {
+                    const steps = [];
+                    for (let i = 1; i <= fact.b; i++) {
+                        steps.push(fact.a * i);
+                    }
+                    return `💡 Count by ${fact.a}: ${steps.join(', ')}`;
+                }
+            }
+
+            return '';
         }
 
         function checkTierAdvancement() {

@@ -580,6 +580,17 @@
             font-weight: 700;
             margin-bottom: 20px;
             letter-spacing: 4px;
+            animation: problem-appear 0.3s ease-out;
+        }
+        @keyframes problem-appear {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .problem.fade-out {
+            animation: problem-fade 0.15s ease-in forwards;
+        }
+        @keyframes problem-fade {
+            to { opacity: 0; transform: scale(0.95); }
         }
 
         /* Word problem formatting */
@@ -4219,6 +4230,12 @@
 
             // Display word problems with better formatting
             const problemEl = document.getElementById('problem');
+
+            // Reset animation by removing and re-adding
+            problemEl.style.animation = 'none';
+            problemEl.offsetHeight; // Force reflow
+            problemEl.style.animation = '';
+
             if (currentFact.isWordProblem && currentFact.wordProblemParts) {
                 const parts = currentFact.wordProblemParts;
                 problemEl.innerHTML = `

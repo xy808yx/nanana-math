@@ -211,6 +211,30 @@
             font-weight: 700;
             color: var(--success);
         }
+        .streak-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 15px;
+        }
+        .streak-icon {
+            font-size: 1.2rem;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+        .streak-display.active .streak-icon {
+            opacity: 1;
+            animation: streak-glow 0.5s ease;
+        }
+        .streak-count {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        @keyframes streak-glow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.5; }
@@ -839,6 +863,10 @@
                 <div class="pomodoro-timer">
                     <span class="pomodoro-time" id="pomodoroTime">25:00</span>
                     <span class="pomodoro-label">remaining</span>
+                </div>
+                <div class="streak-display" id="streakDisplay">
+                    <span class="streak-icon">🔥</span>
+                    <span class="streak-count" id="currentStreak">0</span>
                 </div>
                 <div class="mastery-tracker">
                     <span class="mastery-progress" id="masteryProgress">0</span>/<span id="masteryGoalDisplay">5</span> ⭐ mastered
@@ -3553,6 +3581,19 @@
             return ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
         }
 
+        function updateStreakDisplay() {
+            const streakEl = document.getElementById('currentStreak');
+            const streakContainer = document.getElementById('streakDisplay');
+            if (streakEl) {
+                streakEl.textContent = sessionStats.correctStreak;
+                if (sessionStats.correctStreak > 0) {
+                    streakContainer.classList.add('active');
+                } else {
+                    streakContainer.classList.remove('active');
+                }
+            }
+        }
+
         function handleCorrectAnswer(progress, key) {
             sessionStats.correct++;
             sessionStats.correctStreak++;
@@ -3563,6 +3604,9 @@
             if (sessionStats.correctStreak > (currentProfile.bestStreak || 0)) {
                 currentProfile.bestStreak = sessionStats.correctStreak;
             }
+
+            // Update streak display
+            updateStreakDisplay();
 
             document.getElementById('answerBox').classList.add('correct');
             document.getElementById('feedback').textContent = getEncouragement(sessionStats.correctStreak);
@@ -3590,6 +3634,7 @@
         function handleWrongAnswer(progress, key) {
             sessionStats.wrong++;
             sessionStats.correctStreak = 0; // Reset streak on wrong answer
+            updateStreakDisplay();
             progress.wrong++;
 
             // If was mastered, might need to un-master with too many errors

@@ -573,6 +573,17 @@
             margin-top: 5px;
         }
 
+        /* Strategy tips */
+        .strategy-tip {
+            color: var(--accent);
+            font-style: italic;
+            animation: tip-fade-in 0.5s ease;
+        }
+        @keyframes tip-fade-in {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .answer-box {
             font-size: 2.5rem;
             font-weight: 600;
@@ -4030,7 +4041,14 @@
                 hintEl.textContent = hints[currentFact.op];
                 hintEl.style.display = 'block';
             } else {
-                hintEl.style.display = 'none';
+                // Show strategy tips occasionally (20% of the time)
+                const strategyTip = getStrategyTip(currentFact);
+                if (strategyTip && Math.random() < 0.2) {
+                    hintEl.innerHTML = `<span class="strategy-tip">💡 ${strategyTip}</span>`;
+                    hintEl.style.display = 'block';
+                } else {
+                    hintEl.style.display = 'none';
+                }
             }
 
             // Audio/Visual aids
@@ -4331,6 +4349,76 @@
             if (currentHint) {
                 document.getElementById('hintBtn').style.display = 'inline-block';
             }
+        }
+
+        // ============================================
+        // STRATEGY TIPS
+        // ============================================
+        function getStrategyTip(fact) {
+            if (!fact) return '';
+
+            // Addition strategies
+            if (fact.op === '+') {
+                // Doubles strategy
+                if (fact.a === fact.b) {
+                    return `Doubles are easy to memorize: ${fact.a}+${fact.a}`;
+                }
+                // Near doubles (difference of 1)
+                if (Math.abs(fact.a - fact.b) === 1) {
+                    const smaller = Math.min(fact.a, fact.b);
+                    return `Near double! Double ${smaller} then add 1`;
+                }
+                // Making 10
+                if (fact.a + fact.b > 10 && fact.a <= 10 && fact.b <= 10) {
+                    const larger = Math.max(fact.a, fact.b);
+                    const smaller = Math.min(fact.a, fact.b);
+                    const toTen = 10 - larger;
+                    if (toTen > 0 && toTen < smaller) {
+                        return `Make 10 first: ${larger}+${toTen}=10, then +${smaller-toTen}`;
+                    }
+                }
+                // Count on from larger
+                if (fact.b <= 3 && fact.a > fact.b) {
+                    return `Start at ${fact.a} and count up ${fact.b}`;
+                }
+                if (fact.a <= 3 && fact.b > fact.a) {
+                    return `Start at ${fact.b} and count up ${fact.a}`;
+                }
+            }
+
+            // Subtraction strategies
+            if (fact.op === '-' || fact.op === '−') {
+                // Count back for small subtrahend
+                if (fact.b <= 3) {
+                    return `Count back from ${fact.a}: ${fact.a}, ${fact.a-1}...`;
+                }
+                // Think addition
+                if (fact.a <= 10) {
+                    return `Think: ${fact.answer} + ${fact.b} = ${fact.a}`;
+                }
+            }
+
+            // Multiplication strategies
+            if (fact.op === '×') {
+                // Times 2 is doubling
+                if (fact.b === 2) {
+                    return `×2 means double it!`;
+                }
+                // Times 5 - count by 5s
+                if (fact.b === 5 || fact.a === 5) {
+                    return `Count by 5s: 5, 10, 15, 20...`;
+                }
+                // Times 10 - add a zero
+                if (fact.b === 10 || fact.a === 10) {
+                    return `×10 means add a zero!`;
+                }
+                // Skip counting for small multipliers
+                if (fact.b <= 3) {
+                    return `Skip count by ${fact.a}: ${fact.a}, ${fact.a*2}, ${fact.a*3}`;
+                }
+            }
+
+            return '';
         }
 
         function getRelatedFactsHint(fact) {

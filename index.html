@@ -656,6 +656,15 @@
             min-width: 120px;
             display: inline-block;
             min-height: 70px;
+            transition: border-color 0.15s ease, transform 0.1s ease;
+        }
+        .answer-box.typing-pulse {
+            animation: input-pulse 0.15s ease-out;
+        }
+        @keyframes input-pulse {
+            0% { transform: scale(1); border-color: rgba(255,255,255,0.2); }
+            50% { transform: scale(1.02); border-color: var(--primary); }
+            100% { transform: scale(1); border-color: rgba(255,255,255,0.2); }
         }
         .answer-box.correct {
             border-color: var(--success);
@@ -4393,6 +4402,12 @@
             updateAnswerDisplay();
             playSound('tap');
             vibrate(10);
+
+            // Trigger typing pulse animation
+            const answerBox = document.getElementById('answerBox');
+            answerBox.classList.remove('typing-pulse');
+            void answerBox.offsetWidth; // Force reflow to restart animation
+            answerBox.classList.add('typing-pulse');
         }
 
         function clearInput() {

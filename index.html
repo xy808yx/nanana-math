@@ -3531,6 +3531,28 @@
             setTimeout(nextFn, isCorrect ? 800 : 2000);
         }
 
+        // Varied encouragement messages
+        const ENCOURAGEMENTS = [
+            '✓ Correct!', '✓ Nice!', '✓ Great!', '✓ Awesome!', '✓ Perfect!',
+            '✓ You got it!', '✓ Well done!', '✓ Super!', '✓ Fantastic!', '✓ Excellent!'
+        ];
+        const STREAK_MESSAGES = {
+            3: '🔥 3 in a row!',
+            5: '🔥 5 streak! On fire!',
+            10: '⚡ 10 streak! Amazing!',
+            15: '💫 15 streak! Incredible!',
+            20: '🌟 20 streak! Superstar!'
+        };
+
+        function getEncouragement(streak) {
+            // Check for streak milestone first
+            if (STREAK_MESSAGES[streak]) {
+                return STREAK_MESSAGES[streak];
+            }
+            // Random encouragement
+            return ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)];
+        }
+
         function handleCorrectAnswer(progress, key) {
             sessionStats.correct++;
             sessionStats.correctStreak++;
@@ -3543,7 +3565,7 @@
             }
 
             document.getElementById('answerBox').classList.add('correct');
-            document.getElementById('feedback').textContent = '✓ Correct!';
+            document.getElementById('feedback').textContent = getEncouragement(sessionStats.correctStreak);
             document.getElementById('feedback').className = 'feedback correct';
 
             playSound('correct');

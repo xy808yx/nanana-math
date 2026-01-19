@@ -584,6 +584,34 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* Difficulty indicator */
+        .difficulty-indicator {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+        .difficulty-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: background 0.3s ease;
+        }
+        .difficulty-indicator[data-level="1"] .difficulty-dot:nth-child(1) {
+            background: var(--success);
+            box-shadow: 0 0 5px var(--success);
+        }
+        .difficulty-indicator[data-level="2"] .difficulty-dot:nth-child(1),
+        .difficulty-indicator[data-level="2"] .difficulty-dot:nth-child(2) {
+            background: var(--primary);
+            box-shadow: 0 0 5px var(--primary);
+        }
+        .difficulty-indicator[data-level="3"] .difficulty-dot {
+            background: var(--accent);
+            box-shadow: 0 0 5px var(--accent);
+        }
+
         .answer-box {
             font-size: 2.5rem;
             font-weight: 600;
@@ -1179,6 +1207,11 @@
                 <div class="number-line-container" id="numberLineContainer" style="display:none;"></div>
                 <div class="clock-container" id="clockContainer" style="display:none;"></div>
                 <div class="problem-hint" id="problemHint" style="display:none;font-size:0.9rem;color:var(--text-dim);margin-bottom:5px;"></div>
+                <div class="difficulty-indicator" id="difficultyIndicator" style="display:none;">
+                    <span class="difficulty-dot"></span>
+                    <span class="difficulty-dot"></span>
+                    <span class="difficulty-dot"></span>
+                </div>
                 <div class="problem" id="problem">3 + 2</div>
                 <div class="answer-box" id="answerBox">|</div>
                 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
@@ -4054,6 +4087,44 @@
             // Audio/Visual aids
             renderDots(currentFact);
             speakProblem(currentFact);
+
+            // Show difficulty indicator
+            updateDifficultyIndicator(currentFact);
+        }
+
+        function updateDifficultyIndicator(fact) {
+            const indicator = document.getElementById('difficultyIndicator');
+            if (!fact) {
+                indicator.style.display = 'none';
+                return;
+            }
+
+            // Calculate difficulty level (1=easy, 2=medium, 3=hard)
+            let difficulty = 1;
+
+            // Basic operations difficulty
+            if (fact.op === '+' || fact.op === '-' || fact.op === '−') {
+                const maxNum = Math.max(fact.a, fact.b);
+                const sum = fact.op === '+' ? fact.a + fact.b : fact.a;
+                if (maxNum > 10 || sum > 12) difficulty = 3;
+                else if (maxNum > 5 || sum > 10) difficulty = 2;
+            }
+            // Multiplication difficulty
+            else if (fact.op === '×') {
+                const product = fact.a * fact.b;
+                if (fact.a > 5 || fact.b > 5 || product > 50) difficulty = 3;
+                else if (fact.a > 3 || fact.b > 3) difficulty = 2;
+            }
+            // Complex operations are medium or hard
+            else if (['wordadd', 'wordsub', 'clock', 'clockhalf', 'clockquarter', 'coins', 'mixedcoins'].includes(fact.op)) {
+                difficulty = 2;
+            }
+            else if (['÷', 'family', 'pattern', 'order'].includes(fact.op)) {
+                difficulty = 3;
+            }
+
+            indicator.setAttribute('data-level', difficulty);
+            indicator.style.display = 'flex';
         }
 
         function selectSmartFact(tier) {

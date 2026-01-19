@@ -750,6 +750,7 @@
 
             <div class="problem-area">
                 <div class="dots-container" id="dotsContainer"></div>
+                <div class="problem-hint" id="problemHint" style="display:none;font-size:0.9rem;color:var(--text-dim);margin-bottom:5px;"></div>
                 <div class="problem" id="problem">3 + 2</div>
                 <div class="answer-box" id="answerBox">|</div>
                 <div class="feedback" id="feedback"></div>
@@ -985,6 +986,48 @@
                 name: 'Missing Number −',
                 facts: generateMissingSubtractionFacts(10),
                 requiredMastery: 0.9
+            },
+            {
+                id: 'compare20',
+                name: 'Compare Numbers',
+                facts: generateComparisonFacts(20),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'placevalue_tens',
+                name: 'Place Value: Tens',
+                facts: generatePlaceValueTensFacts(),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'placevalue_ones',
+                name: 'Place Value: Ones',
+                facts: generatePlaceValueOnesFacts(),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'placevalue_build',
+                name: 'Build Numbers',
+                facts: generatePlaceValueBuildFacts(),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'fractions_half',
+                name: 'Fractions: Halves',
+                facts: generateFractionFacts('half'),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'fractions_quarter',
+                name: 'Fractions: Quarters',
+                facts: generateFractionFacts('quarter'),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'compare100',
+                name: 'Compare to 100',
+                facts: generateComparisonFacts(100),
+                requiredMastery: 0.9
             }
         ];
 
@@ -1076,6 +1119,115 @@
                             result: result
                         });
                     }
+                }
+            }
+            return facts;
+        }
+
+        function generateComparisonFacts(max) {
+            const facts = [];
+            // "Which is bigger?" - answer is the larger number
+            // Generate pairs with various display orders (deterministic based on values)
+            for (let a = 1; a <= max; a++) {
+                for (let b = a + 1; b <= Math.min(a + 10, max); b++) {
+                    // Use sum to deterministically decide order (keeps progress consistent)
+                    if ((a + b) % 2 === 0) {
+                        facts.push({
+                            a, b,
+                            op: 'compare',
+                            answer: b,
+                            display: `${a} ○ ${b}`,
+                            smaller: a,
+                            bigger: b
+                        });
+                    } else {
+                        facts.push({
+                            a: b, b: a,
+                            op: 'compare',
+                            answer: b,
+                            display: `${b} ○ ${a}`,
+                            smaller: a,
+                            bigger: b
+                        });
+                    }
+                }
+            }
+            return facts;
+        }
+
+        function generatePlaceValueTensFacts() {
+            const facts = [];
+            // "How many tens in 43?" → 4
+            for (let tens = 1; tens <= 9; tens++) {
+                for (let ones = 0; ones <= 9; ones++) {
+                    const num = tens * 10 + ones;
+                    facts.push({
+                        a: num,
+                        op: 'tens',
+                        answer: tens,
+                        display: `Tens in ${num}?`
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generatePlaceValueOnesFacts() {
+            const facts = [];
+            // "How many ones in 43?" → 3
+            for (let tens = 1; tens <= 9; tens++) {
+                for (let ones = 0; ones <= 9; ones++) {
+                    const num = tens * 10 + ones;
+                    facts.push({
+                        a: num,
+                        op: 'ones',
+                        answer: ones,
+                        display: `Ones in ${num}?`
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generatePlaceValueBuildFacts() {
+            const facts = [];
+            // "3 tens + 7 ones = ?" → 37
+            for (let tens = 1; tens <= 9; tens++) {
+                for (let ones = 0; ones <= 9; ones++) {
+                    const num = tens * 10 + ones;
+                    facts.push({
+                        a: tens,
+                        b: ones,
+                        op: 'build',
+                        answer: num,
+                        display: `${tens} tens + ${ones} ones`
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generateFractionFacts(type) {
+            const facts = [];
+            if (type === 'half') {
+                // "Half of 8 = ?" → 4
+                for (let num = 2; num <= 20; num += 2) {
+                    facts.push({
+                        a: num,
+                        op: 'half',
+                        answer: num / 2,
+                        display: `½ of ${num} = ?`
+                    });
+                }
+            } else if (type === 'quarter') {
+                // "Quarter of 12 = ?" → 3
+                for (let num = 4; num <= 40; num += 4) {
+                    facts.push({
+                        a: num,
+                        op: 'quarter',
+                        answer: num / 4,
+                        display: `¼ of ${num} = ?`
+                    });
                 }
             }
             return facts;
@@ -1175,6 +1327,18 @@
                 text = `${fact.a} plus what equals ${fact.sum}?`;
             } else if (fact.op === '-?') {
                 text = `${fact.a} minus what equals ${fact.result}?`;
+            } else if (fact.op === 'compare') {
+                text = `Which is bigger? ${fact.a} or ${fact.b}?`;
+            } else if (fact.op === 'tens') {
+                text = `How many tens are in ${fact.a}?`;
+            } else if (fact.op === 'ones') {
+                text = `How many ones are in ${fact.a}?`;
+            } else if (fact.op === 'build') {
+                text = `${fact.a} tens and ${fact.b} ones equals what?`;
+            } else if (fact.op === 'half') {
+                text = `What is half of ${fact.a}?`;
+            } else if (fact.op === 'quarter') {
+                text = `What is one quarter of ${fact.a}?`;
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
@@ -1213,8 +1377,13 @@
                 return;
             }
 
-            // Skip dots for multiplication, division, or numbers > 12
-            if (fact.op === '×' || fact.op === '÷' || fact.a > 12 || fact.b > 12) {
+            // Skip dots for multiplication, division, or numbers > 12 (except for special ops)
+            const skipOps = ['×', '÷', 'tens', 'ones', 'build'];
+            if (skipOps.includes(fact.op)) {
+                container.innerHTML = '';
+                return;
+            }
+            if ((fact.op === '+' || fact.op === '-' || fact.op === '−') && (fact.a > 12 || fact.b > 12)) {
                 container.innerHTML = '';
                 return;
             }
@@ -1266,6 +1435,37 @@
                 html += '<div class="dot-group">';
                 for (let i = 0; i < fact.result; i++) html += '<div class="dot second"></div>';
                 html += '</div>';
+            }
+            // Comparison: show two groups side by side
+            else if (fact.op === 'compare' && fact.a <= 12 && fact.b <= 12) {
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.a; i++) html += '<div class="dot"></div>';
+                html += '</div>';
+                html += '<div class="dots-operator">vs</div>';
+                html += '<div class="dot-group">';
+                for (let i = 0; i < fact.b; i++) html += '<div class="dot second"></div>';
+                html += '</div>';
+            }
+            // Fractions: show visual representation
+            else if (fact.op === 'half') {
+                // Show a bar divided in half with one part shaded
+                html = `<div style="display:flex;gap:4px;">`;
+                html += `<div style="width:40px;height:40px;background:var(--primary);border-radius:4px;"></div>`;
+                html += `<div style="width:40px;height:40px;background:rgba(255,255,255,0.1);border:2px solid var(--primary);border-radius:4px;"></div>`;
+                html += `</div>`;
+                html += `<div class="dots-equals">=</div>`;
+                html += `<div class="dots-result">?</div>`;
+            }
+            else if (fact.op === 'quarter') {
+                // Show a bar divided in quarters with one part shaded
+                html = `<div style="display:flex;gap:4px;">`;
+                html += `<div style="width:30px;height:30px;background:var(--accent);border-radius:4px;"></div>`;
+                for (let i = 0; i < 3; i++) {
+                    html += `<div style="width:30px;height:30px;background:rgba(255,255,255,0.1);border:2px solid var(--accent);border-radius:4px;"></div>`;
+                }
+                html += `</div>`;
+                html += `<div class="dots-equals">=</div>`;
+                html += `<div class="dots-result">?</div>`;
             }
 
             container.innerHTML = html;
@@ -1482,6 +1682,27 @@
             document.getElementById('feedback').textContent = '';
             document.getElementById('feedback').className = 'feedback';
             document.getElementById('answerBox').className = 'answer-box';
+
+            // Show hints for certain problem types
+            const hintEl = document.getElementById('problemHint');
+            if (currentFact.op === 'compare') {
+                hintEl.textContent = 'Type the bigger number';
+                hintEl.style.display = 'block';
+            } else if (currentFact.op === 'tens') {
+                hintEl.textContent = 'How many tens?';
+                hintEl.style.display = 'block';
+            } else if (currentFact.op === 'ones') {
+                hintEl.textContent = 'How many ones?';
+                hintEl.style.display = 'block';
+            } else if (currentFact.op === 'build') {
+                hintEl.textContent = 'Build the number';
+                hintEl.style.display = 'block';
+            } else if (currentFact.op === 'half' || currentFact.op === 'quarter') {
+                hintEl.textContent = 'Find the fraction';
+                hintEl.style.display = 'block';
+            } else {
+                hintEl.style.display = 'none';
+            }
 
             // Audio/Visual aids
             renderDots(currentFact);

@@ -793,6 +793,57 @@
             margin-bottom: 25px;
         }
 
+        /* Onboarding modal styles */
+        .onboarding-content {
+            text-align: center;
+            min-height: 180px;
+        }
+        .onboarding-step {
+            animation: fade-in 0.3s ease;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .onboarding-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        .onboarding-step h3 {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        .onboarding-step p {
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        .onboarding-nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .onboarding-dots {
+            display: flex;
+            gap: 8px;
+        }
+        .onboarding-dots .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: none;
+        }
+        .onboarding-dots .dot.active {
+            background: var(--primary);
+            box-shadow: 0 0 8px var(--primary);
+        }
+
         .avatar-picker {
             display: flex;
             justify-content: center;
@@ -1130,6 +1181,44 @@
                 </div>
             </div>
             <button class="modal-btn confirm" onclick="closeSettings()" style="width:100%;margin-top:10px;" aria-label="Close settings">Done</button>
+        </div>
+    </div>
+
+    <!-- Onboarding Modal for First-time Users -->
+    <div class="modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingModalTitle">
+        <div class="modal-content" style="max-width:360px;">
+            <div class="modal-title" id="onboardingModalTitle">👋 Welcome!</div>
+            <div id="onboardingContent" class="onboarding-content">
+                <div class="onboarding-step" data-step="1">
+                    <div class="onboarding-icon">🔢</div>
+                    <h3>Solve Math Problems</h3>
+                    <p>Math facts will appear on screen. Type your answer using the number pad or keyboard.</p>
+                </div>
+                <div class="onboarding-step" data-step="2" style="display:none;">
+                    <div class="onboarding-icon">⏭️</div>
+                    <h3>Stuck? Skip It!</h3>
+                    <p>If a problem is too hard, tap "Skip" - we'll come back to it later when you're ready.</p>
+                </div>
+                <div class="onboarding-step" data-step="3" style="display:none;">
+                    <div class="onboarding-icon">⏱️</div>
+                    <h3>Take Breaks</h3>
+                    <p>Practice in 25-minute sessions with 5-minute breaks. Rest is important for learning!</p>
+                </div>
+                <div class="onboarding-step" data-step="4" style="display:none;">
+                    <div class="onboarding-icon">⭐</div>
+                    <h3>Master Facts</h3>
+                    <p>Answer each fact correctly 4 times to master it. Watch your progress grow!</p>
+                </div>
+            </div>
+            <div class="onboarding-nav">
+                <div class="onboarding-dots">
+                    <span class="dot active" data-dot="1" onclick="goToOnboardingStep(1)"></span>
+                    <span class="dot" data-dot="2" onclick="goToOnboardingStep(2)"></span>
+                    <span class="dot" data-dot="3" onclick="goToOnboardingStep(3)"></span>
+                    <span class="dot" data-dot="4" onclick="goToOnboardingStep(4)"></span>
+                </div>
+                <button class="modal-btn confirm" id="onboardingNextBtn" onclick="nextOnboardingStep()" aria-label="Next tip">Next →</button>
+            </div>
         </div>
     </div>
 
@@ -3551,6 +3640,11 @@
             // Show practice screen
             showScreen('practiceScreen');
 
+            // Show onboarding for first-time users
+            if (currentProfile.totalSessions === 0) {
+                showOnboarding();
+            }
+
             // Start Pomodoro timer
             startPomodoro();
 
@@ -4315,6 +4409,63 @@
                     btn.classList.add('selected');
                 }
             });
+        }
+
+        // ============================================
+        // ONBOARDING
+        // ============================================
+        let onboardingStep = 1;
+        const totalOnboardingSteps = 4;
+
+        function showOnboarding() {
+            onboardingStep = 1;
+            updateOnboardingDisplay();
+            document.getElementById('onboardingModal').classList.add('active');
+        }
+
+        function nextOnboardingStep() {
+            if (onboardingStep < totalOnboardingSteps) {
+                onboardingStep++;
+                updateOnboardingDisplay();
+            } else {
+                closeOnboarding();
+            }
+        }
+
+        function goToOnboardingStep(step) {
+            onboardingStep = step;
+            updateOnboardingDisplay();
+        }
+
+        function updateOnboardingDisplay() {
+            // Hide all steps, show current
+            document.querySelectorAll('.onboarding-step').forEach(el => {
+                el.style.display = 'none';
+            });
+            const currentStepEl = document.querySelector(`.onboarding-step[data-step="${onboardingStep}"]`);
+            if (currentStepEl) {
+                currentStepEl.style.display = 'block';
+                currentStepEl.style.animation = 'none';
+                currentStepEl.offsetHeight; // Trigger reflow
+                currentStepEl.style.animation = 'fade-in 0.3s ease';
+            }
+
+            // Update dots
+            document.querySelectorAll('.onboarding-dots .dot').forEach(dot => {
+                dot.classList.toggle('active', parseInt(dot.dataset.dot) === onboardingStep);
+            });
+
+            // Update button text
+            const btn = document.getElementById('onboardingNextBtn');
+            if (onboardingStep === totalOnboardingSteps) {
+                btn.textContent = "Let's Go! 🚀";
+            } else {
+                btn.textContent = 'Next →';
+            }
+        }
+
+        function closeOnboarding() {
+            document.getElementById('onboardingModal').classList.remove('active');
         }
 
         // ============================================

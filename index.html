@@ -1503,6 +1503,61 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.1); }
         }
+
+        /* Last Session Summary */
+        .last-session {
+            display: none;
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+        .last-session.visible {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .last-session-icon {
+            font-size: 1.2rem;
+        }
+        .last-session-text {
+            flex: 1;
+            color: var(--text-dim);
+        }
+        .last-session-time {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        /* Focus Fact Highlight */
+        .focus-fact {
+            display: none;
+            background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(57, 255, 20, 0.02));
+            border: 1px solid rgba(57, 255, 20, 0.2);
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .focus-fact.visible {
+            display: block;
+        }
+        .focus-fact-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 5px;
+        }
+        .focus-fact-problem {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .focus-fact-hint {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -1548,6 +1603,19 @@
 
             <div class="motivation-message" id="motivationMessage">
                 "Practice makes progress!"
+            </div>
+
+            <div class="last-session" id="lastSession">
+                <div class="last-session-icon">📊</div>
+                <div class="last-session-text">
+                    Last session: <span class="last-session-time" id="lastSessionTime">-</span>
+                </div>
+            </div>
+
+            <div class="focus-fact" id="focusFact">
+                <div class="focus-fact-label">⭐ Focus Fact</div>
+                <div class="focus-fact-problem" id="focusFactProblem">3 + 2 = 5</div>
+                <div class="focus-fact-hint" id="focusFactHint">Practice this one today!</div>
             </div>
 
             <div class="dashboard-stats">
@@ -4707,6 +4775,43 @@
             const earnedCount = (profile.achievements || []).length;
             document.getElementById('dashAchievementDesc').textContent = `${earnedCount} badges earned`;
 
+            // Update last session info
+            const lastSessionEl = document.getElementById('lastSession');
+            const lastSessionTimeEl = document.getElementById('lastSessionTime');
+            if (profile.lastSessionTime) {
+                const lastTime = new Date(profile.lastSessionTime);
+                const now = new Date();
+                const diffMs = now - lastTime;
+                const diffMins = Math.floor(diffMs / 60000);
+                const diffHours = Math.floor(diffMs / 3600000);
+                const diffDays = Math.floor(diffMs / 86400000);
+
+                let timeText;
+                if (diffMins < 1) timeText = 'Just now';
+                else if (diffMins < 60) timeText = `${diffMins} min ago`;
+                else if (diffHours < 24) timeText = `${diffHours} hours ago`;
+                else if (diffDays === 1) timeText = 'Yesterday';
+                else timeText = `${diffDays} days ago`;
+
+                lastSessionTimeEl.textContent = timeText;
+                lastSessionEl.classList.add('visible');
+            } else {
+                lastSessionEl.classList.remove('visible');
+            }
+
+            // Update focus fact (most struggled fact)
+            const focusFactEl = document.getElementById('focusFact');
+            if (struggles.length > 0) {
+                const topStruggle = struggles.sort((a, b) => b.errorRate - a.errorRate)[0];
+                document.getElementById('focusFactProblem').textContent = topStruggle.display;
+                const progress = profile.factProgress[topStruggle.display];
+                document.getElementById('focusFactHint').textContent =
+                    `${progress.wrong} errors - practice makes perfect!`;
+                focusFactEl.classList.add('visible');
+            } else {
+                focusFactEl.classList.remove('visible');
+            }
+
             showScreen('dashboardScreen');
         }
 
@@ -5477,6 +5582,22 @@
         function showSessionComplete() {
             const total = sessionStats.correct + sessionStats.wrong;
             const accuracy = total > 0 ? Math.round((sessionStats.correct / total) * 100) : 0;
+
+            // Track last session time
+            currentProfile.lastSessionTime = Date.now();
+            currentProfile.totalSessions = (currentProfile.totalSessions || 0) + 1;
+            saveProfiles();
+
+            // Check if daily goal was just reached
+            const today = new Date().toISOString().split('T')[0];
+            const todayProgress = currentProfile.dailyProgress?.[today] || 0;
+            const previousGoalReached = currentProfile.lastGoalReachedDate === today;
+            if (todayProgress >= DAILY_GOAL && !previousGoalReached) {
+                currentProfile.lastGoalReachedDate = today;
+                saveProfiles();
+                showConfetti();
+                playSound('mastered');
+            }
 
             document.getElementById('sessionCorrect').textContent = sessionStats.correct;
             document.getElementById('sessionAccuracy').textContent = accuracy + '%';

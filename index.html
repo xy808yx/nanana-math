@@ -456,8 +456,17 @@
             -webkit-tap-highlight-color: transparent;
         }
         .numpad button:active {
-            transform: scale(0.95);
-            background: rgba(255,255,255,0.1);
+            transform: scale(0.92);
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 15px rgba(255, 215, 61, 0.3);
+        }
+        .numpad button.pressed {
+            animation: button-pop 0.15s ease-out;
+        }
+        @keyframes button-pop {
+            0% { transform: scale(0.92); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         .numpad .go-btn {
             background: var(--success);
@@ -465,6 +474,7 @@
         }
         .numpad .go-btn:active {
             background: #5ab868;
+            box-shadow: 0 0 20px rgba(107, 203, 119, 0.5);
         }
 
         /* Session Complete Screen */
@@ -3494,17 +3504,27 @@
         // ============================================
         // INPUT & ANSWER CHECKING
         // ============================================
+
+        // Haptic feedback for mobile devices
+        function vibrate(duration = 10) {
+            if ('vibrate' in navigator) {
+                navigator.vibrate(duration);
+            }
+        }
+
         function numPress(num) {
             if (currentInput.length >= 3) return;
             currentInput += num;
             updateAnswerDisplay();
             playSound('tap');
+            vibrate(10);
         }
 
         function clearInput() {
             currentInput = currentInput.slice(0, -1);
             updateAnswerDisplay();
             playSound('tap');
+            vibrate(10);
         }
 
         function updateAnswerDisplay() {
@@ -3608,6 +3628,14 @@
             // Update streak display
             updateStreakDisplay();
 
+            // Celebrate streak milestones with confetti
+            if ([5, 10, 15, 20].includes(sessionStats.correctStreak)) {
+                showConfetti();
+                vibrate([50, 30, 50]); // Celebration pattern
+            } else {
+                vibrate(30); // Normal correct vibration
+            }
+
             document.getElementById('answerBox').classList.add('correct');
             document.getElementById('feedback').textContent = getEncouragement(sessionStats.correctStreak);
             document.getElementById('feedback').className = 'feedback correct';
@@ -3635,6 +3663,7 @@
             sessionStats.wrong++;
             sessionStats.correctStreak = 0; // Reset streak on wrong answer
             updateStreakDisplay();
+            vibrate([100, 50, 100]); // Wrong answer vibration pattern
             progress.wrong++;
 
             // If was mastered, might need to un-master with too many errors

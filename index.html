@@ -472,6 +472,16 @@
         }
         .feedback.correct { color: var(--success); }
         .feedback.wrong { color: var(--error); }
+        .feedback.mastery-pulse {
+            animation: mastery-glow 0.5s ease;
+            color: var(--primary);
+            font-size: 1.4rem;
+            text-shadow: 0 0 20px var(--primary);
+        }
+        @keyframes mastery-glow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
         .correct-answer {
             font-weight: 600;
             font-size: 1.2rem;
@@ -3045,6 +3055,27 @@
             }, 4000);
         }
 
+        function showMiniConfetti() {
+            const container = document.getElementById('confettiContainer');
+            const colors = ['#ffd93d', '#6bcb77', '#4ecdc4'];
+
+            // Create 15 small confetti pieces (less than full confetti)
+            for (let i = 0; i < 15; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = (30 + Math.random() * 40) + '%'; // Concentrated in center
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = '50%';
+                confetti.style.animation = `confetti-fall ${1.5 + Math.random() * 1}s ease-out forwards`;
+
+                container.appendChild(confetti);
+            }
+
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 2500);
+        }
+
         // ============================================
         // TIMED CHALLENGE MODE
         // ============================================
@@ -3848,7 +3879,9 @@
                 progress.mastered = true;
                 sessionStats.newlyMastered.push(key);
                 document.getElementById('feedback').textContent = '⭐ Mastered!';
+                document.getElementById('feedback').classList.add('mastery-pulse');
                 playSound('mastered');
+                showMiniConfetti();
 
                 // Update mastery display and check if goal reached
                 if (pomodoroActive) updateMasteryDisplay();

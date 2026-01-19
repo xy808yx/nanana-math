@@ -687,12 +687,12 @@
             }
         ];
 
-        // Generate fact sets
+        // Generate fact sets (no trivial 0+x or x+0 facts)
         function generateAdditionFacts(max) {
             const facts = [];
-            for (let a = 0; a <= max; a++) {
-                for (let b = 0; b <= max - a; b++) {
-                    if (a + b <= max && a + b > 0) {
+            for (let a = 1; a <= max; a++) {
+                for (let b = 1; b <= max - a; b++) {
+                    if (a + b <= max) {
                         facts.push({ a, b, op: '+', answer: a + b, display: `${a} + ${b}` });
                     }
                 }
@@ -702,8 +702,9 @@
 
         function generateSubtractionFacts(max) {
             const facts = [];
-            for (let a = 1; a <= max; a++) {
-                for (let b = 0; b <= a; b++) {
+            for (let a = 2; a <= max; a++) {
+                // Start b at 1 to avoid trivial x-0 facts
+                for (let b = 1; b < a; b++) {
                     facts.push({ a, b, op: '-', answer: a - b, display: `${a} − ${b}` });
                 }
             }
@@ -720,7 +721,8 @@
 
         function generateMultiplicationFacts(multiplier) {
             const facts = [];
-            for (let a = 0; a <= 10; a++) {
+            // Start at 1 to avoid trivial 0×x facts
+            for (let a = 1; a <= 10; a++) {
                 facts.push({ a, b: multiplier, op: '×', answer: a * multiplier, display: `${a} × ${multiplier}` });
             }
             return facts;

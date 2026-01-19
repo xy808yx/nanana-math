@@ -1191,6 +1191,147 @@
             font-weight: 800;
             color: var(--text);
         }
+
+        /* Player Dashboard */
+        .dashboard-container {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .dashboard-back {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--text);
+        }
+        .dashboard-player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .dashboard-avatar {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+        .dashboard-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+        .dashboard-tier {
+            font-size: 0.95rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .dash-stat {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 15px 10px;
+            text-align: center;
+        }
+        .dash-stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .dash-stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+        }
+        .dashboard-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex: 1;
+        }
+        .dash-action {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.05);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 18px 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text);
+            text-align: left;
+        }
+        .dash-action:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+        .dash-action.primary {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #000;
+        }
+        .dash-action.primary:hover {
+            background: #2dd310;
+            transform: translateY(-2px);
+        }
+        .dash-action-icon {
+            font-size: 1.8rem;
+            width: 50px;
+            text-align: center;
+        }
+        .dash-action-content {
+            flex: 1;
+        }
+        .dash-action-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        .dash-action-desc {
+            font-size: 0.85rem;
+            opacity: 0.7;
+            margin-top: 3px;
+        }
+        .dash-action-arrow {
+            font-size: 1.2rem;
+            opacity: 0.5;
+        }
+        .dashboard-footer {
+            margin-top: auto;
+            padding-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .dash-footer-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 10px;
+        }
+        .dash-footer-btn:hover {
+            color: var(--primary);
+        }
     </style>
 </head>
 <body>
@@ -1200,6 +1341,80 @@
         <div class="app-title">Nanana Math</div>
         <div class="app-subtitle">Build strong math foundations</div>
         <div class="profiles-grid" id="profilesGrid"></div>
+    </div>
+
+    <!-- Player Dashboard Screen -->
+    <div class="screen" id="dashboardScreen">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <button class="dashboard-back" onclick="showProfiles()" aria-label="Back to profiles">←</button>
+                <div style="width:40px"></div>
+            </div>
+
+            <div class="dashboard-player">
+                <div class="dashboard-avatar" id="dashAvatar">🦊</div>
+                <div class="dashboard-name" id="dashName">Player</div>
+                <div class="dashboard-tier" id="dashTier">Addition to 5</div>
+            </div>
+
+            <div class="dashboard-stats">
+                <div class="dash-stat">
+                    <div class="dash-stat-value" id="dashStreak">0</div>
+                    <div class="dash-stat-label">Day Streak</div>
+                </div>
+                <div class="dash-stat">
+                    <div class="dash-stat-value" id="dashProblems">0</div>
+                    <div class="dash-stat-label">Solved</div>
+                </div>
+                <div class="dash-stat">
+                    <div class="dash-stat-value" id="dashMastered">0</div>
+                    <div class="dash-stat-label">Mastered</div>
+                </div>
+            </div>
+
+            <div class="dashboard-actions">
+                <button class="dash-action primary" onclick="startPracticeFromDashboard()">
+                    <div class="dash-action-icon">📚</div>
+                    <div class="dash-action-content">
+                        <div class="dash-action-title">Practice</div>
+                        <div class="dash-action-desc">Continue learning at your pace</div>
+                    </div>
+                    <div class="dash-action-arrow">→</div>
+                </button>
+
+                <button class="dash-action" onclick="startTimedFromDashboard()">
+                    <div class="dash-action-icon">⏱️</div>
+                    <div class="dash-action-content">
+                        <div class="dash-action-title">Timed Challenge</div>
+                        <div class="dash-action-desc">60 seconds - how many can you solve?</div>
+                    </div>
+                    <div class="dash-action-arrow">→</div>
+                </button>
+
+                <button class="dash-action" id="dashReviewBtn" onclick="startReviewFromDashboard()">
+                    <div class="dash-action-icon">🔄</div>
+                    <div class="dash-action-content">
+                        <div class="dash-action-title">Review Mode</div>
+                        <div class="dash-action-desc" id="dashReviewDesc">Practice facts you find tricky</div>
+                    </div>
+                    <div class="dash-action-arrow">→</div>
+                </button>
+
+                <button class="dash-action" onclick="showAchievementsFromDashboard()">
+                    <div class="dash-action-icon">🏆</div>
+                    <div class="dash-action-content">
+                        <div class="dash-action-title">Achievements</div>
+                        <div class="dash-action-desc" id="dashAchievementDesc">See your badges</div>
+                    </div>
+                    <div class="dash-action-arrow">→</div>
+                </button>
+            </div>
+
+            <div class="dashboard-footer">
+                <button class="dash-footer-btn" onclick="showParentViewFromDashboard()">📊 Progress Report</button>
+                <button class="dash-footer-btn" onclick="showSettingsFromDashboard()">⚙️ Settings</button>
+            </div>
+        </div>
     </div>
 
     <!-- Practice Screen -->
@@ -3942,7 +4157,18 @@
             document.getElementById('breakOverlay').classList.remove('active');
             onBreak = false;
             startPomodoro();
-            generateProblem();
+
+            // Handle review mode vs normal mode
+            if (reviewMode && currentProfile._reviewFacts && currentProfile._reviewFacts.length > 0) {
+                generateReviewProblem();
+            } else {
+                // Exit review mode if no more review facts
+                reviewMode = false;
+                if (currentProfile && currentProfile._reviewFacts) {
+                    delete currentProfile._reviewFacts;
+                }
+                generateProblem();
+            }
         }
 
         function finishPractice() {
@@ -3953,7 +4179,7 @@
                 clearInterval(pomodoroTimer);
                 pomodoroTimer = null;
             }
-            showProfiles();
+            showDashboard();
         }
 
         function stopPomodoro() {
@@ -4156,12 +4382,100 @@
         // ============================================
         // PROFILE SELECTION & GAME START
         // ============================================
+        let dashboardProfileIndex = null;
+
         function selectProfile(index) {
             currentProfile = profiles[index];
+            dashboardProfileIndex = index;
+            // Reset review mode
+            reviewMode = false;
+            if (currentProfile._reviewFacts) {
+                delete currentProfile._reviewFacts;
+            }
+            showDashboard();
+        }
+
+        function showDashboard() {
+            const profile = currentProfile;
+            const tier = getCurrentTier(profile);
+
+            // Update player info
+            document.getElementById('dashAvatar').textContent = profile.avatar;
+            document.getElementById('dashName').textContent = profile.name;
+            document.getElementById('dashTier').textContent = tier.name;
+
+            // Update stats
+            const streak = calculateStreak(profile);
+            const totalProblems = Object.values(profile.dailyProgress || {}).reduce((a, b) => a + b, 0);
+            const masteredCount = countMasteredFacts(profile);
+
+            document.getElementById('dashStreak').textContent = streak;
+            document.getElementById('dashProblems').textContent = totalProblems;
+            document.getElementById('dashMastered').textContent = masteredCount;
+
+            // Update review button state
+            const struggles = getStrugglingFacts(profile);
+            const reviewDesc = document.getElementById('dashReviewDesc');
+            const reviewBtn = document.getElementById('dashReviewBtn');
+            if (struggles.length > 0) {
+                reviewDesc.textContent = `${struggles.length} facts need practice`;
+                reviewBtn.style.opacity = '1';
+                reviewBtn.disabled = false;
+            } else {
+                reviewDesc.textContent = 'No struggling facts!';
+                reviewBtn.style.opacity = '0.5';
+                reviewBtn.disabled = true;
+            }
+
+            // Update achievements count
+            const earnedCount = (profile.achievements || []).length;
+            document.getElementById('dashAchievementDesc').textContent = `${earnedCount} badges earned`;
+
+            showScreen('dashboardScreen');
+        }
+
+        function getStrugglingFacts(profile) {
+            const struggles = [];
+            for (const [fact, progress] of Object.entries(profile.factProgress || {})) {
+                if (progress.wrong > 0 && !progress.mastered) {
+                    const errorRate = progress.wrong / (progress.correct + progress.wrong);
+                    struggles.push({ display: fact, errorRate });
+                }
+            }
+            return struggles;
+        }
+
+        function startPracticeFromDashboard() {
             startPracticeSession();
         }
 
+        function startTimedFromDashboard() {
+            startTimedMode();
+        }
+
+        function startReviewFromDashboard() {
+            startReviewMode(dashboardProfileIndex);
+        }
+
+        function showAchievementsFromDashboard() {
+            showAchievements(dashboardProfileIndex);
+        }
+
+        function showParentViewFromDashboard() {
+            showParentView(dashboardProfileIndex);
+        }
+
+        function showSettingsFromDashboard() {
+            showSettings();
+        }
+
         function startPracticeSession() {
+            // Ensure we're not in review mode for normal practice
+            reviewMode = false;
+            if (currentProfile && currentProfile._reviewFacts) {
+                delete currentProfile._reviewFacts;
+            }
+
             // Update UI
             document.getElementById('currentAvatar').textContent = currentProfile.avatar;
             document.getElementById('currentName').textContent = currentProfile.name;
@@ -4791,11 +5105,11 @@
                 document.getElementById('pomodoroSection').style.display = 'flex';
             }
 
-            // If no problems attempted, just go back to profiles
+            // If no problems attempted, just go back to dashboard
             const total = sessionStats.correct + sessionStats.wrong;
             if (total === 0) {
                 reviewMode = false;
-                showProfiles();
+                showDashboard();
                 return;
             }
 
@@ -4842,7 +5156,7 @@
 
         function finishSession() {
             reviewMode = false;
-            showProfiles();
+            showDashboard();
         }
 
         // ============================================

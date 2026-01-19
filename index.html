@@ -508,6 +508,39 @@
             white-space: nowrap;
         }
 
+        /* Multiplication Array Visual */
+        .mult-array {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .mult-array-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        .mult-array-grid {
+            display: grid;
+            gap: 6px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+        .mult-array-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 6px var(--primary);
+            animation: array-pop 0.3s ease forwards;
+            opacity: 0;
+            transform: scale(0);
+        }
+        @keyframes array-pop {
+            to { opacity: 1; transform: scale(1); }
+        }
+
         .problem {
             font-size: 3rem;
             font-weight: 700;
@@ -2957,10 +2990,19 @@
                 return;
             }
 
-            // Skip dots for multiplication, division, or numbers > 12 (except for special ops)
-            const skipOps = ['×', '÷', 'tens', 'ones', 'build'];
+            // Skip dots for division, or special ops (multiplication handled separately)
+            const skipOps = ['÷', 'tens', 'ones', 'build'];
             if (skipOps.includes(fact.op)) {
                 container.innerHTML = '';
+                return;
+            }
+            // Handle multiplication with array visual (for small facts only)
+            if (fact.op === '×') {
+                if (fact.a <= 5 && fact.b <= 5) {
+                    renderMultiplicationArray(fact);
+                } else {
+                    container.innerHTML = '';
+                }
                 return;
             }
             if ((fact.op === '+' || fact.op === '-' || fact.op === '−') && (fact.a > 12 || fact.b > 12)) {
@@ -3157,6 +3199,32 @@
             dotsEnabled = !dotsEnabled;
             document.getElementById('dotsBtn').classList.toggle('active', dotsEnabled);
             if (currentFact) renderDots(currentFact);
+        }
+
+        // ============================================
+        // MULTIPLICATION ARRAY VISUAL
+        // ============================================
+        function renderMultiplicationArray(fact) {
+            const container = document.getElementById('dotsContainer');
+            const rows = fact.a;
+            const cols = fact.b;
+
+            let html = '<div class="mult-array">';
+            html += `<div class="mult-array-label">${rows} rows × ${cols} columns</div>`;
+            html += '<div class="mult-array-grid" style="grid-template-columns: repeat(' + cols + ', 1fr);">';
+
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const delay = (r * cols + c) * 0.03;
+                    html += `<div class="mult-array-dot" style="animation-delay: ${delay}s;"></div>`;
+                }
+            }
+
+            html += '</div></div>';
+            container.innerHTML = html;
+
+            // Hide number line for multiplication
+            document.getElementById('numberLineContainer').style.display = 'none';
         }
 
         // ============================================

@@ -845,10 +845,10 @@
                 </div>
             </div>
 
-            <div class="audio-controls">
-                <button class="audio-btn active" id="soundBtn" onclick="toggleSound()" title="Sound effects">🔊</button>
-                <button class="audio-btn active" id="speakBtn" onclick="toggleSpeak()" title="Read aloud">🗣️</button>
-                <button class="audio-btn active" id="dotsBtn" onclick="toggleDots()" title="Show counting dots">👁️</button>
+            <div class="audio-controls" role="group" aria-label="Audio and visual settings">
+                <button class="audio-btn active" id="soundBtn" onclick="toggleSound()" title="Sound effects" aria-label="Toggle sound effects">🔊</button>
+                <button class="audio-btn active" id="speakBtn" onclick="toggleSpeak()" title="Read aloud" aria-label="Toggle read aloud">🗣️</button>
+                <button class="audio-btn active" id="dotsBtn" onclick="toggleDots()" title="Show counting dots" aria-label="Toggle counting dots">👁️</button>
             </div>
 
             <div class="problem-area">

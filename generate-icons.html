@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Nanana Math Icons</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 40px;
+            background: #1a1a2e;
+            color: white;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #ff8c42;
+            margin: 20px;
+            image-rendering: pixelated;
+        }
+        button {
+            font-size: 18px;
+            padding: 15px 30px;
+            margin: 10px;
+            background: #ff8c42;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #ff6b35;
+        }
+        .preview {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        .preview-item {
+            text-align: center;
+        }
+        .preview-item span {
+            display: block;
+            margin-top: 10px;
+            color: #aaa;
+        }
+        .instructions {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            text-align: left;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .instructions li {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nanana Math Icon Generator</h1>
+    <p>Cute watermelon slice - black background, pixel art</p>
+
+    <div class="preview">
+        <div class="preview-item">
+            <canvas id="icon192" width="192" height="192"></canvas>
+            <span>192x192</span>
+        </div>
+        <div class="preview-item">
+            <canvas id="icon512" width="512" height="512"></canvas>
+            <span>512x512</span>
+        </div>
+    </div>
+
+    <div>
+        <button onclick="download('icon192', 'icon-192.png')">Download 192x192</button>
+        <button onclick="download('icon512', 'icon-512.png')">Download 512x512</button>
+    </div>
+
+    <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Click both download buttons above</li>
+            <li>The icons will download to your Downloads folder</li>
+            <li>Move them to: <code>/Users/j/my-apps/nanana-math/</code></li>
+            <li>Replace the existing icon files</li>
+            <li>Push to GitHub to update the live app</li>
+        </ol>
+    </div>
+
+    <script>
+        // Pixel art icon: Cute watermelon slice on black background
+        // Design on a 32x32 grid, scaled up
+
+        function drawPixelArt(ctx, scale) {
+            const s = scale; // pixel size
+
+            // Colors
+            const black = '#0a0a0a';
+            const darkGreen = '#2d5a27';
+            const green = '#4a7c42';
+            const lightGreen = '#6b9c5a';
+            const white = '#f5f5dc';
+            const lightPink = '#ffb3b3';
+            const pink = '#ff6b6b';
+            const red = '#e63946';
+            const darkRed = '#c1292e';
+            const seed = '#1a1a1a';
+
+            // Clear with black background
+            ctx.fillStyle = black;
+            ctx.fillRect(0, 0, 32 * s, 32 * s);
+
+            // Helper function to draw a pixel
+            function px(x, y, color) {
+                ctx.fillStyle = color;
+                ctx.fillRect(x * s, y * s, s, s);
+            }
+
+            // Draw a block of pixels
+            function block(x, y, w, h, color) {
+                ctx.fillStyle = color;
+                ctx.fillRect(x * s, y * s, w * s, h * s);
+            }
+
+            // === WATERMELON SLICE (semi-circle shape) ===
+
+            // Green rind - outer edge (bottom curve)
+            block(6, 24, 20, 2, darkGreen);
+            block(4, 22, 3, 2, darkGreen);
+            block(25, 22, 3, 2, darkGreen);
+            block(3, 20, 2, 2, darkGreen);
+            block(27, 20, 2, 2, darkGreen);
+            px(2, 19, darkGreen);
+            px(29, 19, darkGreen);
+
+            // Green rind - middle layer
+            block(6, 22, 20, 2, green);
+            block(4, 20, 3, 2, green);
+            block(25, 20, 3, 2, green);
+            block(3, 18, 2, 2, green);
+            block(27, 18, 2, 2, green);
+            px(2, 17, green);
+            px(29, 17, green);
+
+            // Light green / white rind
+            block(6, 20, 20, 2, lightGreen);
+            block(4, 18, 3, 2, lightGreen);
+            block(25, 18, 3, 2, lightGreen);
+            block(3, 16, 2, 2, lightGreen);
+            block(27, 16, 2, 2, lightGreen);
+            px(2, 15, lightGreen);
+            px(29, 15, lightGreen);
+
+            // White inner rind
+            block(6, 18, 20, 2, white);
+            block(4, 16, 3, 2, white);
+            block(25, 16, 3, 2, white);
+            block(3, 14, 2, 2, white);
+            block(27, 14, 2, 2, white);
+
+            // Pink flesh - main area
+            block(6, 10, 20, 8, pink);
+            block(4, 12, 2, 4, pink);
+            block(26, 12, 2, 4, pink);
+            block(5, 10, 1, 2, pink);
+            block(26, 10, 1, 2, pink);
+
+            // Light pink highlights
+            block(8, 10, 4, 2, lightPink);
+            block(14, 11, 3, 2, lightPink);
+            block(20, 10, 4, 2, lightPink);
+
+            // Red deeper flesh
+            block(7, 14, 18, 3, red);
+            block(5, 13, 2, 2, red);
+            block(25, 13, 2, 2, red);
+
+            // Dark red shadows
+            block(8, 16, 16, 1, darkRed);
+            px(6, 15, darkRed);
+            px(25, 15, darkRed);
+
+            // Flat top edge
+            block(5, 9, 22, 1, darkRed);
+            block(7, 8, 18, 1, red);
+
+            // Seeds
+            px(9, 12, seed);
+            px(10, 15, seed);
+            px(14, 13, seed);
+            px(15, 16, seed);
+            px(18, 12, seed);
+            px(21, 14, seed);
+            px(22, 11, seed);
+            px(12, 11, seed);
+
+            // Cute sparkle on top
+            px(25, 6, white);
+            px(24, 7, white);
+            px(26, 7, white);
+            px(25, 8, white);
+        }
+
+        function drawIcon(canvas) {
+            const ctx = canvas.getContext('2d');
+            const size = canvas.width;
+            const scale = size / 32;
+
+            // Disable image smoothing for crisp pixels
+            ctx.imageSmoothingEnabled = false;
+            ctx.mozImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = false;
+            ctx.msImageSmoothingEnabled = false;
+
+            drawPixelArt(ctx, scale);
+        }
+
+        function download(canvasId, filename) {
+            const canvas = document.getElementById(canvasId);
+            const link = document.createElement('a');
+            link.download = filename;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Draw icons on load
+        drawIcon(document.getElementById('icon192'));
+        drawIcon(document.getElementById('icon512'));
+    </script>
+</body>
+</html>

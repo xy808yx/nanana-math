@@ -25,6 +25,18 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        /* Focus visible styles for keyboard navigation */
+        *:focus { outline: none; }
+        *:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+        }
+        button:focus-visible {
+            outline: 3px solid var(--primary);
+            outline-offset: 2px;
+            box-shadow: 0 0 0 5px rgba(255, 215, 61, 0.3);
+        }
+
         html, body {
             height: 100%;
             height: -webkit-fill-available;
@@ -44,15 +56,27 @@
             padding-bottom: max(15px, env(safe-area-inset-bottom));
         }
 
-        /* Screens */
+        /* Screens with smooth transitions */
         .screen {
             display: none;
             width: 100%;
             max-width: 400px;
             flex-direction: column;
             gap: 20px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
-        .screen.active { display: flex; }
+        .screen.active {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+            animation: screen-fade-in 0.3s ease;
+        }
+        @keyframes screen-fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         /* Profile Selection Screen */
         .app-title {
@@ -909,6 +933,7 @@
                 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
                 <button class="hint-btn" id="hintBtn" style="display:none;" onclick="showHint()" aria-label="Get a hint">💡 Need a hint?</button>
                 <div class="hint-text" id="hintText" style="display:none;"></div>
+                <button class="skip-btn" id="skipBtn" onclick="skipProblem()" aria-label="Skip this problem">⏭️ Too hard? Skip</button>
             </div>
 
             <div class="numpad" role="group" aria-label="Number pad">
@@ -1048,6 +1073,14 @@
                 <div style="display:flex;gap:10px;justify-content:center;">
                     <button class="goal-option" onclick="setTextSize('normal')">Normal</button>
                     <button class="goal-option" onclick="setTextSize('large')">Large</button>
+                </div>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Speech Speed</label>
+                <div style="display:flex;gap:10px;justify-content:center;" id="speechRateOptions">
+                    <button class="goal-option" onclick="setSpeechRate(0.7)">Slow</button>
+                    <button class="goal-option" onclick="setSpeechRate(0.9)">Normal</button>
+                    <button class="goal-option" onclick="setSpeechRate(1.1)">Fast</button>
                 </div>
             </div>
             <button class="modal-btn confirm" onclick="closeSettings()" style="width:100%;margin-top:10px;" aria-label="Close settings">Done</button>
@@ -1277,6 +1310,22 @@
             color: var(--accent);
             margin-top: 8px;
             font-style: italic;
+        }
+        .skip-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 12px;
+            border-radius: 15px;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            cursor: pointer;
+            margin-top: 15px;
+            opacity: 0.7;
+            transition: all 0.2s;
+        }
+        .skip-btn:hover {
+            background: rgba(255,255,255,0.1);
+            opacity: 1;
         }
 
         /* Shake animation for wrong answers */
@@ -2596,7 +2645,7 @@
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
+            utterance.rate = speechRate;
             utterance.pitch = 1.1;
             speechSynthesis.speak(utterance);
         }
@@ -2620,7 +2669,7 @@
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
-            utterance.rate = 0.9;
+            utterance.rate = speechRate;
             utterance.pitch = 1.1;
             speechSynthesis.speak(utterance);
         }
@@ -2858,7 +2907,7 @@
             // Speak the hint
             if (speakEnabled) {
                 const utterance = new SpeechSynthesisUtterance(currentHint);
-                utterance.rate = 0.9;
+                utterance.rate = speechRate;
                 speechSynthesis.speak(utterance);
             }
         }
@@ -2901,6 +2950,36 @@
             document.getElementById('hintBtn').style.display = 'none';
             document.getElementById('hintText').style.display = 'none';
             currentHint = '';
+        }
+
+        // Skip problem when too hard
+        function skipProblem() {
+            if (!currentFact) return;
+
+            // Show the answer briefly
+            const key = currentFact.display;
+            document.getElementById('feedback').innerHTML = `
+                <span style="color:var(--text-dim)">Answer: ${currentFact.answer}</span>
+            `;
+            document.getElementById('feedback').className = 'feedback';
+
+            // Track as needing practice without penalizing heavily
+            if (!currentProfile.factProgress[key]) {
+                currentProfile.factProgress[key] = { correct: 0, wrong: 0, lastSeen: 0, mastered: false };
+            }
+            currentProfile.factProgress[key].lastSeen = Date.now();
+
+            // Reset streak but don't count as wrong
+            sessionStats.correctStreak = 0;
+            updateStreakDisplay();
+
+            saveProfiles();
+
+            // Move to next problem after brief pause
+            setTimeout(() => {
+                const nextFn = reviewMode ? generateReviewProblem : generateProblem;
+                nextFn();
+            }, 1000);
         }
 
         // ============================================
@@ -4021,6 +4100,22 @@
             localStorage.setItem('nanana_textSize', size);
         }
 
+        // Speech rate setting
+        let speechRate = 0.9;
+
+        function setSpeechRate(rate) {
+            speechRate = rate;
+            localStorage.setItem('nanana_speechRate', rate);
+
+            // Update UI to show selected rate
+            document.querySelectorAll('#speechRateOptions .goal-option').forEach(btn => {
+                btn.classList.remove('selected');
+                if (parseFloat(btn.getAttribute('onclick').match(/[\d.]+/)[0]) === rate) {
+                    btn.classList.add('selected');
+                }
+            });
+        }
+
         // ============================================
         // REVIEW MODE
         // ============================================
@@ -4120,6 +4215,9 @@
 
         const savedTextSize = localStorage.getItem('nanana_textSize');
         if (savedTextSize === 'large') document.body.classList.add('large-text');
+
+        const savedSpeechRate = localStorage.getItem('nanana_speechRate');
+        if (savedSpeechRate) speechRate = parseFloat(savedSpeechRate);
 
         // Keyboard support for desktop users
         document.addEventListener('keydown', function(e) {

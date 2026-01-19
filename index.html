@@ -844,6 +844,120 @@
         <div class="tier-unlock-name" id="tierUnlockName">Subtraction to 5</div>
     </div>
 
+    <!-- Achievement Popup -->
+    <div class="tier-unlock" id="achievementPopup">
+        <div class="tier-unlock-emoji" id="achievementEmoji">🏆</div>
+        <div class="tier-unlock-title">ACHIEVEMENT UNLOCKED!</div>
+        <div class="tier-unlock-name" id="achievementName">Getting Started</div>
+        <div style="font-size:0.9rem;color:var(--text-dim);margin-top:10px;" id="achievementDesc">Answer 10 problems</div>
+    </div>
+
+    <!-- Achievements Modal -->
+    <div class="modal" id="achievementsModal">
+        <div class="modal-content" style="max-height:80vh;overflow-y:auto;">
+            <div class="modal-title">🏆 Achievements</div>
+            <div id="achievementsList" style="display:grid;gap:10px;"></div>
+            <button class="modal-btn confirm" onclick="closeAchievements()" style="width:100%;margin-top:20px;">Close</button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-title">⚙️ Settings</div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Daily Goal</label>
+                <div style="display:flex;gap:10px;justify-content:center;">
+                    <button class="goal-option" onclick="setDailyGoal(5)">5</button>
+                    <button class="goal-option" onclick="setDailyGoal(10)">10</button>
+                    <button class="goal-option" onclick="setDailyGoal(15)">15</button>
+                    <button class="goal-option" onclick="setDailyGoal(20)">20</button>
+                </div>
+            </div>
+            <div style="margin-bottom:20px;">
+                <label style="display:block;margin-bottom:8px;color:var(--text-dim);font-size:0.9rem;">Text Size</label>
+                <div style="display:flex;gap:10px;justify-content:center;">
+                    <button class="goal-option" onclick="setTextSize('normal')">Normal</button>
+                    <button class="goal-option" onclick="setTextSize('large')">Large</button>
+                </div>
+            </div>
+            <button class="modal-btn confirm" onclick="closeSettings()" style="width:100%;margin-top:10px;">Done</button>
+        </div>
+    </div>
+
+    <!-- Review Mode Indicator -->
+    <style>
+        .review-badge {
+            background: var(--error);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .goal-option {
+            background: var(--card-bg);
+            border: 2px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .goal-option:hover, .goal-option.active {
+            border-color: var(--primary);
+            background: rgba(255, 215, 61, 0.2);
+        }
+        .profile-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+        .profile-action-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            cursor: pointer;
+        }
+        .profile-action-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: var(--text);
+        }
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: var(--card-bg);
+            border-radius: 12px;
+        }
+        .achievement-item.locked {
+            opacity: 0.4;
+        }
+        .achievement-emoji {
+            font-size: 2rem;
+        }
+        .achievement-info {
+            text-align: left;
+        }
+        .achievement-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .achievement-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        body.large-text .problem { font-size: 4rem; }
+        body.large-text .answer-box { font-size: 3.5rem; }
+        body.large-text .numpad button { font-size: 2.2rem; }
+    </style>
+
     <script>
         // ============================================
         // SKILL TIERS - Progression System
@@ -1117,6 +1231,92 @@
                 id: 'fractions_third',
                 name: 'Fractions: Thirds',
                 facts: generateFractionFacts('third'),
+                requiredMastery: 0.9
+            },
+            // Number Sense
+            {
+                id: 'before20',
+                name: 'Before (1-20)',
+                facts: generateBeforeAfterFacts(20, 'before'),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'after20',
+                name: 'After (1-20)',
+                facts: generateBeforeAfterFacts(20, 'after'),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'round50',
+                name: 'Rounding to 10',
+                facts: generateRoundingFacts(50),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'expanded',
+                name: 'Expanded Form',
+                facts: generateExpandedFormFacts(),
+                requiredMastery: 0.9
+            },
+            // Fact Families
+            {
+                id: 'family10',
+                name: 'Fact Families',
+                facts: generateFactFamilyFacts(10),
+                requiredMastery: 0.9
+            },
+            // Symbols
+            {
+                id: 'gtlt20',
+                name: '< and > Signs',
+                facts: generateGreaterLessFacts(20),
+                requiredMastery: 0.9
+            },
+            // Word Problems
+            {
+                id: 'wordadd',
+                name: 'Word Problems +',
+                facts: generateWordProblemFacts('add'),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'wordsub',
+                name: 'Word Problems −',
+                facts: generateWordProblemFacts('sub'),
+                requiredMastery: 0.9
+            },
+            // Time
+            {
+                id: 'clockhour',
+                name: 'Time: Hours',
+                facts: generateClockFacts('hour'),
+                requiredMastery: 0.9
+            },
+            {
+                id: 'clockhalf',
+                name: 'Time: Half Hours',
+                facts: generateClockFacts('half'),
+                requiredMastery: 0.9
+            },
+            // Money
+            {
+                id: 'coins',
+                name: 'Counting Coins',
+                facts: generateCoinFacts('count'),
+                requiredMastery: 0.9
+            },
+            // Shapes
+            {
+                id: 'shapesides',
+                name: 'Shape Sides',
+                facts: generateShapeFacts('sides'),
+                requiredMastery: 0.9
+            },
+            // Patterns
+            {
+                id: 'patterns',
+                name: 'Number Patterns',
+                facts: generatePatternFacts(),
                 requiredMastery: 0.9
             }
         ];
@@ -1399,24 +1599,336 @@
             return facts;
         }
 
+        function generateRoundingFacts(max) {
+            const facts = [];
+            // "Round 23 to nearest 10" → 20
+            for (let num = 1; num < max; num++) {
+                if (num % 10 === 0) continue; // Skip already-round numbers
+                const rounded = Math.round(num / 10) * 10;
+                facts.push({
+                    a: num,
+                    op: 'round10',
+                    answer: rounded,
+                    display: `Round ${num} → ?`
+                });
+            }
+            return facts;
+        }
+
+        function generateBeforeAfterFacts(max, type) {
+            const facts = [];
+            if (type === 'before') {
+                // "What comes before 7?" → 6
+                for (let num = 2; num <= max; num++) {
+                    facts.push({
+                        a: num,
+                        op: 'before',
+                        answer: num - 1,
+                        display: `Before ${num}?`
+                    });
+                }
+            } else {
+                // "What comes after 7?" → 8
+                for (let num = 1; num < max; num++) {
+                    facts.push({
+                        a: num,
+                        op: 'after',
+                        answer: num + 1,
+                        display: `After ${num}?`
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generateExpandedFormFacts() {
+            const facts = [];
+            // "34 = 30 + ?" → 4
+            for (let tens = 1; tens <= 9; tens++) {
+                for (let ones = 1; ones <= 9; ones++) {
+                    const num = tens * 10 + ones;
+                    facts.push({
+                        a: num,
+                        b: tens * 10,
+                        op: 'expanded',
+                        answer: ones,
+                        display: `${num} = ${tens * 10} + ?`
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generateFactFamilyFacts(max) {
+            const facts = [];
+            // Given 3 + 4 = 7, what is 7 - 4? → 3
+            for (let a = 1; a <= max; a++) {
+                for (let b = 1; b <= max - a; b++) {
+                    const sum = a + b;
+                    if (sum <= max) {
+                        // Addition shown, ask subtraction
+                        facts.push({
+                            a, b, sum,
+                            op: 'family',
+                            answer: a,
+                            display: `${a}+${b}=${sum}, ${sum}−${b}=?`
+                        });
+                    }
+                }
+            }
+            return facts;
+        }
+
+        function generateGreaterLessFacts(max) {
+            const facts = [];
+            // "5 ○ 8" → type < (answer: 1 for <, 2 for >)
+            for (let a = 1; a <= max; a++) {
+                for (let b = a + 1; b <= Math.min(a + 10, max); b++) {
+                    // a < b
+                    facts.push({
+                        a, b,
+                        op: 'gtlt',
+                        answer: 1, // 1 = <, 2 = >
+                        display: `${a} ○ ${b}`,
+                        symbol: '<'
+                    });
+                    // b > a (reversed display)
+                    facts.push({
+                        a: b, b: a,
+                        op: 'gtlt',
+                        answer: 2,
+                        display: `${b} ○ ${a}`,
+                        symbol: '>'
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generateWordProblemFacts(type) {
+            const facts = [];
+            const names = ['Sam', 'Mia', 'Ben', 'Ava', 'Leo', 'Zoe'];
+            const items = ['apple', 'cookie', 'star', 'ball', 'book', 'toy'];
+
+            if (type === 'add') {
+                for (let a = 1; a <= 5; a++) {
+                    for (let b = 1; b <= 5; b++) {
+                        const name = names[(a + b) % names.length];
+                        const item = items[(a * b) % items.length];
+                        facts.push({
+                            a, b,
+                            op: 'wordadd',
+                            answer: a + b,
+                            display: `${name}: ${a} ${item}s + ${b} more = ?`,
+                            story: `${name} has ${a} ${item}${a > 1 ? 's' : ''}. Gets ${b} more.`
+                        });
+                    }
+                }
+            } else if (type === 'sub') {
+                for (let a = 3; a <= 10; a++) {
+                    for (let b = 1; b < a; b++) {
+                        const name = names[(a + b) % names.length];
+                        const item = items[(a * b) % items.length];
+                        facts.push({
+                            a, b,
+                            op: 'wordsub',
+                            answer: a - b,
+                            display: `${name}: ${a} ${item}s − ${b} = ?`,
+                            story: `${name} has ${a} ${item}${a > 1 ? 's' : ''}. Gives away ${b}.`
+                        });
+                    }
+                }
+            }
+            return facts;
+        }
+
+        function generateClockFacts(type) {
+            const facts = [];
+            if (type === 'hour') {
+                // "What time? [clock showing 3:00]" → 3
+                for (let hour = 1; hour <= 12; hour++) {
+                    facts.push({
+                        a: hour,
+                        b: 0,
+                        op: 'clock',
+                        answer: hour,
+                        display: `🕐 ${hour}:00`,
+                        hour: hour,
+                        minute: 0
+                    });
+                }
+            } else if (type === 'half') {
+                // "What time? [clock showing 3:30]" → 330 (we'll use hour * 100 + 30)
+                for (let hour = 1; hour <= 12; hour++) {
+                    facts.push({
+                        a: hour,
+                        b: 30,
+                        op: 'clockhalf',
+                        answer: 30, // Just answer the minutes
+                        display: `🕐 ${hour}:??`,
+                        hour: hour,
+                        minute: 30
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generateCoinFacts(type) {
+            const facts = [];
+            if (type === 'count') {
+                // Count pennies
+                for (let count = 2; count <= 10; count++) {
+                    facts.push({
+                        a: count,
+                        op: 'coins',
+                        answer: count,
+                        display: `${'🪙'.repeat(Math.min(count, 5))}${count > 5 ? '+' + (count-5) : ''} = ?¢`,
+                        coinType: 'penny',
+                        coinValue: 1
+                    });
+                }
+                // Count nickels
+                for (let count = 1; count <= 6; count++) {
+                    facts.push({
+                        a: count,
+                        op: 'coins',
+                        answer: count * 5,
+                        display: `${count} nickel${count > 1 ? 's' : ''} = ?¢`,
+                        coinType: 'nickel',
+                        coinValue: 5
+                    });
+                }
+                // Count dimes
+                for (let count = 1; count <= 6; count++) {
+                    facts.push({
+                        a: count,
+                        op: 'coins',
+                        answer: count * 10,
+                        display: `${count} dime${count > 1 ? 's' : ''} = ?¢`,
+                        coinType: 'dime',
+                        coinValue: 10
+                    });
+                }
+            }
+            return facts;
+        }
+
+        function generateShapeFacts(type) {
+            const facts = [];
+            const shapes = [
+                { name: 'triangle', sides: 3, emoji: '🔺' },
+                { name: 'square', sides: 4, emoji: '🟦' },
+                { name: 'rectangle', sides: 4, emoji: '📋' },
+                { name: 'pentagon', sides: 5, emoji: '⬠' },
+                { name: 'hexagon', sides: 6, emoji: '⬡' }
+            ];
+
+            if (type === 'sides') {
+                shapes.forEach(shape => {
+                    facts.push({
+                        a: shape.name,
+                        op: 'shapesides',
+                        answer: shape.sides,
+                        display: `${shape.emoji} sides = ?`,
+                        shapeName: shape.name,
+                        emoji: shape.emoji
+                    });
+                });
+            } else if (type === 'name') {
+                // Given sides, name the shape (3=triangle, 4=square, etc)
+                facts.push({ a: 3, op: 'shapename', answer: 3, display: '3 sides = ?', hint: 'tri___' });
+                facts.push({ a: 4, op: 'shapename', answer: 4, display: '4 sides = ?', hint: 'squ___' });
+                facts.push({ a: 5, op: 'shapename', answer: 5, display: '5 sides = ?', hint: 'pent___' });
+                facts.push({ a: 6, op: 'shapename', answer: 6, display: '6 sides = ?', hint: 'hex___' });
+            }
+            return facts;
+        }
+
+        function generatePatternFacts() {
+            const facts = [];
+            // Number patterns
+            const patterns = [
+                { seq: [1, 2, 3, 4], next: 5 },
+                { seq: [2, 4, 6, 8], next: 10 },
+                { seq: [5, 10, 15, 20], next: 25 },
+                { seq: [1, 3, 5, 7], next: 9 },
+                { seq: [10, 20, 30, 40], next: 50 },
+                { seq: [3, 6, 9, 12], next: 15 },
+                { seq: [100, 90, 80, 70], next: 60 },
+                { seq: [1, 4, 7, 10], next: 13 },
+                { seq: [2, 5, 8, 11], next: 14 },
+                { seq: [50, 45, 40, 35], next: 30 }
+            ];
+
+            patterns.forEach((p, i) => {
+                facts.push({
+                    a: p.seq,
+                    op: 'pattern',
+                    answer: p.next,
+                    display: `${p.seq.join(', ')}, ?`
+                });
+            });
+
+            return facts;
+        }
+
         // ============================================
         // DATA STORAGE
         // ============================================
         const AVATARS = ['🦊', '🐼', '🦁', '🐸', '🐱', '🐶', '🦄', '🐰'];
+        const UNLOCKABLE_AVATARS = ['🦋', '🐙', '🦖', '🐲', '🦅', '🐬', '🦜', '🐝'];
+
+        const ACHIEVEMENTS = [
+            { id: 'first10', name: 'Getting Started', emoji: '🌱', desc: 'Answer 10 problems', check: p => (p.totalCorrect || 0) >= 10 },
+            { id: 'first100', name: 'Century Club', emoji: '💯', desc: 'Answer 100 problems', check: p => (p.totalCorrect || 0) >= 100 },
+            { id: 'first500', name: 'Math Explorer', emoji: '🧭', desc: 'Answer 500 problems', check: p => (p.totalCorrect || 0) >= 500 },
+            { id: 'first1000', name: 'Math Master', emoji: '👑', desc: 'Answer 1000 problems', check: p => (p.totalCorrect || 0) >= 1000 },
+            { id: 'streak3', name: 'On a Roll', emoji: '🔥', desc: '3 day streak', check: p => calculateStreak(p) >= 3 },
+            { id: 'streak7', name: 'Week Warrior', emoji: '⚡', desc: '7 day streak', check: p => calculateStreak(p) >= 7 },
+            { id: 'streak30', name: 'Monthly Champion', emoji: '🏆', desc: '30 day streak', check: p => calculateStreak(p) >= 30 },
+            { id: 'perfect10', name: 'Perfect 10', emoji: '⭐', desc: '10 correct in a row', check: p => (p.bestStreak || 0) >= 10 },
+            { id: 'tier5', name: 'Level Up!', emoji: '📈', desc: 'Complete 5 tiers', check: p => (p.currentTierIndex || 0) >= 5 },
+            { id: 'tier10', name: 'Rising Star', emoji: '🌟', desc: 'Complete 10 tiers', check: p => (p.currentTierIndex || 0) >= 10 },
+            { id: 'tier20', name: 'Superstar', emoji: '💫', desc: 'Complete 20 tiers', check: p => (p.currentTierIndex || 0) >= 20 },
+            { id: 'mastery50', name: 'Fact Finder', emoji: '🔍', desc: 'Master 50 facts', check: p => countMasteredFacts(p) >= 50 },
+            { id: 'mastery100', name: 'Fact Collector', emoji: '📚', desc: 'Master 100 facts', check: p => countMasteredFacts(p) >= 100 },
+            { id: 'mastery200', name: 'Fact Expert', emoji: '🎓', desc: 'Master 200 facts', check: p => countMasteredFacts(p) >= 200 }
+        ];
 
         let profiles = [];
         let currentProfile = null;
         let currentInput = '';
         let currentFact = null;
-        let sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [] };
+        let sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
         let dailyGoal = 10;
         let selectedAvatar = '🦊';
+        let reviewMode = false;
 
         // Audio/Visual settings
         let soundEnabled = true;
         let speakEnabled = true;
         let dotsEnabled = true;
         let audioContext = null;
+
+        function countMasteredFacts(profile) {
+            if (!profile.factProgress) return 0;
+            return Object.values(profile.factProgress).filter(p => p.mastered).length;
+        }
+
+        function checkAchievements(profile) {
+            if (!profile.achievements) profile.achievements = [];
+            const newAchievements = [];
+
+            ACHIEVEMENTS.forEach(achievement => {
+                if (!profile.achievements.includes(achievement.id) && achievement.check(profile)) {
+                    profile.achievements.push(achievement.id);
+                    newAchievements.push(achievement);
+                }
+            });
+
+            return newAchievements;
+        }
 
         // ============================================
         // SOUND EFFECTS
@@ -1515,6 +2027,32 @@
                 text = `Is ${fact.a} even or odd? Press 0 for even, 1 for odd.`;
             } else if (fact.op === '×?') {
                 text = `${fact.a} times what equals ${fact.product}?`;
+            } else if (fact.op === 'round10') {
+                text = `Round ${fact.a} to the nearest ten.`;
+            } else if (fact.op === 'before') {
+                text = `What number comes before ${fact.a}?`;
+            } else if (fact.op === 'after') {
+                text = `What number comes after ${fact.a}?`;
+            } else if (fact.op === 'expanded') {
+                text = `${fact.a} equals ${fact.b} plus what?`;
+            } else if (fact.op === 'family') {
+                text = `If ${fact.a} plus ${fact.b} equals ${fact.sum}, what is ${fact.sum} minus ${fact.b}?`;
+            } else if (fact.op === 'gtlt') {
+                text = `${fact.a} is... 1 for less than, 2 for greater than... ${fact.b}`;
+            } else if (fact.op === 'wordadd') {
+                text = fact.story + ` How many total?`;
+            } else if (fact.op === 'wordsub') {
+                text = fact.story + ` How many left?`;
+            } else if (fact.op === 'clock') {
+                text = `What hour does the clock show? ${fact.hour} o'clock.`;
+            } else if (fact.op === 'clockhalf') {
+                text = `The hour is ${fact.hour}. What are the minutes? Half past the hour.`;
+            } else if (fact.op === 'coins') {
+                text = `How many cents is ${fact.a} ${fact.coinType}${fact.a > 1 ? 's' : ''}?`;
+            } else if (fact.op === 'shapesides') {
+                text = `How many sides does a ${fact.shapeName} have?`;
+            } else if (fact.op === 'pattern') {
+                text = `${fact.a.join(', ')}... what comes next in the pattern?`;
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
@@ -1530,9 +2068,15 @@
 
             let text = correct ? 'Correct!' : `The answer is ${answer}`;
 
-            // Special feedback for even/odd
-            if (!correct && fact && fact.op === 'evenodd') {
-                text = fact.isOdd ? `${fact.a} is odd` : `${fact.a} is even`;
+            // Special feedback for certain types
+            if (!correct && fact) {
+                if (fact.op === 'evenodd') {
+                    text = fact.isOdd ? `${fact.a} is odd` : `${fact.a} is even`;
+                } else if (fact.op === 'gtlt') {
+                    text = `${fact.a} is ${fact.symbol === '<' ? 'less than' : 'greater than'} ${fact.b}`;
+                } else if (fact.op === 'clockhalf') {
+                    text = `The answer is 30 minutes, or half past`;
+                }
             }
 
             const utterance = new SpeechSynthesisUtterance(text);
@@ -1711,7 +2255,7 @@
                 const card = document.createElement('div');
                 card.className = 'profile-card';
                 card.onclick = (e) => {
-                    if (!e.target.classList.contains('parent-btn')) {
+                    if (!e.target.classList.contains('parent-btn') && !e.target.classList.contains('profile-action-btn')) {
                         selectProfile(index);
                     }
                 };
@@ -1719,6 +2263,8 @@
                 const tier = getCurrentTier(profile);
                 const streak = calculateStreak(profile);
                 const streakHTML = streak > 0 ? `<div class="profile-streak">🔥 ${streak} day${streak > 1 ? 's' : ''}</div>` : '';
+                const achievementCount = (profile.achievements || []).length;
+                const hasStruggles = Object.values(profile.factProgress || {}).some(p => p.wrong > 0 && !p.mastered);
 
                 card.innerHTML = `
                     <button class="parent-btn" onclick="event.stopPropagation(); showParentView(${index})" title="View progress">📊</button>
@@ -1726,9 +2272,23 @@
                     <div class="profile-name">${profile.name}</div>
                     <div class="profile-level">${tier ? tier.name : 'Starting'}</div>
                     ${streakHTML}
+                    <div class="profile-actions">
+                        <button class="profile-action-btn" onclick="event.stopPropagation(); showAchievements(${index})">🏆 ${achievementCount}</button>
+                        ${hasStruggles ? `<button class="profile-action-btn" onclick="event.stopPropagation(); startReviewMode(${index})">📝 Review</button>` : ''}
+                    </div>
                 `;
                 grid.appendChild(card);
             });
+
+            // Settings button
+            const settingsCard = document.createElement('div');
+            settingsCard.className = 'profile-card add-new';
+            settingsCard.onclick = showSettings;
+            settingsCard.innerHTML = `
+                <div class="profile-avatar">⚙️</div>
+                <div class="profile-name">Settings</div>
+            `;
+            grid.appendChild(settingsCard);
 
             // Add new profile card
             const addCard = document.createElement('div');
@@ -1898,32 +2458,35 @@
 
             // Show hints for certain problem types
             const hintEl = document.getElementById('problemHint');
-            if (currentFact.op === 'compare') {
-                hintEl.textContent = 'Type the bigger number';
-                hintEl.style.display = 'block';
-            } else if (currentFact.op === 'tens') {
-                hintEl.textContent = 'How many tens?';
-                hintEl.style.display = 'block';
-            } else if (currentFact.op === 'ones') {
-                hintEl.textContent = 'How many ones?';
-                hintEl.style.display = 'block';
-            } else if (currentFact.op === 'build') {
-                hintEl.textContent = 'Build the number';
-                hintEl.style.display = 'block';
-            } else if (currentFact.op === 'half' || currentFact.op === 'quarter' || currentFact.op === 'third') {
-                hintEl.textContent = 'Find the fraction';
-                hintEl.style.display = 'block';
-            } else if (currentFact.op === 'skip') {
-                hintEl.textContent = 'What comes next?';
-                hintEl.style.display = 'block';
-            } else if (currentFact.op === 'bond') {
-                hintEl.textContent = 'Find the pair';
-                hintEl.style.display = 'block';
-            } else if (currentFact.op === 'evenodd') {
-                hintEl.textContent = '0 = even, 1 = odd';
-                hintEl.style.display = 'block';
-            } else if (currentFact.op === '×?') {
-                hintEl.textContent = 'Find the missing number';
+            const hints = {
+                'compare': 'Type the bigger number',
+                'tens': 'How many tens?',
+                'ones': 'How many ones?',
+                'build': 'Build the number',
+                'half': 'Find the fraction',
+                'quarter': 'Find the fraction',
+                'third': 'Find the fraction',
+                'skip': 'What comes next?',
+                'bond': 'Find the pair',
+                'evenodd': '0 = even, 1 = odd',
+                '×?': 'Find the missing number',
+                'round10': 'Round to nearest 10',
+                'before': 'What comes before?',
+                'after': 'What comes after?',
+                'expanded': 'Find the ones',
+                'family': 'Use the fact family',
+                'gtlt': '1 = less than (<), 2 = greater than (>)',
+                'wordadd': 'Add to find total',
+                'wordsub': 'Subtract to find remainder',
+                'clock': 'What hour?',
+                'clockhalf': 'What minutes? (30)',
+                'coins': 'Count the cents',
+                'shapesides': 'Count the sides',
+                'pattern': 'Find the pattern'
+            };
+
+            if (hints[currentFact.op]) {
+                hintEl.textContent = hints[currentFact.op];
                 hintEl.style.display = 'block';
             } else {
                 hintEl.style.display = 'none';
@@ -2032,22 +2595,36 @@
             const today = new Date().toISOString().split('T')[0];
             currentProfile.dailyProgress[today] = (currentProfile.dailyProgress[today] || 0) + 1;
 
+            // Check achievements
+            const newAchievements = checkAchievements(currentProfile);
+            if (newAchievements.length > 0) {
+                setTimeout(() => showAchievementPopup(newAchievements[0]), 1600);
+            }
+
             saveProfiles();
-            updateTierDisplay();
+            if (!reviewMode) updateTierDisplay();
             updateDailyGoal();
 
             // Check if daily goal reached
-            if (currentProfile.dailyProgress[today] >= dailyGoal) {
+            if (currentProfile.dailyProgress[today] >= dailyGoal && !reviewMode) {
                 setTimeout(() => showSessionComplete(), 1500);
             } else {
                 // Next problem after delay
-                setTimeout(generateProblem, isCorrect ? 800 : 2000);
+                const nextFn = reviewMode ? generateReviewProblem : generateProblem;
+                setTimeout(nextFn, isCorrect ? 800 : 2000);
             }
         }
 
         function handleCorrectAnswer(progress, key) {
             sessionStats.correct++;
+            sessionStats.correctStreak++;
             progress.correct++;
+
+            // Track total correct and best streak for achievements
+            currentProfile.totalCorrect = (currentProfile.totalCorrect || 0) + 1;
+            if (sessionStats.correctStreak > (currentProfile.bestStreak || 0)) {
+                currentProfile.bestStreak = sessionStats.correctStreak;
+            }
 
             document.getElementById('answerBox').classList.add('correct');
             document.getElementById('feedback').textContent = '✓ Correct!';
@@ -2064,13 +2641,14 @@
                 document.getElementById('feedback').textContent = '⭐ Mastered!';
                 playSound('mastered');
 
-                // Check for tier advancement
-                checkTierAdvancement();
+                // Check for tier advancement (skip in review mode)
+                if (!reviewMode) checkTierAdvancement();
             }
         }
 
         function handleWrongAnswer(progress, key) {
             sessionStats.wrong++;
+            sessionStats.correctStreak = 0; // Reset streak on wrong answer
             progress.wrong++;
 
             // If was mastered, might need to un-master with too many errors
@@ -2087,10 +2665,14 @@
 
             document.getElementById('answerBox').classList.add('wrong');
 
-            // Special display for even/odd
+            // Special display for certain types
             let answerText = currentFact.answer;
             if (currentFact.op === 'evenodd') {
                 answerText = currentFact.isOdd ? 'odd (1)' : 'even (0)';
+            } else if (currentFact.op === 'gtlt') {
+                answerText = currentFact.symbol === '<' ? '< (1)' : '> (2)';
+            } else if (currentFact.op === 'clockhalf') {
+                answerText = '30 (half past)';
             }
 
             document.getElementById('feedback').innerHTML = `
@@ -2247,6 +2829,10 @@
         }
 
         function showProfiles() {
+            reviewMode = false;
+            if (currentProfile && currentProfile._reviewFacts) {
+                delete currentProfile._reviewFacts;
+            }
             renderProfiles();
             showScreen('profileScreen');
         }
@@ -2263,8 +2849,173 @@
         });
 
         // ============================================
+        // ACHIEVEMENTS
+        // ============================================
+        function showAchievements(profileIndex) {
+            const profile = profiles[profileIndex];
+            if (!profile.achievements) profile.achievements = [];
+
+            const list = document.getElementById('achievementsList');
+            list.innerHTML = ACHIEVEMENTS.map(a => {
+                const unlocked = profile.achievements.includes(a.id);
+                return `
+                    <div class="achievement-item ${unlocked ? '' : 'locked'}">
+                        <div class="achievement-emoji">${a.emoji}</div>
+                        <div class="achievement-info">
+                            <div class="achievement-name">${a.name}</div>
+                            <div class="achievement-desc">${a.desc}</div>
+                        </div>
+                        ${unlocked ? '✓' : '🔒'}
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('achievementsModal').classList.add('active');
+        }
+
+        function closeAchievements() {
+            document.getElementById('achievementsModal').classList.remove('active');
+        }
+
+        function showAchievementPopup(achievement) {
+            document.getElementById('achievementEmoji').textContent = achievement.emoji;
+            document.getElementById('achievementName').textContent = achievement.name;
+            document.getElementById('achievementDesc').textContent = achievement.desc;
+            document.getElementById('achievementPopup').classList.add('active');
+
+            setTimeout(() => {
+                document.getElementById('achievementPopup').classList.remove('active');
+            }, 3000);
+        }
+
+        // ============================================
+        // SETTINGS
+        // ============================================
+        function showSettings() {
+            document.getElementById('settingsModal').classList.add('active');
+            updateGoalButtons();
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function setDailyGoal(goal) {
+            dailyGoal = goal;
+            localStorage.setItem('nanana_dailyGoal', goal);
+            updateGoalButtons();
+            if (currentProfile) updateDailyGoal();
+        }
+
+        function updateGoalButtons() {
+            document.querySelectorAll('.goal-option').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === dailyGoal.toString()) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function setTextSize(size) {
+            if (size === 'large') {
+                document.body.classList.add('large-text');
+            } else {
+                document.body.classList.remove('large-text');
+            }
+            localStorage.setItem('nanana_textSize', size);
+        }
+
+        // ============================================
+        // REVIEW MODE
+        // ============================================
+        function startReviewMode(profileIndex) {
+            currentProfile = profiles[profileIndex];
+            reviewMode = true;
+
+            // Collect all struggling facts from all tiers
+            const struggles = [];
+            for (const [fact, progress] of Object.entries(currentProfile.factProgress || {})) {
+                if (progress.wrong > 0 && !progress.mastered) {
+                    const errorRate = progress.wrong / (progress.correct + progress.wrong);
+                    struggles.push({ display: fact, errorRate });
+                }
+            }
+
+            if (struggles.length === 0) {
+                alert('No struggling facts to review! Great job!');
+                return;
+            }
+
+            // Store review facts
+            currentProfile._reviewFacts = struggles.sort((a, b) => b.errorRate - a.errorRate);
+
+            sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
+
+            document.getElementById('currentAvatar').textContent = currentProfile.avatar;
+            document.getElementById('currentName').innerHTML = currentProfile.name + '<span class="review-badge">REVIEW</span>';
+            document.getElementById('currentTier').textContent = `${struggles.length} facts to review`;
+            document.getElementById('tierName').textContent = 'Review Mode';
+            document.getElementById('tierCount').textContent = `${struggles.length} struggling facts`;
+            document.getElementById('tierFill').style.width = '0%';
+
+            updateDailyGoal();
+            showScreen('practiceScreen');
+            generateReviewProblem();
+        }
+
+        function generateReviewProblem() {
+            if (!currentProfile._reviewFacts || currentProfile._reviewFacts.length === 0) {
+                showSessionComplete();
+                return;
+            }
+
+            // Pick from struggling facts
+            const idx = Math.floor(Math.random() * Math.min(5, currentProfile._reviewFacts.length));
+            const factDisplay = currentProfile._reviewFacts[idx].display;
+
+            // Find the actual fact object
+            for (const tier of TIERS) {
+                for (const fact of tier.facts) {
+                    if (fact.display === factDisplay) {
+                        currentFact = fact;
+                        break;
+                    }
+                }
+                if (currentFact && currentFact.display === factDisplay) break;
+            }
+
+            if (!currentFact) {
+                currentProfile._reviewFacts.splice(idx, 1);
+                generateReviewProblem();
+                return;
+            }
+
+            document.getElementById('problem').textContent = currentFact.display;
+            currentInput = '';
+            updateAnswerDisplay();
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('answerBox').className = 'answer-box';
+
+            const hintEl = document.getElementById('problemHint');
+            hintEl.textContent = 'Review: ' + (currentProfile.factProgress[factDisplay] ?
+                `${currentProfile.factProgress[factDisplay].wrong} errors` : '');
+            hintEl.style.display = 'block';
+
+            renderDots(currentFact);
+            speakProblem(currentFact);
+        }
+
+        // ============================================
         // INIT
         // ============================================
+        // Load saved settings
+        const savedGoal = localStorage.getItem('nanana_dailyGoal');
+        if (savedGoal) dailyGoal = parseInt(savedGoal);
+
+        const savedTextSize = localStorage.getItem('nanana_textSize');
+        if (savedTextSize === 'large') document.body.classList.add('large-text');
+
         loadProfiles();
     </script>
 </body>

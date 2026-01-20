@@ -74,7 +74,7 @@
 
         html, body {
             height: 100%;
-            height: -webkit-fill-available;
+            height: 100dvh;
         }
 
         body {
@@ -85,7 +85,8 @@
             justify-content: center;
             align-items: flex-start;
             min-height: 100%;
-            min-height: -webkit-fill-available;
+            min-height: 100dvh;
+            min-height: calc(var(--vh, 1vh) * 100);
             padding: 15px;
             padding-top: max(15px, env(safe-area-inset-top));
             padding-bottom: max(15px, env(safe-area-inset-bottom));
@@ -101,34 +102,34 @@
 
         /* Compact layout - always compact on mobile */
         @media (max-height: 850px) {
-            .practice-container { padding: 12px; }
-            .tier-progress { padding: 8px 12px; margin-bottom: 8px; }
-            .pomodoro-section { padding: 6px 10px; margin-bottom: 8px; }
-            .problem-area { padding: 8px; }
-            .numpad { gap: 6px; margin-top: 8px; }
+            .practice-container { padding: 10px; }
+            .tier-progress { padding: 6px 10px; margin-bottom: 6px; }
+            .pomodoro-section { padding: 5px 10px; margin-bottom: 6px; }
+            .problem-area { padding: 6px; }
+            .numpad { gap: 6px; }
             .numpad button { padding: 12px; font-size: 1.4rem; }
-            .problem { font-size: 2rem; margin-bottom: 8px; }
-            .answer-box { font-size: 1.8rem; padding: 8px 20px; min-height: 50px; }
-            .feedback { min-height: 30px; margin-top: 8px; font-size: 1rem; }
+            .problem { font-size: 2.2rem; margin-bottom: 8px; }
+            .answer-box { font-size: 1.9rem; padding: 8px 20px; min-height: 48px; }
+            .feedback { min-height: 28px; margin-top: 6px; font-size: 0.95rem; }
         }
 
         @media (max-height: 700px) {
-            .practice-container { padding: 10px; }
-            .tier-progress { padding: 6px 10px; margin-bottom: 6px; }
-            .pomodoro-section { padding: 5px 8px; margin-bottom: 6px; }
+            .practice-container { padding: 8px; }
+            .tier-progress { padding: 5px 8px; margin-bottom: 4px; }
+            .pomodoro-section { padding: 4px 8px; margin-bottom: 4px; }
             .numpad button { padding: 10px; font-size: 1.3rem; }
-            .problem { font-size: 1.8rem; margin-bottom: 6px; }
-            .answer-box { font-size: 1.6rem; padding: 6px 15px; min-height: 45px; }
-            .feedback { min-height: 25px; margin-top: 6px; font-size: 0.9rem; }
-            .practice-header { margin-bottom: 10px; padding-bottom: 8px; }
+            .problem { font-size: 2rem; margin-bottom: 6px; }
+            .answer-box { font-size: 1.7rem; padding: 6px 16px; min-height: 44px; }
+            .feedback { min-height: 24px; margin-top: 5px; font-size: 0.9rem; }
+            .practice-header { margin-bottom: 8px; padding-bottom: 6px; }
         }
 
         @media (max-height: 600px) {
-            .practice-header { margin-bottom: 6px; padding-bottom: 6px; }
+            .practice-header { margin-bottom: 4px; padding-bottom: 4px; }
             .tier-progress { display: none; }
             .numpad button { padding: 8px; font-size: 1.2rem; }
-            .problem { font-size: 1.6rem; }
-            .answer-box { font-size: 1.4rem; padding: 5px 12px; min-height: 40px; }
+            .problem { font-size: 1.8rem; margin-bottom: 5px; }
+            .answer-box { font-size: 1.5rem; padding: 5px 14px; min-height: 40px; }
         }
 
         /* Screens with smooth transitions */
@@ -878,6 +879,75 @@
             box-shadow: 0 0 15px rgba(107, 203, 119, 0.4);
         }
 
+        /* Fixed numpad wrapper - keeps numpad visible on iOS Safari */
+        .numpad-wrapper {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.98) 0%, #1a1a2e 100%);
+            padding: 10px 15px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            z-index: 50;
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            display: none;
+        }
+        #practiceScreen.active .numpad-wrapper {
+            display: block;
+            transform: translateY(0);
+        }
+        .numpad-wrapper .numpad {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Practice container needs bottom padding for fixed numpad */
+        #practiceScreen .practice-container {
+            padding-bottom: 10px;
+            margin-bottom: 180px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        /* Focus mode - minimal UI during active practice */
+        .practice-container.focus-mode .tier-progress {
+            opacity: 0;
+            max-height: 0;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        .practice-container.focus-mode .pomodoro-section {
+            padding: 4px 10px;
+            background: transparent;
+            border: none;
+            margin-bottom: 4px;
+        }
+        .practice-container.focus-mode .mastery-tracker {
+            display: none;
+        }
+        .practice-container.focus-mode .player-info > div:last-child {
+            display: none;
+        }
+        .practice-container.focus-mode .practice-header {
+            padding-bottom: 6px;
+            margin-bottom: 6px;
+        }
+        .practice-container.focus-mode .quick-practice-progress {
+            padding: 6px 10px;
+            margin-bottom: 6px;
+        }
+
+        /* Smooth transitions for focus mode */
+        .practice-container .tier-progress,
+        .practice-container .pomodoro-section,
+        .practice-container .practice-header,
+        .practice-container .player-info > div {
+            transition: all 0.3s ease;
+        }
+
         /* Session Complete Screen */
         .session-complete {
             text-align: center;
@@ -1069,6 +1139,280 @@
             color: #ff6b6b;
         }
 
+        /* ============================================ */
+        /* CURRICULUM ROADMAP SCREEN */
+        /* ============================================ */
+        .curriculum-container {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border-radius: 20px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .curriculum-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky;
+            top: -16px;
+            background: var(--bg);
+            z-index: 10;
+            padding-top: 4px;
+        }
+
+        .curriculum-title {
+            flex: 1;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .curriculum-progress-summary {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            background: rgba(255,255,255,0.05);
+            padding: 6px 12px;
+            border-radius: 15px;
+        }
+
+        /* Category Cards */
+        .category-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .category-card.locked {
+            opacity: 0.5;
+            filter: grayscale(40%);
+        }
+
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .category-header:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .category-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 215, 61, 0.15);
+            border-radius: 10px;
+            font-size: 1.2rem;
+        }
+
+        .category-card.locked .category-icon {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .category-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .category-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .category-desc {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .category-progress-badge {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            background: rgba(255,255,255,0.05);
+            padding: 4px 8px;
+            border-radius: 10px;
+        }
+
+        .category-progress-badge.complete {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success);
+        }
+
+        .category-expand {
+            color: var(--text-dim);
+            transition: transform 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .category-card.expanded .category-expand {
+            transform: rotate(180deg);
+        }
+
+        /* Sub-levels List */
+        .sublevel-list {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: rgba(0,0,0,0.15);
+        }
+
+        .category-card.expanded .sublevel-list {
+            max-height: 1000px;
+        }
+
+        .sublevel-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .sublevel-item:hover:not(.locked) {
+            background: rgba(255,255,255,0.05);
+        }
+
+        .sublevel-status {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .sublevel-status.completed {
+            background: var(--success);
+            color: #000;
+        }
+
+        .sublevel-status.current {
+            background: var(--primary);
+            color: #000;
+            animation: pulse-glow 2s infinite;
+        }
+
+        .sublevel-status.unlocked {
+            background: rgba(255,255,255,0.1);
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .sublevel-status.locked {
+            background: rgba(255,255,255,0.05);
+            color: var(--text-dim);
+        }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 61, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(255, 215, 61, 0); }
+        }
+
+        .sublevel-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sublevel-name {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .sublevel-item.locked .sublevel-name {
+            color: var(--text-dim);
+            filter: blur(2px);
+        }
+
+        .sublevel-mastery {
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        /* Locked/Blurred Content */
+        .sublevel-item.locked {
+            cursor: default;
+            opacity: 0.6;
+        }
+
+        .sublevel-item.locked.next-unlock {
+            opacity: 0.8;
+        }
+
+        .sublevel-item.locked.next-unlock .sublevel-name {
+            filter: blur(1.5px);
+        }
+
+        /* Regression hint */
+        .regression-hint {
+            margin-top: 16px;
+            background: rgba(255, 152, 0, 0.1);
+            border: 1px solid rgba(255, 152, 0, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .regression-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .regression-icon {
+            color: #ff9800;
+        }
+
+        .regression-text {
+            flex: 1;
+        }
+
+        .regression-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #ff9800;
+        }
+
+        .regression-desc {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .regression-btn {
+            background: #ff9800;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .regression-btn:hover {
+            background: #ffa726;
+        }
+
         /* Parent View */
         .parent-view {
             max-width: 400px;
@@ -1125,6 +1469,134 @@
         }
         .struggle-fact:last-child { border-bottom: none; }
         .struggle-rate { color: var(--error); font-weight: 600; }
+
+        /* Parent Tabs */
+        .parent-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .parent-tab {
+            flex: 1;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            color: var(--text-dim);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .parent-tab:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        .parent-tab.active {
+            background: var(--primary);
+            color: #000;
+            border-color: var(--primary);
+        }
+        .parent-tab-content {
+            display: none;
+        }
+        .parent-tab-content.active {
+            display: block;
+        }
+
+        /* Parent Curriculum Controls */
+        .parent-curriculum-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .parent-category {
+            margin-bottom: 16px;
+        }
+        .parent-category-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            color: var(--primary);
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .parent-category-header svg {
+            width: 16px;
+            height: 16px;
+        }
+        .parent-category-tiers {
+            padding-left: 8px;
+        }
+        .parent-tier-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            margin-bottom: 6px;
+            border-left: 3px solid transparent;
+        }
+        .parent-tier-item.completed {
+            border-left-color: var(--success);
+        }
+        .parent-tier-item.unlocked {
+            border-left-color: var(--primary);
+        }
+        .parent-tier-item.locked {
+            border-left-color: rgba(255,255,255,0.2);
+            opacity: 0.7;
+        }
+        .parent-tier-item.parent-locked {
+            border-left-color: var(--error);
+            opacity: 0.7;
+        }
+        .parent-tier-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .parent-tier-name {
+            font-size: 0.85rem;
+        }
+        .parent-tier-status {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+        }
+        .parent-tier-item.completed .parent-tier-status {
+            color: var(--success);
+        }
+        .parent-tier-item.unlocked .parent-tier-status {
+            color: var(--primary);
+        }
+        .parent-tier-item.parent-locked .parent-tier-status {
+            color: var(--error);
+        }
+        .parent-tier-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .parent-tier-btn {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.05);
+            color: var(--text-dim);
+            transition: all 0.2s;
+        }
+        .parent-tier-btn.unlock:hover {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: var(--success);
+            color: var(--success);
+        }
+        .parent-tier-btn.lock:hover {
+            background: rgba(255, 107, 107, 0.2);
+            border-color: var(--error);
+            color: var(--error);
+        }
 
         /* Parent button on profile card */
         .parent-btn {
@@ -2201,8 +2673,27 @@
             </div>
 
             <div class="dashboard-footer">
-                <button class="dash-footer-btn" onclick="showParentViewFromDashboard()"><svg class="pixel-icon-sm"><use href="#icon-chart"/></svg> Progress Report</button>
-                <button class="dash-footer-btn" onclick="showSettingsFromDashboard()"><svg class="pixel-icon-sm"><use href="#icon-settings"/></svg> Settings</button>
+                <button class="dash-footer-btn" onclick="showCurriculumScreen()"><svg class="pixel-icon-sm"><use href="#icon-chart"/></svg> Learning Path</button>
+                <button class="dash-footer-btn" onclick="showParentViewFromDashboard()"><svg class="pixel-icon-sm"><use href="#icon-settings"/></svg> Parent View</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Curriculum Roadmap Screen -->
+    <div class="screen" id="curriculumScreen">
+        <div class="curriculum-container">
+            <div class="curriculum-header">
+                <button class="back-btn" onclick="showDashboard()" aria-label="Back to dashboard">
+                    <svg class="pixel-icon-sm"><use href="#icon-back"/></svg>
+                </button>
+                <div class="curriculum-title">Learning Path</div>
+                <div class="curriculum-progress-summary" id="curriculumProgressSummary">
+                    0/57 skills
+                </div>
+            </div>
+
+            <div class="curriculum-roadmap" id="curriculumRoadmap">
+                <!-- Categories rendered dynamically by renderCurriculumRoadmap() -->
             </div>
         </div>
     </div>
@@ -2277,6 +2768,9 @@
                 <div class="feedback" id="feedback" role="status" aria-live="polite"></div>
             </div>
 
+        </div>
+
+        <div class="numpad-wrapper">
             <div class="numpad" role="group" aria-label="Number pad">
                 <button onclick="numPress(1)" aria-label="1">1</button>
                 <button onclick="numPress(2)" aria-label="2">2</button>
@@ -2336,11 +2830,32 @@
     <!-- Parent View Modal -->
     <div class="modal" id="parentModal" role="dialog" aria-modal="true" aria-labelledby="parentModalTitle">
         <div class="modal-content parent-view">
-            <div class="modal-title" id="parentModalTitle"><svg class="pixel-icon"><use href="#icon-chart"/></svg> Progress Report</div>
+            <div class="modal-title" id="parentModalTitle"><svg class="pixel-icon"><use href="#icon-chart"/></svg> Parent View</div>
             <div class="parent-player" id="parentPlayerName"></div>
-            <div class="parent-stats" id="parentStats"></div>
-            <div class="parent-struggles" id="parentStruggles"></div>
-            <button class="modal-btn confirm" onclick="closeParentView()" style="width:100%;margin-top:20px;" aria-label="Close progress report">Close</button>
+
+            <!-- Parent Tabs -->
+            <div class="parent-tabs">
+                <button class="parent-tab active" onclick="showParentTab('stats')">Stats</button>
+                <button class="parent-tab" onclick="showParentTab('curriculum')">Curriculum</button>
+            </div>
+
+            <!-- Stats Tab -->
+            <div class="parent-tab-content active" id="parentStatsTab">
+                <div class="parent-stats" id="parentStats"></div>
+                <div class="parent-struggles" id="parentStruggles"></div>
+            </div>
+
+            <!-- Curriculum Tab -->
+            <div class="parent-tab-content" id="parentCurriculumTab">
+                <div class="parent-curriculum-info" style="margin-bottom:12px;font-size:0.8rem;color:var(--text-dim);">
+                    Manually unlock or lock skills for your child.
+                </div>
+                <div class="parent-curriculum-list" id="parentCurriculumList">
+                    <!-- Rendered by showParentCurriculumTab() -->
+                </div>
+            </div>
+
+            <button class="modal-btn confirm" onclick="closeParentView()" style="width:100%;margin-top:20px;" aria-label="Close parent view">Close</button>
             <button class="delete-profile-btn" id="deleteProfileBtn" onclick="resetProgress()" aria-label="Reset all progress"><svg class="pixel-icon-sm"><use href="#icon-close"/></svg> Reset Progress</button>
         </div>
     </div>
@@ -3099,6 +3614,181 @@
             }
         ];
 
+        // ============================================
+        // CURRICULUM HIERARCHY - Two-level structure
+        // ============================================
+        const CURRICULUM = {
+            categories: [
+                {
+                    id: 'addition',
+                    name: 'Addition',
+                    icon: 'plus',
+                    description: 'Building blocks of math',
+                    subLevels: ['add5', 'add10', 'add20', 'doubles', 'neardoubles']
+                },
+                {
+                    id: 'subtraction',
+                    name: 'Subtraction',
+                    icon: 'minus',
+                    description: 'Taking away and differences',
+                    subLevels: ['sub5', 'sub10', 'sub20']
+                },
+                {
+                    id: 'number_bonds',
+                    name: 'Number Bonds',
+                    icon: 'link',
+                    description: 'Parts and wholes',
+                    subLevels: ['bonds10', 'bonds20']
+                },
+                {
+                    id: 'number_sense',
+                    name: 'Number Sense',
+                    icon: 'eye',
+                    description: 'Understanding numbers',
+                    subLevels: ['compare20', 'compare100', 'before20', 'after20', 'ordering', 'gtlt20', 'evenodd']
+                },
+                {
+                    id: 'place_value',
+                    name: 'Place Value',
+                    icon: 'stack',
+                    description: 'Tens and ones',
+                    subLevels: ['placevalue_tens', 'placevalue_ones', 'placevalue_build', 'expanded', 'round50']
+                },
+                {
+                    id: 'skip_counting',
+                    name: 'Skip Counting',
+                    icon: 'steps',
+                    description: 'Counting in patterns',
+                    subLevels: ['skip2', 'skip5', 'skip10']
+                },
+                {
+                    id: 'multiplication',
+                    name: 'Multiplication',
+                    icon: 'grid',
+                    description: 'Groups and arrays',
+                    subLevels: ['mult2', 'mult5', 'mult10', 'mult3', 'mult4', 'mult6', 'mult7', 'mult8', 'mult9']
+                },
+                {
+                    id: 'division',
+                    name: 'Division',
+                    icon: 'divide',
+                    description: 'Sharing equally',
+                    subLevels: ['div2', 'div5', 'div10', 'div3', 'div4', 'div6', 'div7', 'div8', 'div9']
+                },
+                {
+                    id: 'missing_numbers',
+                    name: 'Missing Numbers',
+                    icon: 'question',
+                    description: 'Find the unknown',
+                    subLevels: ['missing_add10', 'missing_sub10', 'missing_mult2', 'missing_mult5', 'missing_mult10']
+                },
+                {
+                    id: 'fact_families',
+                    name: 'Fact Families',
+                    icon: 'family',
+                    description: 'Related facts',
+                    subLevels: ['family10']
+                },
+                {
+                    id: 'fractions',
+                    name: 'Fractions',
+                    icon: 'pie',
+                    description: 'Parts of a whole',
+                    subLevels: ['fractions_half', 'fractions_quarter', 'fractions_third']
+                },
+                {
+                    id: 'time',
+                    name: 'Time',
+                    icon: 'clock',
+                    description: 'Telling time',
+                    subLevels: ['clockhour', 'clockhalf', 'clockquarter']
+                },
+                {
+                    id: 'money',
+                    name: 'Money',
+                    icon: 'coin',
+                    description: 'Counting coins',
+                    subLevels: ['coins', 'quarters', 'mixedcoins']
+                },
+                {
+                    id: 'word_problems',
+                    name: 'Word Problems',
+                    icon: 'book',
+                    description: 'Math stories',
+                    subLevels: ['wordadd', 'wordsub']
+                },
+                {
+                    id: 'shapes_patterns',
+                    name: 'Shapes & Patterns',
+                    icon: 'shapes',
+                    description: 'Geometry and sequences',
+                    subLevels: ['shapesides', 'patterns']
+                }
+            ],
+            // Category prerequisites (first sub-level of prereq category must be completed)
+            prerequisites: {
+                'subtraction': ['addition'],
+                'multiplication': ['skip_counting'],
+                'division': ['multiplication'],
+                'missing_numbers': ['addition', 'subtraction'],
+                'fractions': ['division'],
+                'word_problems': ['addition', 'subtraction']
+            }
+        };
+
+        // Build TIER_LOOKUP for efficient tier access by ID
+        const TIER_LOOKUP = {};
+        TIERS.forEach((tier, index) => {
+            TIER_LOOKUP[tier.id] = { ...tier, originalIndex: index };
+        });
+
+        // ============================================
+        // FLUENCY CONFIGURATION
+        // ============================================
+        const FLUENCY_CONFIG = {
+            // Speed thresholds in milliseconds by difficulty
+            speedThresholds: {
+                basic: 3000,        // add5, sub5, mult2, etc.
+                intermediate: 4000, // add20, mult5-9, etc.
+                advanced: 5000,     // word problems, fractions, etc.
+                complex: 6000       // multi-step problems
+            },
+            // Tier difficulty mappings
+            tierDifficulty: {
+                add5: 'basic', add10: 'basic', sub5: 'basic', sub10: 'basic',
+                doubles: 'basic', bonds10: 'basic', skip2: 'basic', skip5: 'basic', skip10: 'basic',
+                mult2: 'basic', mult5: 'basic', mult10: 'basic', div2: 'basic', div5: 'basic', div10: 'basic',
+                add20: 'intermediate', sub20: 'intermediate', neardoubles: 'intermediate',
+                bonds20: 'intermediate', compare20: 'intermediate',
+                mult3: 'intermediate', mult4: 'intermediate', div3: 'intermediate', div4: 'intermediate',
+                placevalue_tens: 'intermediate', placevalue_ones: 'intermediate',
+                mult6: 'intermediate', mult7: 'intermediate', mult8: 'intermediate', mult9: 'intermediate',
+                div6: 'intermediate', div7: 'intermediate', div8: 'intermediate', div9: 'intermediate',
+                fractions_half: 'advanced', fractions_quarter: 'advanced', fractions_third: 'advanced',
+                wordadd: 'advanced', wordsub: 'advanced',
+                clockhour: 'intermediate', clockhalf: 'advanced', clockquarter: 'advanced',
+                coins: 'intermediate', quarters: 'advanced', mixedcoins: 'advanced'
+            },
+            // Fluency requirements
+            minCorrectStreak: 3,
+            minAccuracyRate: 0.85,
+            minFluentFacts: 5,
+            // Unlock thresholds
+            tierUnlockThreshold: 0.75,   // 75% fluent = tier complete
+            categoryUnlockThreshold: 0.6
+        };
+
+        // ============================================
+        // SPACED REPETITION CONFIG
+        // ============================================
+        const SPACED_REP_CONFIG = {
+            // Review intervals in days by level (0-5)
+            intervals: [0, 1, 3, 7, 14, 30],
+            // Level adjustments
+            correctLevelUp: 1,
+            wrongLevelDown: 2
+        };
+
         // Generate fact sets (no trivial 0+x or x+0 facts)
         function generateAdditionFacts(max) {
             const facts = [];
@@ -3818,6 +4508,7 @@
         let currentProfile = null;
         let currentInput = '';
         let currentFact = null;
+        let problemStartTime = null; // Track when problem was displayed for fluency
         let sessionStats = { correct: 0, wrong: 0, newlyMastered: [], needsPractice: [], correctStreak: 0 };
         let selectedAvatar = 'fox'; // Now references pixel art avatar ID
         let reviewMode = false;
@@ -4843,17 +5534,111 @@
         // ============================================
         // PLAYER DATA MANAGEMENT (Single User)
         // ============================================
+        // ============================================
+        // PROFILE MIGRATION (v1 -> v2 curriculum)
+        // ============================================
+        function migrateProfile(oldProfile) {
+            // Check if already migrated
+            if (oldProfile.curriculum && oldProfile.curriculum.version >= 2) {
+                return oldProfile;
+            }
+
+            // Fresh start - preserve identity only (per requirements)
+            const migratedProfile = {
+                id: oldProfile.id,
+                name: oldProfile.name,
+                avatar: oldProfile.avatar,
+                // New curriculum structure
+                curriculum: {
+                    version: 2,
+                    unlockedTiers: ['add5'],
+                    completedTiers: [],
+                    currentFocusTier: 'add5',
+                    categoryProgress: {
+                        addition: { expanded: true, firstUnlockDate: Date.now() }
+                    },
+                    pendingUnlocks: []
+                },
+                // Reset fact progress for fresh start
+                factProgress: {},
+                // Reset stats
+                totalCorrect: 0,
+                totalSessions: 0,
+                dailyProgress: {},
+                bestTimedScore: 0,
+                bestStreak: 0,
+                achievements: [],
+                // New fields
+                parentOverrides: {
+                    manuallyUnlocked: [],
+                    manuallyLocked: []
+                },
+                lastSession: {
+                    date: null,
+                    tiersUnlocked: [],
+                    factsNewlyMastered: [],
+                    suggestedRegression: null
+                },
+                // Track migration
+                migratedFrom: oldProfile.currentTierIndex || 0,
+                migratedAt: Date.now()
+            };
+
+            return migratedProfile;
+        }
+
+        let showMigrationNotice = false;
+
         function loadPlayer() {
             const saved = localStorage.getItem('nanana_player');
             if (saved) {
-                currentProfile = JSON.parse(saved);
+                let profile = JSON.parse(saved);
+
+                // Check for migration need
+                if (!profile.curriculum || profile.curriculum.version < 2) {
+                    profile = migrateProfile(profile);
+                    localStorage.setItem('nanana_player', JSON.stringify(profile));
+                    showMigrationNotice = true;
+                }
+
+                currentProfile = profile;
                 showDashboard();
+
+                // Show migration notice after dashboard loads
+                if (showMigrationNotice) {
+                    showMigrationNotice = false;
+                    setTimeout(() => {
+                        showMigrationWelcome();
+                    }, 500);
+                }
             } else {
                 // First time user - show setup
                 selectedAvatar = AVATARS[0].id;
                 renderAvatarGrid();
                 showScreen('setupScreen');
             }
+        }
+
+        function showMigrationWelcome() {
+            // Show a friendly modal about the new curriculum system
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.id = 'migrationModal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 16px;">🎉</div>
+                    <div class="modal-title" style="margin-bottom: 12px;">New Learning Path!</div>
+                    <p style="color: var(--text-dim); margin-bottom: 20px; line-height: 1.5;">
+                        We've added a new curriculum roadmap where you can see all the skills to master!
+                        Your progress has been reset to start fresh with the new system.
+                    </p>
+                    <button class="modal-btn confirm" onclick="document.getElementById('migrationModal').remove()" style="width: 100%;">
+                        Let's Go!
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
 
         function savePlayer() {
@@ -4867,14 +5652,37 @@
                 id: Date.now(),
                 name: name,
                 avatar: avatarId,
-                currentTierIndex: 0,
+                // New curriculum-based progression
+                curriculum: {
+                    version: 2,
+                    unlockedTiers: ['add5'],
+                    completedTiers: [],
+                    currentFocusTier: 'add5',
+                    categoryProgress: {
+                        addition: { expanded: true, firstUnlockDate: Date.now() }
+                    },
+                    pendingUnlocks: []
+                },
+                // Enhanced fact progress with fluency tracking
                 factProgress: {},
                 totalCorrect: 0,
                 totalSessions: 0,
                 dailyProgress: {},
                 bestTimedScore: 0,
                 bestStreak: 0,
-                achievements: []
+                achievements: [],
+                // Parent override controls
+                parentOverrides: {
+                    manuallyUnlocked: [],
+                    manuallyLocked: []
+                },
+                // Session tracking for end-of-session reveals
+                lastSession: {
+                    date: null,
+                    tiersUnlocked: [],
+                    factsNewlyMastered: [],
+                    suggestedRegression: null
+                }
             };
             savePlayer();
             showDashboard();
@@ -5168,6 +5976,11 @@
 
             // Generate first problem
             generateProblem();
+
+            // Enable focus mode after a brief delay
+            setTimeout(() => {
+                document.querySelector('.practice-container')?.classList.add('focus-mode');
+            }, 2000);
         }
 
         function updateQuickPracticeProgress() {
@@ -5229,10 +6042,209 @@
 
             // Generate first problem
             generateProblem();
+
+            // Enable focus mode after a brief delay
+            setTimeout(() => {
+                document.querySelector('.practice-container')?.classList.add('focus-mode');
+            }, 2000);
         }
 
+        // ============================================
+        // CURRICULUM SCREEN
+        // ============================================
+        function showCurriculumScreen() {
+            renderCurriculumRoadmap();
+            showScreen('curriculumScreen');
+        }
+
+        function renderCurriculumRoadmap() {
+            const roadmap = document.getElementById('curriculumRoadmap');
+            const profile = currentProfile;
+
+            if (!profile.curriculum) {
+                roadmap.innerHTML = '<p style="text-align:center;color:var(--text-dim);">No curriculum data. Try refreshing.</p>';
+                return;
+            }
+
+            // Calculate total progress
+            let totalTiers = 0;
+            let completedTiers = 0;
+
+            let html = '';
+
+            CURRICULUM.categories.forEach((category) => {
+                const categoryUnlocked = areCategoryPrereqsMet(category.id, profile);
+                const isExpanded = profile.curriculum.categoryProgress?.[category.id]?.expanded || false;
+
+                // Calculate category progress
+                let catCompleted = 0;
+                let catTotal = category.subLevels.length;
+                totalTiers += catTotal;
+
+                category.subLevels.forEach(tierId => {
+                    if (isTierCompleted(tierId, profile)) catCompleted++;
+                });
+                completedTiers += catCompleted;
+
+                const catComplete = catCompleted === catTotal;
+                const progressText = `${catCompleted}/${catTotal}`;
+
+                // Category icon mapping
+                const iconMap = {
+                    plus: '+', minus: '−', link: '⛓', eye: '👁', stack: '🧱',
+                    steps: '👣', grid: '⊞', divide: '÷', question: '?',
+                    family: '👨‍👩‍👧', pie: '🥧', clock: '🕐', coin: '🪙',
+                    book: '📖', shapes: '⬡'
+                };
+                const iconDisplay = iconMap[category.icon] || '📚';
+
+                html += `
+                    <div class="category-card ${categoryUnlocked ? '' : 'locked'} ${isExpanded ? 'expanded' : ''}"
+                         data-category="${category.id}">
+                        <div class="category-header" onclick="toggleCategory('${category.id}')">
+                            <div class="category-icon">${iconDisplay}</div>
+                            <div class="category-info">
+                                <div class="category-name">${category.name}</div>
+                                <div class="category-desc">${category.description}</div>
+                            </div>
+                            <div class="category-progress-badge ${catComplete ? 'complete' : ''}">${progressText}</div>
+                            <div class="category-expand">▼</div>
+                        </div>
+                        <div class="sublevel-list">
+                            ${renderSublevels(category, profile)}
+                        </div>
+                    </div>
+                `;
+            });
+
+            roadmap.innerHTML = html;
+
+            // Update summary
+            document.getElementById('curriculumProgressSummary').textContent = `${completedTiers}/${totalTiers} skills`;
+        }
+
+        function renderSublevels(category, profile) {
+            let html = '';
+
+            category.subLevels.forEach((tierId, index) => {
+                const tier = TIER_LOOKUP[tierId];
+                if (!tier) return;
+
+                const status = getTierStatus(tierId, profile);
+                const isCurrentFocus = profile.curriculum.currentFocusTier === tierId;
+                const displayStatus = isCurrentFocus ? 'current' : status;
+
+                // Determine if this is the next unlock (teaser)
+                const prevTierId = index > 0 ? category.subLevels[index - 1] : null;
+                const isNextUnlock = status === 'locked' && prevTierId &&
+                                    (isTierCompleted(prevTierId, profile) || isTierUnlocked(prevTierId, profile));
+
+                // Calculate mastery text
+                const fluent = getFluentCount(profile, tier);
+                const total = tier.facts.length;
+                let masteryText = '';
+                if (status === 'completed') {
+                    masteryText = 'Completed';
+                } else if (status !== 'locked') {
+                    masteryText = `${fluent}/${total} fluent`;
+                }
+
+                const clickable = status !== 'locked';
+
+                html += `
+                    <div class="sublevel-item ${displayStatus} ${isNextUnlock ? 'next-unlock' : ''}"
+                         data-tier="${tierId}"
+                         ${clickable ? `onclick="selectTierFromRoadmap('${tierId}')"` : ''}>
+                        <div class="sublevel-status ${displayStatus}">
+                            ${getStatusIcon(displayStatus)}
+                        </div>
+                        <div class="sublevel-info">
+                            <div class="sublevel-name">${tier.name}</div>
+                            ${masteryText ? `<div class="sublevel-mastery">${masteryText}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            return html;
+        }
+
+        function getTierStatus(tierId, profile) {
+            if (isTierCompleted(tierId, profile)) return 'completed';
+            if (isTierUnlocked(tierId, profile)) return 'unlocked';
+            return 'locked';
+        }
+
+        function getStatusIcon(status) {
+            switch(status) {
+                case 'completed': return '✓';
+                case 'current': return '★';
+                case 'unlocked': return '○';
+                case 'locked': return '🔒';
+                default: return '○';
+            }
+        }
+
+        function toggleCategory(categoryId) {
+            const profile = currentProfile;
+
+            // Initialize category progress if needed
+            if (!profile.curriculum.categoryProgress) {
+                profile.curriculum.categoryProgress = {};
+            }
+            if (!profile.curriculum.categoryProgress[categoryId]) {
+                profile.curriculum.categoryProgress[categoryId] = { expanded: false };
+            }
+
+            // Toggle expanded state
+            profile.curriculum.categoryProgress[categoryId].expanded =
+                !profile.curriculum.categoryProgress[categoryId].expanded;
+
+            savePlayer();
+
+            // Re-render to update UI
+            renderCurriculumRoadmap();
+        }
+
+        function selectTierFromRoadmap(tierId) {
+            const profile = currentProfile;
+
+            // Check if tier is accessible
+            if (isTierLocked(tierId, profile)) {
+                return; // Can't select locked tiers
+            }
+
+            // Set as current focus
+            profile.curriculum.currentFocusTier = tierId;
+            savePlayer();
+
+            // Start practice
+            showDashboard();
+            setTimeout(() => startPractice(), 300);
+        }
+
+        // ============================================
+        // CURRICULUM HELPERS
+        // ============================================
         function getCurrentTier(profile) {
-            return TIERS[profile.currentTierIndex] || TIERS[0];
+            // Use curriculum-based progression if available
+            if (profile.curriculum && profile.curriculum.currentFocusTier) {
+                const tierId = profile.curriculum.currentFocusTier;
+                return TIER_LOOKUP[tierId] || TIERS[0];
+            }
+            // Fallback for old profiles (shouldn't happen after migration)
+            return TIERS[profile.currentTierIndex || 0] || TIERS[0];
+        }
+
+        function getFluentCount(profile, tier) {
+            if (!tier) return 0;
+            let count = 0;
+            tier.facts.forEach(fact => {
+                const key = fact.display;
+                const progress = profile.factProgress[key];
+                if (progress && progress.fluent) count++;
+            });
+            return count;
         }
 
         function getMasteredCount(profile, tier) {
@@ -5246,22 +6258,69 @@
             return count;
         }
 
+        function isTierUnlocked(tierId, profile) {
+            if (!profile.curriculum) return tierId === 'add5';
+            return profile.curriculum.unlockedTiers.includes(tierId) ||
+                   profile.curriculum.completedTiers.includes(tierId) ||
+                   (profile.parentOverrides && profile.parentOverrides.manuallyUnlocked.includes(tierId));
+        }
+
+        function isTierCompleted(tierId, profile) {
+            if (!profile.curriculum) return false;
+            return profile.curriculum.completedTiers.includes(tierId);
+        }
+
+        function isTierLocked(tierId, profile) {
+            if (profile.parentOverrides && profile.parentOverrides.manuallyLocked.includes(tierId)) {
+                return true;
+            }
+            return !isTierUnlocked(tierId, profile);
+        }
+
+        function findCategoryForTier(tierId) {
+            return CURRICULUM.categories.find(cat => cat.subLevels.includes(tierId));
+        }
+
+        function getNextTierInCategory(tierId, profile) {
+            const category = findCategoryForTier(tierId);
+            if (!category) return null;
+
+            const currentIndex = category.subLevels.indexOf(tierId);
+            if (currentIndex < category.subLevels.length - 1) {
+                return category.subLevels[currentIndex + 1];
+            }
+            return null;
+        }
+
+        function areCategoryPrereqsMet(categoryId, profile) {
+            const prereqs = CURRICULUM.prerequisites[categoryId];
+            if (!prereqs || prereqs.length === 0) return true;
+
+            return prereqs.every(prereqCatId => {
+                const prereqCat = CURRICULUM.categories.find(c => c.id === prereqCatId);
+                if (!prereqCat || prereqCat.subLevels.length === 0) return true;
+                // First tier of prereq category must be completed
+                const firstTier = prereqCat.subLevels[0];
+                return isTierCompleted(firstTier, profile);
+            });
+        }
+
         function updateTierDisplay() {
             const tier = getCurrentTier(currentProfile);
-            const mastered = getMasteredCount(currentProfile, tier);
+            const fluent = getFluentCount(currentProfile, tier);
             const total = tier.facts.length;
-            const percent = Math.round((mastered / total) * 100);
+            const percent = Math.round((fluent / total) * 100);
 
             document.getElementById('currentTier').textContent = tier.name;
             document.getElementById('tierName').textContent = tier.name;
-            document.getElementById('tierCount').textContent = `${mastered}/${total} mastered`;
+            document.getElementById('tierCount').textContent = `${fluent}/${total} fluent`;
             document.getElementById('tierFill').style.width = `${percent}%`;
 
-            // Update next tier preview
-            const nextTierIndex = currentProfile.currentTierIndex + 1;
+            // Update next tier preview - use curriculum structure
+            const nextTierId = getNextTierInCategory(tier.id, currentProfile);
             const tierPreview = document.getElementById('tierPreview');
-            if (nextTierIndex < TIERS.length) {
-                const nextTier = TIERS[nextTierIndex];
+            if (nextTierId && TIER_LOOKUP[nextTierId]) {
+                const nextTier = TIER_LOOKUP[nextTierId];
                 document.getElementById('nextTierName').textContent = nextTier.name;
                 tierPreview.style.display = 'flex';
             } else {
@@ -5275,6 +6334,7 @@
         function generateProblem() {
             const tier = getCurrentTier(currentProfile);
             currentFact = selectSmartFact(tier);
+            problemStartTime = Date.now(); // Track for fluency calculation
 
             // Display word problems with better formatting
             const problemEl = document.getElementById('problem');
@@ -5390,55 +6450,71 @@
 
         function selectSmartFact(tier) {
             const facts = tier.facts;
-            const learning = [];
-            const mastered = [];
-            const newFacts = [];
+            const now = Date.now();
+
+            // Categorize facts by fluency/spaced-rep status
+            const dueForReview = [];   // Fluent facts past their review date
+            const needsPractice = [];  // Not fluent, has been attempted
+            const newFacts = [];       // Never attempted
+            const recentlyMastered = []; // Fluent but not yet due
 
             facts.forEach(fact => {
                 const key = fact.display;
                 const progress = currentProfile.factProgress[key];
 
                 if (!progress || progress.correct === 0) {
-                    newFacts.push(fact);
-                } else if (progress.mastered) {
-                    mastered.push(fact);
+                    newFacts.push({ fact, priority: 1 });
+                } else if (!progress.fluent) {
+                    // Calculate priority based on errors and last seen
+                    const errorWeight = progress.wrong / Math.max(1, progress.correct + progress.wrong);
+                    needsPractice.push({ fact, priority: 2 + errorWeight });
+                } else if (progress.nextReviewDate && progress.nextReviewDate <= now) {
+                    // Due for spaced repetition review
+                    const overdueDays = (now - progress.nextReviewDate) / (24 * 60 * 60 * 1000);
+                    dueForReview.push({ fact, priority: 3 + Math.min(overdueDays, 5) });
                 } else {
-                    learning.push(fact);
+                    // Fluent and not due yet
+                    recentlyMastered.push({ fact, priority: 0 });
                 }
             });
 
-            // Priority: 70% learning, 20% mastered (review), 10% new
-            const rand = Math.random();
-            let pool;
+            // Build weighted pool: prioritize practice > review > new > mastered
+            let pool = [];
 
-            if (rand < 0.7 && learning.length > 0) {
-                pool = learning;
-            } else if (rand < 0.9 && mastered.length > 0) {
-                pool = mastered;
-            } else if (newFacts.length > 0) {
-                pool = newFacts;
-            } else if (learning.length > 0) {
-                pool = learning;
-            } else {
-                pool = mastered.length > 0 ? mastered : facts;
+            // Add facts needing practice (highest priority - 50%)
+            if (needsPractice.length > 0) {
+                needsPractice.sort((a, b) => b.priority - a.priority);
+                pool = pool.concat(needsPractice.slice(0, Math.ceil(needsPractice.length * 0.6)));
             }
 
-            // Weight by recency and errors
-            pool.sort((a, b) => {
-                const pa = currentProfile.factProgress[a.display] || { correct: 0, wrong: 0, lastSeen: 0 };
-                const pb = currentProfile.factProgress[b.display] || { correct: 0, wrong: 0, lastSeen: 0 };
+            // Add facts due for spaced review (30%)
+            if (dueForReview.length > 0) {
+                dueForReview.sort((a, b) => b.priority - a.priority);
+                pool = pool.concat(dueForReview.slice(0, Math.ceil(dueForReview.length * 0.8)));
+            }
 
-                // Prioritize facts with more errors
-                const errorDiff = pb.wrong - pa.wrong;
-                if (errorDiff !== 0) return errorDiff;
+            // Introduce new facts gradually (max 3 per batch)
+            if (newFacts.length > 0) {
+                pool = pool.concat(newFacts.slice(0, 3));
+            }
 
-                // Then by least recently seen
-                return pa.lastSeen - pb.lastSeen;
-            });
+            // Fill with mastered facts if pool is small
+            if (pool.length < 5 && recentlyMastered.length > 0) {
+                pool = pool.concat(recentlyMastered.slice(0, 5 - pool.length));
+            }
 
-            // Pick from top 3 with some randomness
-            const topN = Math.min(3, pool.length);
-            return pool[Math.floor(Math.random() * topN)];
+            // Fallback to all facts if pool empty
+            if (pool.length === 0) {
+                pool = facts.map(f => ({ fact: f, priority: 1 }));
+            }
+
+            // Sort by priority and pick from top candidates with randomness
+            pool.sort((a, b) => b.priority - a.priority);
+
+            // Pick from top 5 with weighted random selection
+            const topN = Math.min(5, pool.length);
+            const selected = pool[Math.floor(Math.random() * topN)];
+            return selected.fact;
         }
 
         // ============================================
@@ -5506,19 +6582,33 @@
             const userAnswer = parseInt(currentInput);
             const isCorrect = userAnswer === currentFact.answer;
             const key = currentFact.display;
+            const responseTime = problemStartTime ? Date.now() - problemStartTime : 5000;
 
-            // Initialize progress if needed
+            // Initialize progress if needed (enhanced schema)
             if (!currentProfile.factProgress[key]) {
-                currentProfile.factProgress[key] = { correct: 0, wrong: 0, lastSeen: 0, mastered: false };
+                currentProfile.factProgress[key] = {
+                    correct: 0,
+                    wrong: 0,
+                    lastSeen: 0,
+                    mastered: false,
+                    // Fluency tracking
+                    responseTimes: [],
+                    avgResponseTime: null,
+                    streakCorrect: 0,
+                    fluent: false,
+                    // Spaced repetition
+                    spacedRepLevel: 0,
+                    nextReviewDate: null
+                };
             }
 
             const progress = currentProfile.factProgress[key];
             progress.lastSeen = Date.now();
 
             if (isCorrect) {
-                handleCorrectAnswer(progress, key);
+                handleCorrectAnswer(progress, key, responseTime);
             } else {
-                handleWrongAnswer(progress, key);
+                handleWrongAnswer(progress, key, responseTime);
             }
 
             // Timed mode: fast transitions, no daily tracking
@@ -5595,7 +6685,7 @@
             }
         }
 
-        function handleCorrectAnswer(progress, key) {
+        function handleCorrectAnswer(progress, key, responseTime) {
             sessionStats.correct++;
             sessionStats.correctStreak++;
             progress.correct++;
@@ -5604,6 +6694,43 @@
             currentProfile.totalCorrect = (currentProfile.totalCorrect || 0) + 1;
             if (sessionStats.correctStreak > (currentProfile.bestStreak || 0)) {
                 currentProfile.bestStreak = sessionStats.correctStreak;
+            }
+
+            // ============================================
+            // FLUENCY TRACKING
+            // ============================================
+            // Initialize arrays if needed (for migrated profiles)
+            if (!progress.responseTimes) progress.responseTimes = [];
+            if (progress.streakCorrect === undefined) progress.streakCorrect = 0;
+
+            // Track response time (keep last 5)
+            progress.responseTimes.push(responseTime);
+            if (progress.responseTimes.length > 5) progress.responseTimes.shift();
+
+            // Calculate average response time
+            progress.avgResponseTime = Math.round(
+                progress.responseTimes.reduce((a, b) => a + b, 0) / progress.responseTimes.length
+            );
+
+            // Update correct streak
+            progress.streakCorrect = (progress.streakCorrect || 0) + 1;
+
+            // Check fluency: speed + accuracy + streak
+            const tierId = getCurrentTier(currentProfile)?.id || 'add5';
+            const difficulty = FLUENCY_CONFIG.tierDifficulty[tierId] || 'intermediate';
+            const speedThreshold = FLUENCY_CONFIG.speedThresholds[difficulty];
+            const accuracyRate = progress.correct / (progress.correct + progress.wrong);
+
+            const wasFluent = progress.fluent;
+            progress.fluent = progress.avgResponseTime <= speedThreshold &&
+                             progress.streakCorrect >= FLUENCY_CONFIG.minCorrectStreak &&
+                             accuracyRate >= FLUENCY_CONFIG.minAccuracyRate;
+
+            // Update spaced repetition level if fluent
+            if (progress.fluent) {
+                progress.spacedRepLevel = Math.min(5, (progress.spacedRepLevel || 0) + 1);
+                const intervalDays = SPACED_REP_CONFIG.intervals[progress.spacedRepLevel];
+                progress.nextReviewDate = Date.now() + (intervalDays * 24 * 60 * 60 * 1000);
             }
 
             // Update streak display
@@ -5641,15 +6768,40 @@
                 // Check for tier advancement (skip in review mode)
                 if (!reviewMode) checkTierAdvancement();
             }
+
+            // Check for newly fluent (separate from mastered)
+            if (!wasFluent && progress.fluent && !sessionStats.newlyMastered.includes(key)) {
+                // Track fluent facts for end-of-session reporting
+                if (!currentProfile.lastSession) currentProfile.lastSession = {};
+                if (!currentProfile.lastSession.factsNewlyMastered) currentProfile.lastSession.factsNewlyMastered = [];
+                currentProfile.lastSession.factsNewlyMastered.push(key);
+            }
         }
 
-        function handleWrongAnswer(progress, key) {
+        function handleWrongAnswer(progress, key, responseTime) {
             sessionStats.wrong++;
             sessionStats.correctStreak = 0; // Reset streak on wrong answer
             updateStreakDisplay();
             updateSessionCount();
             vibrate([100, 50, 100]); // Wrong answer vibration pattern
             progress.wrong++;
+
+            // ============================================
+            // SPACED REPETITION - Wrong answer handling
+            // ============================================
+            // Reset fluency streak
+            progress.streakCorrect = 0;
+
+            // Drop spaced repetition level (lose progress, needs more review)
+            if (progress.spacedRepLevel > 0) {
+                progress.spacedRepLevel = Math.max(0, (progress.spacedRepLevel || 0) - SPACED_REP_CONFIG.wrongLevelDown);
+            }
+
+            // Mark as not fluent (needs to rebuild streak)
+            progress.fluent = false;
+
+            // Reset review date to soon
+            progress.nextReviewDate = Date.now(); // Due now
 
             // If was mastered, might need to un-master with too many errors
             if (progress.mastered) {
@@ -5794,31 +6946,103 @@
 
         function checkTierAdvancement() {
             const tier = getCurrentTier(currentProfile);
-            const mastered = getMasteredCount(currentProfile, tier);
+            const tierId = tier.id;
+            const fluent = getFluentCount(currentProfile, tier);
             const total = tier.facts.length;
-            const masteryRate = mastered / total;
+            const fluentRate = fluent / total;
 
-            if (masteryRate >= tier.requiredMastery && currentProfile.currentTierIndex < TIERS.length - 1) {
-                currentProfile.currentTierIndex++;
-                savePlayer();
+            // Check if current tier should be marked completed
+            if (fluentRate >= FLUENCY_CONFIG.tierUnlockThreshold) {
+                // Mark current tier as completed if not already
+                if (!currentProfile.curriculum.completedTiers.includes(tierId)) {
+                    currentProfile.curriculum.completedTiers.push(tierId);
 
-                // Show celebration with confetti!
-                showConfetti();
-                const newTier = getCurrentTier(currentProfile);
-                document.getElementById('tierUnlockName').textContent = newTier.name;
-                document.getElementById('tierUnlock').classList.add('active');
+                    // Check what new tiers should unlock
+                    const newUnlocks = checkForNewUnlocks(currentProfile);
 
-                setTimeout(() => {
-                    document.getElementById('tierUnlock').classList.remove('active');
+                    // Queue unlocks for end-of-session reveal (don't show immediately)
+                    if (newUnlocks.length > 0) {
+                        if (!currentProfile.curriculum.pendingUnlocks) {
+                            currentProfile.curriculum.pendingUnlocks = [];
+                        }
+                        newUnlocks.forEach(id => {
+                            if (!currentProfile.curriculum.pendingUnlocks.includes(id)) {
+                                currentProfile.curriculum.pendingUnlocks.push(id);
+                            }
+                        });
+                    }
+
+                    savePlayer();
                     updateTierDisplay();
-                }, 3000);
+                }
             }
+        }
+
+        function checkForNewUnlocks(profile) {
+            const newUnlocks = [];
+
+            CURRICULUM.categories.forEach(category => {
+                // Check if category prerequisites are met
+                if (!areCategoryPrereqsMet(category.id, profile)) return;
+
+                category.subLevels.forEach((tierId, index) => {
+                    // Skip already unlocked/completed
+                    if (isTierUnlocked(tierId, profile)) return;
+                    if (isTierCompleted(tierId, profile)) return;
+
+                    // Check if manually locked by parent
+                    if (profile.parentOverrides && profile.parentOverrides.manuallyLocked.includes(tierId)) return;
+
+                    // First tier in category: unlocks when category prereqs met
+                    if (index === 0) {
+                        newUnlocks.push(tierId);
+                        return;
+                    }
+
+                    // Other tiers: unlock when previous tier is completed
+                    const prevTierId = category.subLevels[index - 1];
+                    if (isTierCompleted(prevTierId, profile)) {
+                        newUnlocks.push(tierId);
+                    }
+                });
+            });
+
+            return newUnlocks;
+        }
+
+        function applyPendingUnlocks(profile) {
+            if (!profile.curriculum.pendingUnlocks) return [];
+
+            const applied = [];
+            profile.curriculum.pendingUnlocks.forEach(tierId => {
+                if (!profile.curriculum.unlockedTiers.includes(tierId)) {
+                    profile.curriculum.unlockedTiers.push(tierId);
+                    applied.push(tierId);
+                }
+            });
+
+            // Clear pending
+            profile.curriculum.pendingUnlocks = [];
+
+            // Auto-advance to first new unlock if no current focus
+            if (applied.length > 0) {
+                // Find the first unlocked tier that's not completed
+                const nextFocus = applied.find(id => !isTierCompleted(id, profile));
+                if (nextFocus) {
+                    profile.curriculum.currentFocusTier = nextFocus;
+                }
+            }
+
+            return applied;
         }
 
         // ============================================
         // SESSION COMPLETE
         // ============================================
         function endPracticeSession() {
+            // Remove focus mode
+            document.querySelector('.practice-container')?.classList.remove('focus-mode');
+
             // Stop Pomodoro timer
             stopPomodoro();
 
@@ -5858,6 +7082,21 @@
             // Track last session time
             currentProfile.lastSessionTime = Date.now();
             currentProfile.totalSessions = (currentProfile.totalSessions || 0) + 1;
+
+            // ============================================
+            // PROCESS PENDING UNLOCKS (End-of-session reveal)
+            // ============================================
+            const unlockedTiers = applyPendingUnlocks(currentProfile);
+
+            // Store in lastSession for reference
+            if (!currentProfile.lastSession) currentProfile.lastSession = {};
+            currentProfile.lastSession.date = Date.now();
+            currentProfile.lastSession.tiersUnlocked = unlockedTiers;
+
+            // Check for soft regression suggestion
+            const regressionSuggestion = checkForRegressionSuggestion(accuracy, total);
+            currentProfile.lastSession.suggestedRegression = regressionSuggestion;
+
             savePlayer();
 
             // Check if daily goal was just reached
@@ -5901,10 +7140,113 @@
                 document.getElementById('practiceMoreSection').style.display = 'none';
             }
 
+            // ============================================
+            // SHOW UNLOCK CELEBRATION (if any unlocks)
+            // ============================================
+            if (unlockedTiers.length > 0) {
+                showUnlockCelebration(unlockedTiers);
+            }
+
+            // ============================================
+            // SHOW REGRESSION HINT (if struggling)
+            // ============================================
+            if (regressionSuggestion) {
+                showRegressionHint(regressionSuggestion);
+            }
+
             showScreen('sessionScreen');
         }
 
+        function checkForRegressionSuggestion(accuracy, totalProblems) {
+            // Only suggest regression if struggled significantly
+            if (accuracy >= 50 || totalProblems < 10) return null;
+
+            // Find a previous tier to suggest
+            const currentTierId = currentProfile.curriculum?.currentFocusTier || 'add5';
+            const category = findCategoryForTier(currentTierId);
+            if (!category) return null;
+
+            const currentIndex = category.subLevels.indexOf(currentTierId);
+            if (currentIndex > 0) {
+                return category.subLevels[currentIndex - 1];
+            }
+            return null;
+        }
+
+        function showUnlockCelebration(unlockedTiers) {
+            // Delay slightly to not overlap with screen transition
+            setTimeout(() => {
+                showConfetti();
+
+                // Show each unlock one at a time
+                let delay = 0;
+                unlockedTiers.forEach((tierId, index) => {
+                    setTimeout(() => {
+                        const tier = TIER_LOOKUP[tierId];
+                        if (tier) {
+                            document.getElementById('tierUnlockName').textContent = tier.name;
+                            document.getElementById('tierUnlock').classList.add('active');
+
+                            setTimeout(() => {
+                                document.getElementById('tierUnlock').classList.remove('active');
+                            }, 2500);
+                        }
+                    }, delay);
+                    delay += 3000; // Stagger multiple unlocks
+                });
+            }, 500);
+        }
+
+        function showRegressionHint(tierId) {
+            const tier = TIER_LOOKUP[tierId];
+            if (!tier) return;
+
+            // Find or create regression hint element in session screen
+            let hintEl = document.getElementById('regressionHint');
+            if (!hintEl) {
+                const sessionScreen = document.getElementById('sessionScreen');
+                const sessionContainer = sessionScreen?.querySelector('.session-complete');
+                if (sessionContainer) {
+                    hintEl = document.createElement('div');
+                    hintEl.id = 'regressionHint';
+                    hintEl.className = 'regression-hint';
+                    sessionContainer.appendChild(hintEl);
+                }
+            }
+
+            if (hintEl) {
+                hintEl.innerHTML = `
+                    <div class="regression-content">
+                        <div class="regression-icon"><svg class="pixel-icon"><use href="#icon-review"/></svg></div>
+                        <div class="regression-text">
+                            <div class="regression-title">Boost your skills!</div>
+                            <div class="regression-desc">
+                                A quick review of <strong>${tier.name}</strong> might help.
+                            </div>
+                        </div>
+                        <button class="regression-btn" onclick="startReviewTier('${tierId}')">
+                            Review
+                        </button>
+                    </div>
+                `;
+                hintEl.style.display = 'block';
+            }
+        }
+
+        function startReviewTier(tierId) {
+            // Set focus to the review tier and start practice
+            if (currentProfile.curriculum) {
+                currentProfile.curriculum.currentFocusTier = tierId;
+                savePlayer();
+            }
+            startPractice();
+        }
+
         function finishSession() {
+            // Clean up regression hint
+            const hintEl = document.getElementById('regressionHint');
+            if (hintEl) hintEl.style.display = 'none';
+
             reviewMode = false;
             showDashboard();
         }
@@ -5978,6 +7320,168 @@
 
         function closeParentView() {
             document.getElementById('parentModal').classList.remove('active');
+            // Reset to stats tab when closing
+            showParentTab('stats');
+        }
+
+        function showParentTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.parent-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent.toLowerCase() === tabName);
+            });
+
+            // Update tab content
+            document.getElementById('parentStatsTab').classList.toggle('active', tabName === 'stats');
+            document.getElementById('parentCurriculumTab').classList.toggle('active', tabName === 'curriculum');
+
+            // Render curriculum controls when switching to that tab
+            if (tabName === 'curriculum') {
+                renderParentCurriculumControls();
+            }
+        }
+
+        function renderParentCurriculumControls() {
+            const profile = currentProfile;
+            if (!profile || !profile.curriculum) return;
+
+            const container = document.getElementById('parentCurriculumList');
+            let html = '';
+
+            const iconMap = {
+                plus: '➕', minus: '➖', link: '🔗', eye: '👁️',
+                stack: '📊', steps: '🦶', grid: '▦', divide: '➗',
+                question: '❓', pie: '🥧', clock: '🕐', coin: '🪙',
+                book: '📖', shapes: '⬡'
+            };
+
+            CURRICULUM.categories.forEach(category => {
+                const categoryIcon = iconMap[category.icon] || '📚';
+                html += `<div class="parent-category">
+                    <div class="parent-category-header">
+                        ${categoryIcon}
+                        <span>${category.name}</span>
+                    </div>
+                    <div class="parent-category-tiers">`;
+
+                category.subLevels.forEach(tierId => {
+                    const tier = TIER_LOOKUP[tierId];
+                    if (!tier) return;
+
+                    const isUnlocked = profile.curriculum.unlockedTiers.includes(tierId) ||
+                                      profile.parentOverrides.manuallyUnlocked.includes(tierId);
+                    const isLocked = profile.parentOverrides.manuallyLocked.includes(tierId);
+                    const isCompleted = profile.curriculum.completedTiers.includes(tierId);
+
+                    let statusClass = 'locked';
+                    let statusText = 'Locked';
+                    if (isLocked) {
+                        statusClass = 'parent-locked';
+                        statusText = 'Parent Locked';
+                    } else if (isCompleted) {
+                        statusClass = 'completed';
+                        statusText = 'Completed';
+                    } else if (isUnlocked) {
+                        statusClass = 'unlocked';
+                        statusText = 'Unlocked';
+                    }
+
+                    html += `
+                        <div class="parent-tier-item ${statusClass}">
+                            <div class="parent-tier-info">
+                                <span class="parent-tier-name">${tier.name}</span>
+                                <span class="parent-tier-status">${statusText}</span>
+                            </div>
+                            <div class="parent-tier-actions">
+                                ${isLocked ?
+                                    `<button class="parent-tier-btn unlock" onclick="parentUnlockTier('${tierId}')">Unlock</button>` :
+                                    isUnlocked || isCompleted ?
+                                    `<button class="parent-tier-btn lock" onclick="parentLockTier('${tierId}')">Lock</button>` :
+                                    `<button class="parent-tier-btn unlock" onclick="parentUnlockTier('${tierId}')">Unlock</button>`
+                                }
+                            </div>
+                        </div>`;
+                });
+
+                html += '</div></div>';
+            });
+
+            container.innerHTML = html;
+        }
+
+        function parentUnlockTier(tierId) {
+            const profile = currentProfile;
+            if (!profile || !profile.curriculum) return;
+
+            // Remove from manually locked if it was there
+            const lockedIdx = profile.parentOverrides.manuallyLocked.indexOf(tierId);
+            if (lockedIdx !== -1) {
+                profile.parentOverrides.manuallyLocked.splice(lockedIdx, 1);
+            }
+
+            // Add to manually unlocked if not already unlocked organically
+            if (!profile.curriculum.unlockedTiers.includes(tierId)) {
+                if (!profile.parentOverrides.manuallyUnlocked.includes(tierId)) {
+                    profile.parentOverrides.manuallyUnlocked.push(tierId);
+                }
+                // Also add to unlocked tiers for immediate access
+                profile.curriculum.unlockedTiers.push(tierId);
+            }
+
+            // Unlock the category if needed
+            const category = CURRICULUM.categories.find(c => c.subLevels.includes(tierId));
+            if (category && !profile.curriculum.categoryProgress[category.id]) {
+                profile.curriculum.categoryProgress[category.id] = {
+                    expanded: false,
+                    firstUnlockDate: Date.now()
+                };
+            }
+
+            savePlayer();
+            renderParentCurriculumControls();
+        }
+
+        function parentLockTier(tierId) {
+            const profile = currentProfile;
+            if (!profile || !profile.curriculum) return;
+
+            // Don't allow locking the starting tier
+            if (tierId === 'add5') {
+                alert('Cannot lock the starting skill (Addition to 5).');
+                return;
+            }
+
+            // Don't allow locking if it's the current focus tier
+            if (profile.curriculum.currentFocusTier === tierId) {
+                // Move focus to previous unlocked tier
+                const availableTiers = profile.curriculum.unlockedTiers.filter(t =>
+                    t !== tierId && !profile.parentOverrides.manuallyLocked.includes(t)
+                );
+                if (availableTiers.length > 0) {
+                    profile.curriculum.currentFocusTier = availableTiers[0];
+                } else {
+                    profile.curriculum.currentFocusTier = 'add5';
+                }
+            }
+
+            // Remove from manually unlocked if it was there
+            const unlockedIdx = profile.parentOverrides.manuallyUnlocked.indexOf(tierId);
+            if (unlockedIdx !== -1) {
+                profile.parentOverrides.manuallyUnlocked.splice(unlockedIdx, 1);
+            }
+
+            // Remove from curriculum unlocked tiers
+            const currUnlockedIdx = profile.curriculum.unlockedTiers.indexOf(tierId);
+            if (currUnlockedIdx !== -1) {
+                profile.curriculum.unlockedTiers.splice(currUnlockedIdx, 1);
+            }
+
+            // Add to manually locked
+            if (!profile.parentOverrides.manuallyLocked.includes(tierId)) {
+                profile.parentOverrides.manuallyLocked.push(tierId);
+            }
+
+            savePlayer();
+            renderParentCurriculumControls();
         }
 
         function resetProgress() {
@@ -6230,6 +7734,11 @@
             updateDailyGoal();
             showScreen('practiceScreen');
             generateReviewProblem();
+
+            // Enable focus mode after a brief delay
+            setTimeout(() => {
+                document.querySelector('.practice-container')?.classList.add('focus-mode');
+            }, 2000);
         }
 
         function generateReviewProblem() {
@@ -6318,6 +7827,17 @@
                 checkAnswer();
             }
         });
+
+        // Handle iOS Safari dynamic viewport height
+        function setViewportHeight() {
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }
+        setViewportHeight();
+        window.addEventListener('resize', () => setTimeout(setViewportHeight, 100));
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', setViewportHeight);
+        }
 
         // Initialize the app
         loadPlayer();

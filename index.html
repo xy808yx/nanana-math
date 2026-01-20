@@ -907,8 +907,17 @@
         /* Practice container needs bottom padding for fixed numpad */
         #practiceScreen .practice-container {
             padding-bottom: 10px;
-            margin-bottom: 180px;
+            margin-bottom: 200px;
             border-radius: 20px 20px 0 0;
+            min-height: calc(100vh - 220px);
+            display: flex;
+            flex-direction: column;
+        }
+        #practiceScreen .problem-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         /* Focus mode - minimal UI during active practice */
@@ -6032,8 +6041,10 @@
             // Show practice screen
             showScreen('practiceScreen');
 
-            // Show onboarding for first-time users
-            if (currentProfile.totalSessions === 0) {
+            // Show onboarding only once ever (track with flag)
+            if (!currentProfile.hasSeenOnboarding) {
+                currentProfile.hasSeenOnboarding = true;
+                savePlayer();
                 showOnboarding();
             }
 

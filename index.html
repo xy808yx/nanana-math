@@ -879,37 +879,26 @@
             box-shadow: 0 0 15px rgba(107, 203, 119, 0.4);
         }
 
-        /* Fixed numpad wrapper - keeps numpad visible on iOS Safari */
-        .numpad-wrapper {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(180deg, rgba(26, 26, 46, 0.98) 0%, #1a1a2e 100%);
-            padding: 10px 15px;
-            padding-bottom: max(10px, env(safe-area-inset-bottom));
-            z-index: 50;
-            backdrop-filter: blur(10px);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
+        /* Practice screen uses flex layout to prevent numpad overlap */
+        #practiceScreen {
             display: none;
+            flex-direction: column;
+            height: 100%;
+            height: 100dvh; /* Dynamic viewport height for iOS */
+            overflow: hidden;
+            max-width: 100%; /* Override .screen max-width */
+            width: 100%;
+            gap: 0;
         }
-        #practiceScreen.active .numpad-wrapper {
-            display: block;
-            transform: translateY(0);
+        #practiceScreen.active {
+            display: flex;
         }
-        .numpad-wrapper .numpad {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        /* Practice container needs bottom padding for fixed numpad */
         #practiceScreen .practice-container {
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
             padding-bottom: 10px;
-            margin-bottom: 200px;
             border-radius: 20px 20px 0 0;
-            min-height: calc(100vh - 220px);
             display: flex;
             flex-direction: column;
         }
@@ -918,6 +907,24 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            min-height: 200px;
+        }
+
+        /* Numpad wrapper - not fixed, sits at bottom of flex container */
+        .numpad-wrapper {
+            background: linear-gradient(180deg, rgba(26, 26, 46, 0.98) 0%, #1a1a2e 100%);
+            padding: 10px 15px;
+            padding-bottom: max(10px, env(safe-area-inset-bottom));
+            flex-shrink: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: none;
+        }
+        #practiceScreen.active .numpad-wrapper {
+            display: block;
+        }
+        .numpad-wrapper .numpad {
+            max-width: 400px;
+            margin: 0 auto;
         }
 
         /* Focus mode - minimal UI during active practice */
